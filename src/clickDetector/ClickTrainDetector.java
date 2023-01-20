@@ -1,6 +1,7 @@
 package clickDetector;
 
 import java.io.Serializable;
+import java.util.ConcurrentModificationException;
 import java.util.ListIterator;
 
 import Localiser.detectionGroupLocaliser.DetectionGroupLocaliser;
@@ -154,7 +155,12 @@ public class ClickTrainDetector extends PamProcess implements PamSettings {
 		synchronized  (offlineEventDataBlock) {
 			ListIterator<OfflineEventDataUnit> ctdIterator = offlineEventDataBlock.getListIterator(0);
 			while (ctdIterator.hasNext()) {
-				OfflineEventDataUnit nextTrain = ctdIterator.next();
+				OfflineEventDataUnit nextTrain;
+				try {
+					nextTrain = ctdIterator.next();
+				}catch(ConcurrentModificationException e) {
+					break;
+				}
 				if (ClickTrainDetection.class.isAssignableFrom(nextTrain.getClass()) == false) {
 					continue;
 				}
