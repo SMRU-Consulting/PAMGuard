@@ -1019,6 +1019,10 @@ final public class PamModel implements PamModelInterface, PamSettings {
 		pamModelSettings.multiThreading = multithreading;
 		pamController.notifyModelChanged(PamControllerInterface.CHANGED_MULTI_THREADING);
 	}
+	
+	public void setGarbageCollector(boolean garbageCollector) {
+		pamModelSettings.multiThreading = garbageCollector;
+	}
 	/**
 	 * @return Returns the dependencyManager.
 	 */

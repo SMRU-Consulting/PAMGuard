@@ -237,7 +237,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 
 		this.runMode = runMode;
 
-		if (runMode == PamController.RUN_PAMVIEW) {
+		if (runMode == PamController.RUN_PAMVIEW || runMode==PamController.RUN_NOTHING) {
 			uidManager = new UIDViewerManager(this);
 		}
 		else {
@@ -380,6 +380,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 		// create the model
 		pamModelInterface = new PamModel(this);
 		pamModelInterface.createPamModel();
+		pamModelInterface.setGarbageCollector(true);
 
 		/*
 		 * 9 February 2009
