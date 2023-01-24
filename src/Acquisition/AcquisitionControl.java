@@ -175,7 +175,7 @@ public class AcquisitionControl extends PamControlledUnit implements PamSettings
 		if(PamController.getInstance().getRunMode()!=PamController.RUN_NOTHING){
 			registerDaqSystem(new FileInputSystem(this));
 			registerDaqSystem(folderSystem = new FolderInputSystem(this));
-		}
+		
 //		registerDaqSystem(dclSystem = new DCL5System());
 		registerDaqSystem(new NIDAQProcess(this));
 		registerDaqSystem(new SmruDaqSystem(this));
@@ -187,7 +187,7 @@ public class AcquisitionControl extends PamControlledUnit implements PamSettings
 			registerDaqSystem(new MCCDaqSystem(this));
 //			registerDaqSystem(new RonaInputSystem(this));
 		}
-		
+		}
 		// load the DAQ Systems found in the plugins folder
 		loadExternalDaqSystems();
 
