@@ -452,6 +452,7 @@ public class RecorderControl extends PamControlledUnit implements PamSettings {
 		}
 		
 		newParams();
+		
 		return true;
 	}
 
