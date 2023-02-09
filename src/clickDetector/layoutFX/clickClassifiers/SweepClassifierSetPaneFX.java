@@ -932,8 +932,8 @@ public class SweepClassifierSetPaneFX extends SettingsPane<ClickTypeProperty> {
 
 		//create the general options 
 		private Node createOptionsPane(){
-
-			PamGridPane pamGridPane=new PamGridPane();
+			return null;
+			/*PamGridPane pamGridPane=new PamGridPane();
 			pamGridPane.setHgap(5);
 			pamGridPane.setVgap(5);
 
@@ -989,7 +989,7 @@ public class SweepClassifierSetPaneFX extends SettingsPane<ClickTypeProperty> {
 
 			}
 
-			return pamGridPane; 
+			return pamGridPane; */
 
 		}
 		
@@ -1234,7 +1234,7 @@ public class SweepClassifierSetPaneFX extends SettingsPane<ClickTypeProperty> {
 			return false;
 		}
 
-		@Override
+		/*@Override
 		protected void disbleControls(boolean disable) {
 			this.gridPaneHolder.setDisable(disable);
 			
@@ -1250,7 +1250,7 @@ public class SweepClassifierSetPaneFX extends SettingsPane<ClickTypeProperty> {
 //			peakWidthPane.setDisable(enable);
 //			threshold.setDisable(enable);
 //			searchRange.setDisable(enable);
-//			meanFreq.setDisable(enable);
+//			meanFreq.setDisable(enable);*/
 		protected void disbleControls(boolean enable) {
 			peakFreqCheckBox.setDisable(enable);
 			peakWidthCheckBox.setDisable(enable);
