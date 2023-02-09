@@ -1629,22 +1629,7 @@ public class SweepClassifierSetPaneFX extends SettingsPane<ClickTypeProperty> {
 			p.setLayout(new GridBagLayout());
 			GridBagConstraints c = new PamGridBagContraints();
 			
-			c.gridx = 0;
-			//addComponent(p, enableBearings, c);
-			c.gridx += c.gridwidth;
-			//addComponent(p, bearingsExcludeBox, c);
-			c.gridx += c.gridwidth;
-			//addComponent(p, new JLabel("bearings between ", JLabel.RIGHT), c);
-			c.gridx += c.gridwidth;
-			//addComponent(p, minBearing, c);
-			c.gridx += c.gridwidth;
-			//addComponent(p, new JLabel(" and ", JLabel.RIGHT), c);
-			c.gridx += c.gridwidth;
-			//addComponent(p, maxBearing, c);
-			c.gridx += c.gridwidth;
-			//addComponent(p, new JLabel("(\u00B0)", JLabel.LEFT), c);
 
-			//add(BorderLayout.WEST, p);
 //			c.gridx = 0;
 //			addComponent(p, enableBearings, c);
 //			c.gridx += c.gridwidth;
