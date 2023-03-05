@@ -65,6 +65,7 @@ import PamDetection.LocalisationInfo;
 import PamUtils.PamCalendar;
 import PamUtils.PamUtils;
 import PamView.symbol.PamSymbolManager;
+import PamguardMVC.background.BackgroundDataBlock;
 import PamguardMVC.background.BackgroundManager;
 import PamguardMVC.dataOffline.OfflineDataLoadInfo;
 import PamguardMVC.dataOffline.OfflineDataLoading;
@@ -390,7 +391,7 @@ public class PamDataBlock<Tunit extends PamDataUnit> extends PamObservable {
 			isNetworkReceive = PamController.getInstance().getRunMode() == PamController.RUN_NETWORKRECEIVER;
 
 		if (!isOffline) {
-			t.start();
+			removeTimer.start();
 		}
 	}
 
@@ -468,7 +469,7 @@ public class PamDataBlock<Tunit extends PamDataUnit> extends PamObservable {
 		// }
 	}
 
-	Timer t = new Timer(500, new ActionListener() {
+	Timer removeTimer = new Timer(500, new ActionListener() {
 		public void actionPerformed(ActionEvent evt) {
 			int n;
 			if (shouldDelete()) {
@@ -944,6 +945,12 @@ public class PamDataBlock<Tunit extends PamDataUnit> extends PamObservable {
 				recycledUnits.clear();
 			}
 		}
+		if (backgroundManager != null) {
+			BackgroundDataBlock bdb = backgroundManager.getBackgroundDataBlock();
+			if (bdb != null) {
+				bdb.clearAll();
+			}
+		}
 	}
 
 	/**
@@ -986,7 +993,9 @@ public class PamDataBlock<Tunit extends PamDataUnit> extends PamObservable {
 	}
 
 	/**
-	 * Instruction from the viewer scroll manager to load new data.
+	 * Instruction from the viewer scroll manager to load new data. <p>This just calls through
+	 * to loadViewerData(OfflineDataLoadInfo ...) so this should not be overridden. Override
+	 * the other function instead. 
 	 * 
 	 * @param dataStart    data start time in millis
 	 * @param dataEnd      data end time in millis.
@@ -1228,7 +1237,7 @@ public class PamDataBlock<Tunit extends PamDataUnit> extends PamObservable {
 			if (offlineDataLoading.isCurrentOfflineLoadKeep()) {
 				pamDataUnits.add(pamDataUnit);
 			}
-			if (shouldBinary && getBinaryDataSource() != null && !isOffline) {
+			if (shouldBinary && getBinaryDataSource() != null && !isOffline && pamDataUnit.isEmbryonic() == false) {
 				getBinaryDataSource().saveData(pamDataUnit);
 			}
 		}
@@ -1302,8 +1311,14 @@ public class PamDataBlock<Tunit extends PamDataUnit> extends PamObservable {
 	public void updatePamData(Tunit pamDataUnit, long updateTimeMillis) {
 		pamDataUnit.updateDataUnit(updateTimeMillis);
 		setChanged();
-		if (!isOffline) {
-			if (getBinaryDataSource() != null && getBinaryDataSource().isSaveUpdates()) {
+		if (!isOffline && pamDataUnit.isEmbryonic() == false) {
+			/*
+			 * Save it if it't not been saved already or we're saving updates. 
+			 * Detectors can keep a dataunit in an embryonic state and add them to the 
+			 * datablock so they get displayed, but they will still save when the embryonic
+			 * flag is set false and an update is sent. 
+			 */
+			if (getBinaryDataSource() != null && (getBinaryDataSource().isSaveUpdates() || pamDataUnit.getDataUnitFileInformation() == null)) {
 				getBinaryDataSource().saveData(pamDataUnit);
 			}
 		}
@@ -2402,6 +2417,25 @@ public class PamDataBlock<Tunit extends PamDataUnit> extends PamObservable {
 	 */
 	public Class getUnitClass() {
 		return unitClass;
+	}
+
+	/**
+	 * clean up datablock when it's no longer needed
+	 */
+	public void dispose() {
+		stopTimer();
+		clearAll();
+	}
+	
+	/**
+	 * Had some issues with the Timer holding a reference to the underlying PamDataBlock 
+	 * (RoccaContourDataBlock, in this case) and not releasing it for garbage collection.
+	 * Added in this method to force the timer to stop and release it's hold.
+	 */
+	@Override
+	public void stopTimer() {
+		super.stopTimer();
+		removeTimer.stop();
 	}
 
 	public void autoSetDataBlockMixMode() {
@@ -3699,6 +3733,28 @@ public class PamDataBlock<Tunit extends PamDataUnit> extends PamObservable {
 		DataSelectorCreator dsc = getDataSelectCreator();
 		if (dsc != null) {
 			blockDataSelector = dsc.getDataSelector(selectorName, allowScores, selectorType);
+		}
+		return blockDataSelector;
+	}
+
+	/**
+	 * Convenience method to save programmer from having to call into the creator
+	 * all the time.
+	 * 
+	 * @param selectorName
+	 * @param allowScores
+	 * @param selectorType Type of selector, generally a ModuleType name, e.g. Map,
+	 *                     so that options can be tailored to specific needs
+	 * @param includeAnnotations include options from any annotators of this data stream
+	 * @param includeSuperDetections include any possible super detection data selectors. 
+	 * @return null or a DataSelector
+	 */
+	public DataSelector getDataSelector(String selectorName, boolean allowScores, String selectorType,
+			boolean includeAnnotations, boolean includeSuperDetections) {
+		DataSelector blockDataSelector = null;
+		DataSelectorCreator dsc = getDataSelectCreator();
+		if (dsc != null) {
+			blockDataSelector = dsc.getDataSelector(selectorName, allowScores, selectorType, includeAnnotations, includeSuperDetections);
 		}
 		return blockDataSelector;
 	}

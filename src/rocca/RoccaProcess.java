@@ -363,6 +363,9 @@ public class RoccaProcess extends PamProcess {
 			
 			// 2017/12/4 set the natural lifetime to Integer.Max, so that we definitely keep all of the data
 			// units during this code block.  Set the lifetime back to 0 at the end of the block
+			/*
+			 * DG June '22 made sure this is the case when the function returns early !
+			 */
 			rcdb.setNaturalLifetimeMillis(Integer.MAX_VALUE);
 			rcdb.calculateStatistics();
 			
@@ -385,6 +388,9 @@ public class RoccaProcess extends PamProcess {
 						 rcdb.getContour().get(RoccaContourStats.ParamIndx.DURATION) > 1.5 ||
 						 rcdb.getContour().get(RoccaContourStats.ParamIndx.FREQABSSLOPEMEAN) < 2000. ||
 						 rcdb.getContour().get(RoccaContourStats.ParamIndx.FREQABSSLOPEMEAN) > 28000. )) {
+//					rcdb.setNaturalLifetimeMillis(0);
+			        rcdb.stopTimer();
+					rcdb = null;
 					return;
 				}
 				if (roccaControl.roccaParameters.roccaClassifierModelFilename.getName().equals("HIWhist.model") &&
@@ -398,6 +404,9 @@ public class RoccaProcess extends PamProcess {
 						 rcdb.getContour().get(RoccaContourStats.ParamIndx.FREQABSSLOPEMEAN) > 60000.  ||
 						 rcdb.getContour().get(RoccaContourStats.ParamIndx.FREQRANGE) < 800. ||
 						 rcdb.getContour().get(RoccaContourStats.ParamIndx.FREQRANGE) > 14000.  )) {
+//					rcdb.setNaturalLifetimeMillis(0);
+			        rcdb.stopTimer();
+					rcdb = null;
 					return;
 				}
 				if (roccaControl.roccaParameters.roccaClassifierModelFilename.getName().equals("NWAtlWhist.model") &&
@@ -407,6 +416,9 @@ public class RoccaProcess extends PamProcess {
 						 rcdb.getContour().get(RoccaContourStats.ParamIndx.DURATION) > 2.5 ||
 						 rcdb.getContour().get(RoccaContourStats.ParamIndx.FREQABSSLOPEMEAN) < 9100. ||
 						 rcdb.getContour().get(RoccaContourStats.ParamIndx.FREQABSSLOPEMEAN) > 82000. )) {
+//					rcdb.setNaturalLifetimeMillis(0);
+			        rcdb.stopTimer();
+					rcdb = null;
 					return;
 				}
 			}
@@ -425,7 +437,9 @@ public class RoccaProcess extends PamProcess {
 	        saveContourPoints(rcdb, rcdb.getChannelMap(), ++numDetections, sNum);
 	        saveContourStats(rcdb, rcdb.getChannelMap(), numDetections, sNum);
 	        saveContour(rcdb, rcdb.getChannelMap(), numDetections, sNum);
-			rcdb.setNaturalLifetimeMillis(0);
+//			rcdb.setNaturalLifetimeMillis(0);
+	        rcdb.stopTimer();
+			rcdb = null;
 
 	    /* if this is a click detection (signal, not noise) */
 		} else if (o==manClickSourceData || o==autoClickSourceData) {
@@ -493,18 +507,24 @@ public class RoccaProcess extends PamProcess {
 							(rcdb.getContour().get(RoccaContourStats.ParamIndx.SNR) > 35. ||
 							 rcdb.getContour().get(RoccaContourStats.ParamIndx.DURATION) < 0.005 ||
 							 rcdb.getContour().get(RoccaContourStats.ParamIndx.DURATION) > 0.6 )) {
+				        rcdb.stopTimer();
+						rcdb = null;
 						return;
 					}
 					if (roccaControl.roccaParameters.roccaClassifierModelFilename.getName().equals("HIClick.model") &&
 							(rcdb.getContour().get(RoccaContourStats.ParamIndx.SNR) > 40. ||
 							 rcdb.getContour().get(RoccaContourStats.ParamIndx.DURATION) < 0.01 ||
 							 rcdb.getContour().get(RoccaContourStats.ParamIndx.DURATION) > 0.6 )) {
+				        rcdb.stopTimer();
+						rcdb = null;
 						return;
 					}
 					if (roccaControl.roccaParameters.roccaClassifierModelFilename.getName().equals("NWAtlClick.model") &&
 							(rcdb.getContour().get(RoccaContourStats.ParamIndx.SNR) > 35. ||
 							 rcdb.getContour().get(RoccaContourStats.ParamIndx.DURATION) < 0.005 ||
 							 rcdb.getContour().get(RoccaContourStats.ParamIndx.DURATION) > 0.6 )) {
+				        rcdb.stopTimer();
+						rcdb = null;
 						return;
 					}
 				}
@@ -523,7 +543,9 @@ public class RoccaProcess extends PamProcess {
 		        // add call to update side panel.  Set the isClick flag to True
 		        updateSidePanel(rcdb, true);
 		        saveContourStats(rcdb, rcdb.getChannelMap(), numDetections, sNum);
-		        rcdb.setNaturalLifetimeMillis(0);
+//		        rcdb.setNaturalLifetimeMillis(0);
+		        rcdb.dispose();
+		        rcdb = null;
 			}
 
 			
@@ -736,13 +758,15 @@ public class RoccaProcess extends PamProcess {
 				PamUtils.makeChannelMap(lowestChanList));
 		int firstIndx = prdb.getUnitIndex(firstRDU);
 		if (firstIndx==-1) {
-			System.out.println("RoccaProcess: Cannot determine firstIndx, raw data lifetime = " + prdb.getNaturalLifetimeMillis() + " ms");
 	        int newTime;
 	        if (prdb.getNaturalLifetimeMillis() > Integer.MAX_VALUE/2) {
 	        	newTime = Integer.MAX_VALUE;
 	        } else {
 	        	newTime = prdb.getNaturalLifetimeMillis()*2;
 	        }
+	        // stop it getting silly.
+	        newTime = Math.min(newTime, roccaControl.getMaxDataKeepTime());
+			System.out.println("RoccaProcess: Cannot determine firstIndx, raw data lifetime = " + prdb.getNaturalLifetimeMillis() + " ms");
 	        prdb.setNaturalLifetimeMillis(newTime); // increase the lifetime to try and prevent this from happening again
 			return null;
 		}
@@ -769,13 +793,14 @@ public class RoccaProcess extends PamProcess {
 				PamUtils.makeChannelMap(highestChanList));
 		int lastIndx = prdb.getUnitIndex(lastRDU);
 		if (lastIndx==-1) {
-	        System.out.println("RoccaProcess: Cannot determine lastIndx, raw data lifetime = " + prdb.getNaturalLifetimeMillis() + " ms");
 	        int newTime;
 	        if (prdb.getNaturalLifetimeMillis() > Integer.MAX_VALUE/2) {
 	        	newTime = Integer.MAX_VALUE;
 	        } else {
 	        	newTime = prdb.getNaturalLifetimeMillis()*2;
 	        }
+	        newTime = Math.min(newTime, roccaControl.getMaxDataKeepTime());
+	        System.out.println("RoccaProcess: Cannot determine lastIndx, raw data lifetime = " + prdb.getNaturalLifetimeMillis() + " ms");
 	        prdb.setNaturalLifetimeMillis(newTime); // increase the lifetime to try and prevent this from happening again
 	        return null;
 		}
@@ -931,7 +956,7 @@ public class RoccaProcess extends PamProcess {
 					"This will happen when re-analyzing data that has already been analyzed, but it may " +
 					"also indicate that your filename template is inadequate and returning duplicate filenames.</p></html>";
 			String help = null;
-			int ans = WarnOnce.showWarning(PamController.getInstance().getGuiFrameManager().getFrame(0), title, msg, WarnOnce.WARNING_MESSAGE, help);
+			int ans = WarnOnce.showWarning(PamController.getMainFrame(), title, msg, WarnOnce.WARNING_MESSAGE, help);
       }
 
 
@@ -1079,7 +1104,7 @@ public class RoccaProcess extends PamProcess {
   					"This will happen when re-analyzing data that has already been analyzed, but it may " +
   					"also indicate that your filename template is inadequate and returning duplicate filenames.</p></html>";
   			String help = null;
-  			int ans = WarnOnce.showWarning(PamController.getInstance().getGuiFrameManager().getFrame(0), title, msg, WarnOnce.WARNING_MESSAGE, help);
+  			int ans = WarnOnce.showWarning(PamController.getMainFrame(), title, msg, WarnOnce.WARNING_MESSAGE, help);
         }
 
 

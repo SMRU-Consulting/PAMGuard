@@ -93,7 +93,7 @@ public class PamObservable {//extends PanelOverlayDraw {
 		pamObservers = new ArrayList<PamObserver>();
 		instantObservers = new ArrayList<PamObserver>();
 		pamProfiler = PamProfiler.getInstance();
-		t.start();
+		cpuTimer.start();
 	}
 
 	/**
@@ -238,7 +238,8 @@ public class PamObservable {//extends PanelOverlayDraw {
 		 * instance of any observer
 		 */
 //		synchronized (pamObservers) {
-			while (pamObservers.remove(o));
+		boolean removed = false;
+			while (removed = pamObservers.remove(o));
 			PamObserver threadedObserver = findThreadedObserver(o);
 			if (threadedObserver != null) {
 				deleteObserver(threadedObserver);
@@ -247,7 +248,14 @@ public class PamObservable {//extends PanelOverlayDraw {
 					tObs.terminateThread();
 				}
 			}
-			while (instantObservers.remove(o));
+			while (removed = instantObservers.remove(o));
+//			if (removed && o != null) {
+//				String name = this.toString();
+//				if (this instanceof PamDataBlock) {
+//					name = ((PamDataBlock) this).getLongDataName();
+//				}
+//				System.out.printf("Datablock %s removed observer %s\n", this.toString(), o.getObserverName());
+//			}
 //		}
 		//		o.removeObservable(this);
 	}
@@ -263,7 +271,7 @@ public class PamObservable {//extends PanelOverlayDraw {
 	}
 
 	/**
-	 * @return Count of PamObservers subscribing to this observable
+	 * @return Count of PamObservers subscribing to this observable including instant and rethreaded
 	 */
 	public int countObservers() {
 		synchronized (pamObservers) {
@@ -392,7 +400,7 @@ public class PamObservable {//extends PanelOverlayDraw {
 		}
 	}
 
-	private Timer t = new Timer(1000, new ActionListener() {
+	private Timer cpuTimer = new Timer(4321, new ActionListener() {
 		public void actionPerformed(ActionEvent evt) {
 			long now = System.currentTimeMillis();
 			if (cpuUsage == null) return;
@@ -404,6 +412,16 @@ public class PamObservable {//extends PanelOverlayDraw {
 			lastCPUCheckTime = now;
 		}
 	});
+	
+	
+	/**
+	 * Had some issues with the Timer holding a reference to the underlying PamDataBlock 
+	 * (RoccaContourDataBlock, in this case) and not releasing it for garbage collection.
+	 * Added in this method to force the timer to stop and release it's hold.
+	 */
+	public void stopTimer() {
+		cpuTimer.stop();
+	}
 
 	public double getCPUPercent(int objectIndex) {
 		if (objectIndex < 0 || objectIndex >= cpuPercent.length) return -1;

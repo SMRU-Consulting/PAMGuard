@@ -92,6 +92,12 @@ public class GenericDLClassifier implements DLClassiferModel, PamSettings {
 		//System.out.println("PrepModel! !!!");
 		genericModelWorker.prepModel(genericModelParams, dlControl);
 		//set cusotm transforms in the model. 
+		
+		if (genericModelParams.dlTransfromParams!=null) {
+			//important to remkae transforms from params
+			genericModelParams.dlTransfroms = DLTransformsFactory.makeDLTransforms((ArrayList<DLTransfromParams>)genericModelParams.dlTransfromParams); 
+		}
+		
 		genericModelWorker.setModelTransforms(genericModelParams.dlTransfroms);
 
 
@@ -162,7 +168,11 @@ public class GenericDLClassifier implements DLClassiferModel, PamSettings {
 
 	@Override
 	public void closeModel() {
-		// TODO Auto-generated method stub
+		//very important to prevent memory leak for long term processing. 
+		if (genericModelWorker.getModel()!=null && genericModelWorker.getModel().getModel()!=null) {
+			//System.out.println("CLOSE GENERNIC MODEL"); 
+			genericModelWorker.getModel().getModel().close();
+		}
 	}
 
 
@@ -317,12 +327,21 @@ public class GenericDLClassifier implements DLClassiferModel, PamSettings {
 		}
 
 		@Override
-		public void newResult(GenericPrediction modelResult, GroupedRawData groupedRawData) {
+		public void newDLResult(GenericPrediction modelResult, GroupedRawData groupedRawData) {
 			modelResult.setClassNameID(getClassNameIDs(genericModelParams)); 
 			modelResult.setBinaryClassification(isBinaryResult(modelResult, genericModelParams)); 
 			newResult(modelResult, groupedRawData);
 		}
 
+	}
+	
+	/**
+	 * Send a new result form the thread queue to the process. 
+	 * @param modelResult - the model result;
+	 * @param groupedRawData - the grouped raw data. 
+	 */
+	protected void newResult(GenericPrediction modelResult, GroupedRawData groupedRawData) {
+		this.dlControl.getDLClassifyProcess().newModelResult(modelResult, groupedRawData);
 	}
 	
 	/**

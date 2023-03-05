@@ -2000,6 +2000,10 @@ public abstract class SQLLogging {
 				}
 				PamSubtableData subtableData = new PamSubtableData();
 				long utc = SQLTypes.millisFromTimeStamp(subtableTableDef.getTimeStampItem().getValue());
+				if (utc % 1000 == 0) {
+					int millis = subtableTableDef.getTimeStampMillis().getIntegerValue();
+					utc += millis;
+				}
 				subtableData.setChildUTC(utc);
 				subtableData.setParentID(subtableTableDef.getParentID().getIntegerValue());
 				subtableData.setParentUID(subtableTableDef.getParentUID().getLongValue());
@@ -2177,6 +2181,13 @@ public abstract class SQLLogging {
 		if (superDetLogging == null) return null;
 		PamDataBlock superDataBlock = superDetLogging.getPamDataBlock();
 		return subDetection.getSuperDetection(superDataBlock);
+	}
+
+	/**
+	 * @return the loggingAddOns
+	 */
+	public ArrayList<SQLLoggingAddon> getLoggingAddOns() {
+		return loggingAddOns;
 	}
 
 

@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.swing.BoxLayout;
@@ -26,12 +28,14 @@ import Acquisition.filedate.FileDateDialogStrip;
 import Acquisition.layoutFX.AcquisitionPaneFX;
 import Acquisition.layoutFX.DAQSettingsPane;
 import Acquisition.layoutFX.FolderInputPane;
+import javafx.application.Platform;
+import pamguard.GlobalArguments;
+import Acquisition.pamAudio.PamAudioFileManager;
+import Acquisition.pamAudio.PamAudioFileFilter;
 import Acquisition.pamAudio.PamAudioSystem;
 import PamController.PamControlledUnitSettings;
 import PamController.PamController;
 import PamController.PamSettings;
-import PamModel.SMRUEnable;
-import PamUtils.PamAudioFileFilter;
 import PamUtils.PamCalendar;
 import PamUtils.PamFileChooser;
 import PamUtils.PamFileFilter;
@@ -77,6 +81,8 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 	protected long eta = -1;
 
 	private FolderInputParameters folderInputParameters;
+	
+	public static final String GlobalWavFolderArg = "-wavfilefolder";
 
 
 	/**
@@ -110,10 +116,28 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 		if (folderInputParameters == null)
 			setFolderInputParameters(new FolderInputParameters(getSystemType()));
 		//		PamSettingManager.getInstance().registerSettings(this); //calling super already registers this in the FileInputSystem constructor
+		checkComandLine();
 		makeSelFileList();
 		newFileTimer = new Timer(1000, new RestartTimer());
 		newFileTimer.setRepeats(false);
 		//		timer = new Timer(1000, new TimerAction());
+	}
+
+	/**
+	 * Check to see if acquisition source folder was set in the command line. 
+	 */
+	private void checkComandLine() {
+		String globalFolder = GlobalArguments.getParam(GlobalWavFolderArg);
+		if (globalFolder == null) {
+			return;
+		}
+		// see if it at least exists, though will we want to do this for Network folders ? 
+		File aFile = new File(globalFolder);
+		if (aFile.exists() == false) {
+			System.err.println("Command line folder does not exist: " + globalFolder);
+		}
+		String[] selList = {globalFolder};
+		folderInputParameters.setSelectedFiles(selList);
 	}
 
 	/**
@@ -126,7 +150,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 
 		public void actionPerformed(ActionEvent e) {
 
-			System.out.println("Restart later time action");
+//			System.out.println("Restart later time action");
 			newFileTimer.stop();
 			PamController.getInstance().startLater(false); //don't save settings on restarts
 
@@ -408,6 +432,8 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 				File aFile = files[0];
 				setNewFile(aFile.getAbsolutePath());
 			}
+			
+			
 			/*
 			 *  The file chooser is returning sub classes of File which are not
 			 *  serialisable, so we can't use them. We need to convert their 
@@ -421,7 +447,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 		}
 	}
 
-	protected String getCurrentFolder() {
+	public String getCurrentFolder() {
 		if (folderInputParameters.recentFiles.size() == 0) {
 			return null;
 		}
@@ -470,6 +496,9 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 //		System.out.printf("Wav list recieved with %d files after %d millis\n", 
 //				fileListData.getFileCount(), System.currentTimeMillis() - wavListStart);
 		allFiles = fileListData.getListCopy();
+		
+		List<WavFileType> asList = allFiles;
+		setSelectedFileTypes(acquisitionControl.soundFileTypes.getUsedTypes(allFiles));
 
 		setFileDateText();
 		// also open up the first file and get the sample rate and number of channels from it
@@ -484,7 +513,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 		if (file.isFile() && !file.isHidden() && acquisitionDialog != null) {
 			//Hidden files should not be used in analysis...
 			try {
-				audioStream = PamAudioSystem.getAudioInputStream(file);
+				audioStream = PamAudioFileManager.getInstance().getAudioInputStream(file);
 				AudioFormat audioFormat = audioStream.getFormat();
 				fileSamples = audioStream.getFrameLength();
 				acquisitionDialog.setSampleRate(audioFormat.getSampleRate());
@@ -503,7 +532,9 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 		
 		/****FX GUI stuff****/
 		if (folderInputPane!=null) {
+			Platform.runLater(()->{
 			folderInputPane.newFileList(fileListData); 
+			});
 		}
 	}
 
@@ -545,6 +576,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 
 	@Override
 	public File getCurrentFile() {
+		//System.out.println("All files: " +  allFiles);
 		if (allFiles != null && allFiles.size() > currentFile) {
 			return allFiles.get(currentFile);
 		}
@@ -623,12 +655,16 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 		if (currentFile < allFiles.size()) {
 			// only restart if the file ended - not if it stopped
 			if (getStreamStatus() == STREAM_ENDED) {
-				System.out.println(String.format("Start new file timer (file %d/%d)",currentFile+1,allFiles.size()));
+//				System.out.println(String.format("Start new file timer (file %d/%d)",currentFile+1,allFiles.size()));
 				newFileTimer.start();
 			}
 		}
 		calculateETA();
 		setFolderProgress();
+		
+		if (currentFile > 0 && currentFile >= allFiles.size()) {
+			fileListComplete();
+		}
 //		System.out.println("FolderinputSytem: daqHasEnded");
 	}
 
@@ -742,7 +778,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 
 	@Override
 	public boolean startSystem(AcquisitionControl daqControl) {
-		System.out.println("Start system");
+//		System.out.println("Start system");
 		setFolderProgress();
 		return super.startSystem(daqControl);
 	}

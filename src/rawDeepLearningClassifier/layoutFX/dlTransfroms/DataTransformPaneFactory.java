@@ -40,8 +40,15 @@ public class DataTransformPaneFactory {
 		DLTransformPane settingsPane = null;
 		switch (dlTransfrom.getDLTransformType()) {
 		case DECIMATE:
-			settingsPane = new SimpleTransformPane((SimpleTransform) dlTransfrom, new String[]{"Sample rate "}, new String[]{"Hz. "}); 
-			double sR = ((SimpleTransform) dlTransfrom).getParams()[0].doubleValue(); 
+			double sR;
+			if (((SimpleTransform) dlTransfrom).getParams()!=null){
+				sR = ((SimpleTransform) dlTransfrom).getParams()[0].doubleValue(); 
+			}
+			else {
+				sR = 20000; 
+				((SimpleTransform) dlTransfrom).setParams(new Number[] {Double.valueOf(sR)});
+			}
+			settingsPane = new SimpleTransformPane((SimpleTransform) dlTransfrom, new String[]{"Sample rate "}, new String[]{"Hz. "});
 			((SimpleTransformPane) settingsPane).setSpinnerMinMaxValues(0, 100.0, Double.MAX_VALUE,   sR>10000.0 ? 1000.0 : 100.0);
 			break;
 		case PREEMPHSIS:
@@ -70,7 +77,7 @@ public class DataTransformPaneFactory {
 			((SimpleTransformPane) settingsPane).setSpinnerMinMaxValues(1, -1000.0, 1000.0,   0.1);
 			break;
 		case SPECCROPINTERP:
-			settingsPane = new SimpleTransformPane((SimpleTransform) dlTransfrom, new String[]{"Min. Freq. ", "Max. Freq. ", " No. bins "},  new String[]{"Hz", "Hz", ""}, 2); 
+			settingsPane = new SimpleTransformPane((SimpleTransform) dlTransfrom, new String[]{"Min. Freq. ", "Max. Freq. ", "No. bins "},  new String[]{"Hz", "Hz", ""}, 2); 
 			((SimpleTransformPane) settingsPane).setSpinnerMinMaxValues(0, 0.0, 500000.0,   100.); //hmmmm would be nice to have the sample rate here...
 			((SimpleTransformPane) settingsPane).setSpinnerMinMaxValues(1, 0.0, 500000.0,   100.);
 			((SimpleTransformPane) settingsPane).setSpinnerMinMaxValues(2, 0, Integer.MAX_VALUE,   10);
@@ -84,7 +91,8 @@ public class DataTransformPaneFactory {
 		case SPECTROGRAM:
 			settingsPane = new FFTTransformPane((SimpleTransform) dlTransfrom, new String[]{"FFT Length ", "FFT Hop"},  new String[]{"", ""}); 
 //			((SimpleTransformPane) settingsPane).setSpinnerMinMaxValues(0, 4, Integer.MAX_VALUE,   4);
-			((SimpleTransformPane) settingsPane).setSpinnerMinMaxValues(1, 4, Integer.MAX_VALUE,   4);
+			
+			((FFTTransformPane) settingsPane).setSpinnerMinMaxValues(1, 4, Integer.MAX_VALUE,   4);
 //			//make an FFT spinner here with doubling FFT lengths - DOES NOT WORK FOR SOME REASON...
 //			((SimpleTransformPane) settingsPane).getSpinners().get(0).setValueFactory(new SpinnerValueFactory.ListSpinnerValueFactory<>(createStepList()));
 //			((SimpleTransformPane) settingsPane).getSpinners().get(0).getValueFactory().setValue(4);

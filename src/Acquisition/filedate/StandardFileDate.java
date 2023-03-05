@@ -13,6 +13,7 @@ import java.util.TimeZone;
 import Acquisition.KETime;
 import Acquisition.layoutFX.FileDatePane;
 import Acquisition.layoutFX.StandardFileDatePane;
+import Acquisition.sud.SUDFileTime;
 import PamController.PamControlledUnitSettings;
 import PamController.PamSettingManager;
 import PamController.PamSettings;
@@ -157,6 +158,11 @@ public class StandardFileDate implements FileDate, PamSettings {
 		if (settings.isUseBespokeFormat() && settings.getForcedDateFormat() != null) {
 			return forcedDataFormat(file, settings.getForcedDateFormat());
 		}
+
+		long sudTime = SUDFileTime.getSUDFileTime(file);
+		if (sudTime != Long.MIN_VALUE) {
+			return sudTime;
+		}
 		
 		/*
 		 * Dtag files have an accompanying XML file which 
@@ -168,6 +174,7 @@ public class StandardFileDate implements FileDate, PamSettings {
 			setLastFormat("D3 time from xml file");
 			return dTagTime;
 		}
+		
 
 		long stTime = SoundTrapTime.getSoundTrapTime(file, settings.getDateTimeFormatToUse());
 		if (stTime != Long.MIN_VALUE) {
@@ -249,6 +256,18 @@ public class StandardFileDate implements FileDate, PamSettings {
 		String name = file.getName();
 		name = removeWildChars(name, forcedDateFormat);
 		String redFormat = forcedDateFormat.replace("#", ""); 
+		// see if it's only all milliseconds, i.e. format is only 'S's and > 12 of them
+		if (allSSSS(redFormat)) {
+			// try pulling a number from the name.
+			try {
+				long millis = Long.valueOf(name);
+				return millis;
+			}
+			catch (NumberFormatException e) {
+				
+			}
+		}
+		
 		SimpleDateFormat sdf = null;
 		try {
 		 sdf = new SimpleDateFormat(redFormat);
@@ -269,6 +288,15 @@ public class StandardFileDate implements FileDate, PamSettings {
 		}  //throws ParseException if no match
 		setLastFormat(forcedDateFormat);
 		return d.getTime();
+	}
+
+	private boolean allSSSS(String redFormat) {
+		for(int i = 0; i < redFormat.length(); i++) {
+			if (redFormat.charAt(i) != 'S') {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private String removeWildChars(String name, String forcedDateFormat) {

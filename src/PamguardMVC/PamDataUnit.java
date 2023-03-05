@@ -150,6 +150,13 @@ abstract public class PamDataUnit<T extends PamDataUnit, U extends PamDataUnit> 
 	 */
 	private boolean forceAmpRecalc = false;
 
+	/**
+	 * Flag to say that this is data under development. If this is set true
+	 * then when the data are added to the datablock, they will not get saved
+	 * to the binary store. They will get saved on the first update AFTER the 
+	 * embryonic flag is set false. 
+	 */
+	private boolean embryonic = false;
 
 
 	/**
@@ -943,23 +950,27 @@ abstract public class PamDataUnit<T extends PamDataUnit, U extends PamDataUnit> 
 			}
 		}
 
-		int nAttotations = getNumDataAnnotations();
-		for (int i = 0; i < nAttotations; i++) {
-			DataAnnotation an = getDataAnnotation(i);
-			DataAnnotationType ant = an.getDataAnnotationType();
-			String anName = ant.getAnnotationName();
-			String anString = an.toString();
-			if (anString == null) {
-				continue;
-			}
-			if (anString.contains("<html>")) {
-				anString = anString.replace("<html>", "");
-			}
-			if (anString.contains("</html>")) {
-				anString = anString.replace("</html>", "");
-			}
-			str += anName + ": " + anString + "<br>";
+		String annotString = getAnnotationsSummaryString();
+		if (annotString != null) {
+			str += annotString;
 		}
+//		int nAttotations = getNumDataAnnotations();
+//		for (int i = 0; i < nAttotations; i++) {
+//			DataAnnotation an = getDataAnnotation(i);
+//			DataAnnotationType ant = an.getDataAnnotationType();
+//			String anName = ant.getAnnotationName();
+//			String anString = an.toString();
+//			if (anString == null) {
+//				continue;
+//			}
+//			if (anString.contains("<html>")) {
+//				anString = anString.replace("<html>", "");
+//			}
+//			if (anString.contains("</html>")) {
+//				anString = anString.replace("</html>", "");
+//			}
+//			str += anName + ": " + anString + "<br>";
+//		}
 
 		
 		// add frequency and amplitude information
@@ -997,6 +1008,36 @@ abstract public class PamDataUnit<T extends PamDataUnit, U extends PamDataUnit> 
 		}
 
 		return str;
+	}
+	
+	/**
+	 * Get string information for the annotations. Kept separate so 
+	 * it can be called in overridden version of getSummaryString()
+	 * @return
+	 */
+	public String getAnnotationsSummaryString() {
+		int nAnnotations = getNumDataAnnotations();
+		if (nAnnotations == 0) {
+			return null;
+		}
+		String str = "";
+		for (int i = 0; i < nAnnotations; i++) {
+			DataAnnotation an = getDataAnnotation(i);
+			DataAnnotationType ant = an.getDataAnnotationType();
+			String anName = ant.getAnnotationName();
+			String anString = an.toString();
+			if (anString == null) {
+				continue;
+			}
+			if (anString.contains("<html>")) {
+				anString = anString.replace("<html>", "");
+			}
+			if (anString.contains("</html>")) {
+				anString = anString.replace("</html>", "");
+			}
+			str += anName + ": " + anString + "<br>";
+		}
+		return str.length() > 0 ? str : null;
 	}
 	
 	/**
@@ -1252,6 +1293,32 @@ abstract public class PamDataUnit<T extends PamDataUnit, U extends PamDataUnit> 
 				superDet = superDetections.get(i);
 				if (superDet.getParentDataBlock() == superDataBlock) {
 					return superDet;
+				}
+			}
+		}		
+		return null;
+	}
+
+	/**
+	 * find a super detection form the parent data block of the super detection. 
+	 * @param superDataBlock data block of super detection
+	 * @param allowSuperSuper Allow iteration through mutilple super detection layers
+	 * @return data unit from that block, or null.
+	 */
+	public SuperDetection getSuperDetection(PamDataBlock superDataBlock, boolean allowSuperSuper) {
+		synchronized (superDetectionSyncronisation) {
+			if (superDetections == null) return null;
+			SuperDetection superDet;
+			for (int i = 0; i < superDetections.size(); i++) {
+				superDet = superDetections.get(i);
+				if (superDet.getParentDataBlock() == superDataBlock) {
+					return superDet;
+				}
+				if (allowSuperSuper) {
+					SuperDetection supersuper = superDet.getSuperDetection(superDataBlock, allowSuperSuper);
+					if (supersuper != null) {
+						return supersuper;
+					}
 				}
 			}
 		}		
@@ -1629,6 +1696,27 @@ abstract public class PamDataUnit<T extends PamDataUnit, U extends PamDataUnit> 
 	 * @return any integer.
 	 */
 	public int getColourIndex() {
-		return (int) getUID();
+		/*
+		 * This can go wrong when UID > 2^31 since the colour chooser takes 
+		 * a mod WRT number of whale colours and it doesn't like negative numbers. 
+		 * So need to keep the value going in positive. 
+		 */
+		long uid = getUID();
+		uid &= 0x7FFFFFFF; // avoid anything in top bit of an int32 or higher
+		return (int) uid;
+	}
+
+	/**
+	 * @return the embryonic
+	 */
+	public boolean isEmbryonic() {
+		return embryonic;
+	}
+
+	/**
+	 * @param embryonic the embryonic to set
+	 */
+	public void setEmbryonic(boolean embryonic) {
+		this.embryonic = embryonic;
 	}
 }

@@ -1328,6 +1328,8 @@ public class ClickDetection extends PamDataUnit<PamDataUnit, PamDataUnit> implem
 
 	/**
 	 * Returns the angle in degrees for compatibilty with older version of click detector
+	 * This is really bad to use for anything apart from two element arrays and it would be
+	 * sensible to remove the function entirely. 
 	 * @return angle of the click detection in degrees
 	 */
 	public double getAngle() {
@@ -1509,7 +1511,7 @@ public class ClickDetection extends PamDataUnit<PamDataUnit, PamDataUnit> implem
 	 * @param iCI the iCI to set
 	 */
 	public void setICI(double iCI) {
-		ICI = iCI;
+		this.ICI = iCI;
 	}
 
 	protected void setChannelGroupDetector(ChannelGroupDetector channelGroupDetector) {
