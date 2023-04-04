@@ -24,7 +24,7 @@ public class ThreadedObserverRepository {
 	}
 	
 	public void destroyAllObservers() {
-		for(int i=activeThreadedObservers.size()-1;i!=0;i--) {
+		for(int i=activeThreadedObservers.size()-1;i>=0;i--) {
 			activeThreadedObservers.remove(i).terminateThread();
 		}
 	}

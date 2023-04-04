@@ -2034,7 +2034,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 		// also tell all PamControlledUnits since they may want to find their data source 
 		// it that was created after they were - i.e. dependencies have got all muddled
 		for (int i = 0; i < pamControlledUnits.size(); i++) {
-			pamControlledUnits.get(i).notifyModelChanged(DESTROY_EVERYTHING);
+			pamControlledUnits.remove(i).notifyModelChanged(DESTROY_EVERYTHING);
 		}
 		pamControlledUnits = new ArrayList<PamControlledUnit>();
 

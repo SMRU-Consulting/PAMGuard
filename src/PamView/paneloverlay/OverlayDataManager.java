@@ -33,9 +33,9 @@ import PamguardMVC.dataSelector.DataSelector;
  */
 public abstract class OverlayDataManager<TOverlayInfoType extends OverlayDataInfo> implements OverlayDataObserver {
 
-	private ImageIcon settingsIcon = new ImageIcon(ClassLoader.getSystemResource("Resources/SettingsButtonSmall2.png"));
+	//private ImageIcon settingsIcon = new ImageIcon(ClassLoader.getSystemResource("Resources/SettingsButtonSmall2.png"));
 
-	private ImageIcon settingsIconNot = new ImageIcon(ClassLoader.getSystemResource("Resources/SettingsButtonSmallWhite.png"));
+	//private ImageIcon settingsIconNot = new ImageIcon(ClassLoader.getSystemResource("Resources/SettingsButtonSmallWhite.png"));
 
 	private OverlaySwingPanel swingPanel;
 
