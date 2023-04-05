@@ -47,7 +47,7 @@ import PamguardMVC.PamDataBlock;
  */
 public class NetworkSender extends PamControlledUnit implements PamSettings {
 	
-	public static final String ADDRESS = "-newSend.address";
+	public static final String ADDRESS = "-netSend.address";
 	public static final String PORT = "-netSend.port";
 	public static final String ID1 = "-netSend.id1";
 	public static final String ID2 = "-netSend.id2";
@@ -178,7 +178,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		networkSendParams = ((NetworkSendParams) pamControlledUnitSettings.getSettings()).clone();
 		
 		String address = GlobalArguments.getParam(ADDRESS);
-		String portString = GlobalArguments.getParam(ADDRESS);
+		String portString = GlobalArguments.getParam(PORT);
 		String id1String = GlobalArguments.getParam(ID1);
 		String id2String = GlobalArguments.getParam(ID2);
 	
@@ -481,7 +481,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 			return true;
 		} catch (IOException e) {
 //			e.printStackTrace();
-			System.out.println(e.getMessage());
+			System.out.println("IOException in NeetworkSender.writeByteData: " + e.getMessage());
 			currStatus = "Socket Closed";
 			return false;
 		}
@@ -494,7 +494,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 			return true;
 		} catch (IOException e) {
 //			e.printStackTrace();
-			System.out.println(e.getMessage());
+			System.out.println("IOException in NeetworkSender.writeStringData" + e.getMessage());
 			currStatus = "Socket Closed";
 			return false;
 		}
@@ -542,7 +542,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 			tcpWriter.close();
 		} catch (IOException e) {
 //			e.printStackTrace();
-			System.out.println(e.getMessage());
+			System.out.println("IOException in NeetworkSender.closeconnection" + e.getMessage());
 		}
 		tcpSocket = null;
 		tcpWriter = null;
