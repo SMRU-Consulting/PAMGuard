@@ -589,4 +589,28 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		}
 		
 	}
+
+	/**
+	 * Execute one of several possible external commands recieved through the PAMGuard terminal 
+	 * or UDP interface. 
+	 * @param command
+	 * @return
+	 */
+	public String executeExternalCommand(String command) {
+		switch (command) {
+		case "queuelength":
+			return String.format("%d", objectList.size());
+		case "queuesize":
+			return String.format("%d", totalQueueSize);
+		case "getoutputmode":
+			return "Unknown";
+		case "getmodesend":
+			// I think this is supposed to be a snip of XML
+			return "Unknown";
+		case "getmodesleep":
+			// I think this is supposed to be a snip of XML
+			return "Unknown";
+		}
+		return null;
+	}
 }

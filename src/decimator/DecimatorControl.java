@@ -261,6 +261,11 @@ public class DecimatorControl extends PamControlledUnit implements PamSettings, 
 		double m = fbig % fsmall;
 		return m == 0;
 	}
+
+	@Override
+	public String getModuleSummary(boolean clear) {
+		return decimatorProcess.getOutputDataBlock().getSummaryString(clear);
+	}
 	
 	
 }

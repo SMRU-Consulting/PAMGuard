@@ -12,6 +12,7 @@ import PamController.PamControllerInterface;
 import PamController.pamBuoyGlobals;
 import PamUtils.PamCalendar;
 import PamguardMVC.PamDataUnit;
+import PamguardMVC.debug.Debug;
 import SoundRecorder.RecorderControl;
 import SoundRecorder.trigger.RecorderTrigger;
 import SoundRecorder.trigger.RecorderTriggerData;
@@ -47,6 +48,8 @@ public class NetworkController extends CommandManager {
 	private static NetworkController singleInstance;
 	
 	private static String unitName = "Network Controller";
+	
+	private ArrayList<String> unknownCommands = new ArrayList();
 
 	public NetworkController(PamController pamController) {
 		super(pamController, unitName);
@@ -118,14 +121,22 @@ public class NetworkController extends CommandManager {
 			if (udpCommand == null) {
 				continue;
 			}
+//			Debug.out.println("UDP Network command received " + udpCommand);
 			if (interpretCommand(udpCommand) == false) {
-				break;
+//				break; why would I break here since the loop won't ever restart so fails on first unknown command !
+				if (unknownCommands.contains(udpCommand) == false) {
+					System.out.println("Unknown UDP command received: " + udpCommand);
+					unknownCommands.add(udpCommand);
+				}
 			}
 		}
 	}
 
 	
 	public boolean sendData(String dataString) {
+		if (dataString == null) {
+			return false;
+		}
 		DatagramPacket packet = new DatagramPacket(dataString.getBytes(), dataString.length());
 		packet.setAddress(udpPacket.getAddress());
 		packet.setPort(udpPacket.getPort());

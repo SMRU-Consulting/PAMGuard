@@ -569,7 +569,7 @@ public class PamRawDataBlock extends AcousticDataBlock<RawDataUnit> {
 						20.*Math.log10(rms));
 			}
 		}
-		if (clear) {
+		if (clear || true) {
 			clearSummaryData();
 		}
 		return str;
