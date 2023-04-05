@@ -324,13 +324,13 @@ public class PamController implements PamControllerInterface, PamSettings {
 			tc.getTerminalCommands();
 		}
 		
-		SwingUtilities.invokeLater(new Runnable() {
+		/*SwingUtilities.invokeLater(new Runnable() {
 			
 			@Override
 			public void run() {
 				uniqueController.creationComplete();
 			}
-		});
+		});*/
 	}
 	
 	/**
