@@ -288,6 +288,10 @@ public class Pamguard {
 					// auto exit at end of processing. 
 					GlobalArguments.setParam(NetworkSender.PORT, args[iArg++]);
 				}
+				else if (anArg.equalsIgnoreCase(NetworkSender.USESSL)) {
+					// auto exit at end of processing. 
+					GlobalArguments.setParam(NetworkSender.USESSL, args[iArg++]);
+				}
 				
 				else if (anArg.equalsIgnoreCase("-help")) {
 					System.out.println("--PamGuard Help");

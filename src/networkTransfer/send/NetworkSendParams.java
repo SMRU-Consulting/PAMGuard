@@ -33,6 +33,8 @@ public class NetworkSendParams implements Serializable, Cloneable, ManagedParame
 	
 	public int sendingFormat = NETWORKSEND_BYTEARRAY;
 	
+	public boolean useSSL = false;
+	
 	/**
 	 * Max number of queued Objects. 
 	 */

@@ -7,6 +7,8 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -16,6 +18,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -24,6 +28,8 @@ import javax.swing.SwingWorker;
 import networkTransfer.emulator.NetworkEmulator;
 import networkTransfer.receive.NetworkReceiver;
 import pamguard.GlobalArguments;
+import warnings.PamWarning;
+import warnings.WarningSystem;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -51,6 +57,8 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	public static final String PORT = "-netSend.port";
 	public static final String ID1 = "-netSend.id1";
 	public static final String ID2 = "-netSend.id2";
+	public static final String USESSL = "-netSend.ssl";
+
 
 	protected NetworkSendParams networkSendParams = new NetworkSendParams();
 	private NetworkEmulator networkEmulator;
@@ -63,6 +71,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	private String currStatus = "Closed";
 	private DataOutputStream tcpWriter;
 	private NetworkSendProcess commandProcess;
+	PamWarning sendWarning;
 	
 	public NetworkSender(String unitName) {
 		super("Network Sender", unitName);
@@ -72,6 +81,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		PamSettingManager.getInstance().registerSettings(this);
 		objectList = Collections.synchronizedList(new LinkedList<NetworkQueuedObject>());
 		sidePanel = new NetworkSendSidePanel(this);
+		sendWarning = new PamWarning("Network Send Error","Warn!",0);
 	}
 
 	/* (non-Javadoc)
@@ -181,6 +191,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		String portString = GlobalArguments.getParam(PORT);
 		String id1String = GlobalArguments.getParam(ID1);
 		String id2String = GlobalArguments.getParam(ID2);
+		String usesslString = GlobalArguments.getParam(USESSL);
 	
 		if (address != null) {
 			networkSendParams.ipAddress = address; // remember it. 
@@ -196,6 +207,10 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		
 		if(id2String!=null) {
 			networkSendParams.stationId1 = Integer.valueOf(id2String);
+		}
+		
+		if(usesslString != null) {
+			networkSendParams.useSSL = Boolean.valueOf(usesslString);
 		}
 		
 		return (networkSendParams != null);
@@ -477,6 +492,9 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	private boolean writeByteData(byte[] data) {
 		try {
 			tcpWriter.write(data);
+			if(networkSendParams.useSSL) {
+				tcpWriter.flush();
+			}
 //			System.out.println(String.format("Wrote %d bytes to socket", data.length));
 			return true;
 		} catch (IOException e) {
@@ -500,7 +518,31 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		}
 	}
 	
-	boolean openConnection() {
+	boolean openSSLConnection() throws UnknownHostException, IOException {
+		SSLSocketFactory factory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+		String [] protocols = new String[]{"TLSv1.2"};
+		SSLSocket socket = (SSLSocket)factory.createSocket(networkSendParams.ipAddress, networkSendParams.portNumber);
+		socket.setTcpNoDelay(true);
+		socket.setEnabledProtocols(protocols);
+		socket.startHandshake();
+		
+		try {
+			
+			this.tcpSocket = socket;
+			tcpWriter = new DataOutputStream(tcpSocket.getOutputStream());
+			//tcpWriter.write(new String("Hello from Java netTx").getBytes());
+			//tcpWriter.flush();
+			currStatus = "Open";
+		} catch (IOException e) {
+			currStatus = "IO Exception";
+			e.printStackTrace();
+			return false;
+		}
+
+		return true;
+	}
+	
+	boolean openNoSSLConnection() {
 		try {
 			tcpSocket = new Socket(networkSendParams.ipAddress, networkSendParams.portNumber);
 		} catch (UnknownHostException e) {
@@ -531,6 +573,37 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		}
 		currStatus = "Open";
 		return true;
+	}
+	
+	boolean openConnection() {
+		boolean ok;
+		if(networkSendParams.useSSL) {
+			try {
+				ok = openSSLConnection();
+				setWarning(null);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				setWarning("Unable to open connection "+e.getMessage());
+				ok=false;
+			}
+		}else {
+			ok = openNoSSLConnection();
+		}
+		if(!ok) {
+			System.out.printf("Cannot connect to base station at host %s:%d",networkSendParams.ipAddress, networkSendParams.portNumber);
+		}
+		return ok;
+	}
+	
+	void setWarning(String message) {
+		if(message==null) {
+			WarningSystem.getWarningSystem().removeWarning(sendWarning);
+		}else {
+			sendWarning.setWarningMessage(message);
+			sendWarning.setWarnignLevel(2);
+			WarningSystem.getWarningSystem().addWarning(sendWarning);
+		}
 	}
 	
 	void closeConnection() {

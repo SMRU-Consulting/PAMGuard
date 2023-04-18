@@ -42,6 +42,8 @@ public class NetworkSendDialog extends PamDialog {
 	private JPasswordField password;
 
 	private JCheckBox rememberPassword;
+	
+	private JCheckBox useSSL;
 
 	private JButton testConnection;
 
@@ -88,6 +90,9 @@ public class NetworkSendDialog extends PamDialog {
 		addComponent(idPanel, rememberPassword = new JCheckBox("Remember Password"), c);
 		c.gridx = 1;
 		c.gridy++;
+		addComponent(idPanel,useSSL = new JCheckBox("Use TLS Protocol"),c);
+		c.gridx = 1;
+		c.gridy++;
 		c.gridwidth = 1;
 		addComponent(idPanel, testConnection = new JButton("Test connection"), c);
 		testConnection.addActionListener(new TestConnection());
@@ -129,6 +134,7 @@ public class NetworkSendDialog extends PamDialog {
 		queuePanel.setParams();
 		dataPanel.setParams(networkSendParams.sendingFormat);
 		tabbedPane.invalidate();
+		useSSL.setSelected(networkSendParams.useSSL);
 	}
 
 	@Override
@@ -141,6 +147,7 @@ public class NetworkSendDialog extends PamDialog {
 		networkSendParams.ipAddress = ipAddress.getText();
 		networkSendParams.userId = userName.getText();
 		networkSendParams.password = new String(password.getPassword());
+		networkSendParams.useSSL = useSSL.isSelected();
 		try {
 			networkSendParams.portNumber = Integer.valueOf(portNumber.getText());
 		}
