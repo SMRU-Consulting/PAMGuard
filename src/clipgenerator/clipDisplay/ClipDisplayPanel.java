@@ -239,6 +239,10 @@ public class ClipDisplayPanel extends UserDisplayComponentAdapter implements Pam
 		clipDataUnit.setTriggerDataUnit(triggerDataUnit);
 		ClipDisplayUnit clipDisplayUnit = new ClipDisplayUnit(this, clipDataUnit, triggerDataUnit);
 		
+		if(!shouldShowClip(clipDisplayUnit)) {
+			return;
+		}
+		
 		synchronized (unitsPanel.getTreeLock()) {
 			//TODO: Add logic to sort by time of (manual) selection, clip start time, and maybe by hydrophone 
 			if (PamController.getInstance().getRunMode() == PamController.RUN_PAMVIEW) {
@@ -254,6 +258,10 @@ public class ClipDisplayPanel extends UserDisplayComponentAdapter implements Pam
 			removeOldClips();
 			updatePanel();
 		}
+	}
+	
+	protected boolean shouldShowClip(ClipDisplayUnit dataUnit) {
+		return true;
 	}
 
 	/**
@@ -583,6 +591,11 @@ public class ClipDisplayPanel extends UserDisplayComponentAdapter implements Pam
 		}
 		return -1;
 	}
+	
+	public ClipDisplayMarker getClipDisplayMarker() {
+		return clipDisplayMarker;
+	}
+
 	
 	public void clearAllHighlights() {
 		synchronized (unitsPanel.getTreeLock()) {

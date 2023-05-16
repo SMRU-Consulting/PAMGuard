@@ -763,6 +763,9 @@ public class NetworkReceiver extends PamControlledUnit implements PamSettings, N
 		}
 		else {
 			parentProcess.processNewBuoyData(buoyStatusDataUnit, dataUnit);
+			if(networkReceiveParams.channelNumberOption==networkReceiveParams.CHANNELS_RENUMBER) {
+				dataUnit.setUID(0);
+			}
 			dataBlock.addPamData(dataUnit);
 			//			System.out.println("DAta added to data block " + dataBlock.getDataName());
 		}

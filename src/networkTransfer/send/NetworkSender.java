@@ -206,7 +206,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		}
 		
 		if(id2String!=null) {
-			networkSendParams.stationId1 = Integer.valueOf(id2String);
+			networkSendParams.stationId2 = Integer.valueOf(id2String);
 		}
 		
 		if(usesslString != null) {
@@ -492,9 +492,6 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	private boolean writeByteData(byte[] data) {
 		try {
 			tcpWriter.write(data);
-			if(networkSendParams.useSSL) {
-				tcpWriter.flush();
-			}
 //			System.out.println(String.format("Wrote %d bytes to socket", data.length));
 			return true;
 		} catch (IOException e) {
