@@ -572,6 +572,8 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		return true;
 	}
 	
+	int retry = 0;
+	
 	boolean openConnection() {
 		boolean ok;
 		if(networkSendParams.useSSL) {
@@ -587,8 +589,14 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		}else {
 			ok = openNoSSLConnection();
 		}
-		if(!ok) {
-			System.out.printf("Cannot connect to base station at host %s:%d",networkSendParams.ipAddress, networkSendParams.portNumber);
+		if(!ok && retry==20) {
+			System.out.printf("Cannot connect to base station at host %s:%d\n",networkSendParams.ipAddress, networkSendParams.portNumber);
+			retry=0;
+		}
+		if(ok) {
+			retry=0;
+		}else {
+			retry=retry+1;
 		}
 		return ok;
 	}
