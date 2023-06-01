@@ -70,6 +70,7 @@ public class DisplayControlPanel {
 	private JLabel viewerStart, viewerEnd;
 	private ClipDisplayParent clipDisplayParent;
 	private JCheckBox newClipsLast;
+	private JCheckBox showFullSummary;
 	public DisplayControlPanel(ClipDisplayParent clipDisplayParent,
 			ClipDisplayPanel clipDisplayPanel) {
 		super();
@@ -143,10 +144,22 @@ public class DisplayControlPanel {
 		//Presently clips are sorted in the order in which they were created.
 		//TODO: Add interface to allow for sorting by manual selection time or clip start time.
 		sortPanel.setBorder(new TitledBorder("Sorting"));
-		sortPanel.add(BorderLayout.CENTER, newClipsLast = new PamCheckBox("New Clips Last"));
+		sortPanel.add(BorderLayout.NORTH, newClipsLast = new PamCheckBox("New Clips Last"));
 		newClipsLast.setToolTipText("When checked, newly created clips will be placed at the bottom of the queue. Otherwise they will be placed at the top.");
 		newClipsLast.addActionListener(new DetectChanges(false));
 		sortPanel.setVisible(false);
+
+		
+		sortPanel.add(BorderLayout.SOUTH,showFullSummary = new PamCheckBox("Show Full Clip Summary"));
+		showFullSummary.setToolTipText("When checked, a mouse hover over a clip will show all clip summary data, when unchecked only a short summary will be displayed");
+		showFullSummary.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clipDisplayPanel.clipDisplayParameters.showFullSummary=showFullSummary.isSelected();
+			}
+			
+		});
+		
 		
 		PamPanel historyPanel = new PamPanel();
 		historyPanel.setBorder(new TitledBorder("History"));
