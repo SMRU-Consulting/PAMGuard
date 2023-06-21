@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -515,7 +516,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		}
 	}
 	
-	boolean openSSLConnection() throws UnknownHostException, IOException {
+	boolean openSSLConnection() throws UnknownHostException, IOException, ConnectException {
 		SSLSocketFactory factory = (SSLSocketFactory)SSLSocketFactory.getDefault();
 		String [] protocols = new String[]{"TLSv1.2"};
 		SSLSocket socket = (SSLSocket)factory.createSocket(networkSendParams.ipAddress, networkSendParams.portNumber);
