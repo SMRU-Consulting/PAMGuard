@@ -201,7 +201,7 @@ public class TDAcousticScroller extends AcousticScrollerFX implements PamSetting
 				else {
 					//in real time mode set the range of the display too -otherwise the spinner will max 
 					//max out and the user will not be able to make the visible time larger, 
-					if (!isViewer) {
+					if (!isViewer || PamController.getInstance().getRunMode()==PamController.RUN_NETWORKRECEIVER) {
 						Platform.runLater(()->{
 							super.setRangeMillis(0, newVal, false); //in real time mode just make the display larger. 
 							super.setVisibleMillis(newVal);
@@ -474,7 +474,7 @@ public class TDAcousticScroller extends AcousticScrollerFX implements PamSetting
 		if (dataBlock.getDatagramProvider()!=null){
 			//check that the datagram 
 			this.addAcousticScrollGraphics(new AcousticDataGramGraphics(this , dataBlock));
-			if (!isViewer) addAcousticObserver(dataBlock, -1);
+			if (!isViewer || PamController.getInstance().getRunMode()==PamController.RUN_NETWORKRECEIVER) addAcousticObserver(dataBlock, -1);
 		}
 	}
 

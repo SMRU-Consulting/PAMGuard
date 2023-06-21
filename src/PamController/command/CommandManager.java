@@ -40,6 +40,12 @@ public abstract class CommandManager extends PamControlledUnit {
 		commandsList.add(new HelpCommand(this));
 		commandsList.add(new GetXMLSettings());
 		commandsList.add(new SetXMLSettings());
+		commandsList.add(new NetSendCommand("queuelength"));
+		commandsList.add(new NetSendCommand("queuesize"));
+		commandsList.add(new NetSendCommand("getoutputmode"));
+		commandsList.add(new NetSendCommand("getmodesend"));
+		commandsList.add(new NetSendCommand("getmodesleep"));
+		commandsList.add(new CmdGetTime());
 		
 	}
 
@@ -64,7 +70,9 @@ public abstract class CommandManager extends PamControlledUnit {
 	 * exit and close the port). True otherwise. 
 	 */
 	public boolean interpretCommand(String commandString) {
-		//System.out.println(String.format("New UDP Command %s", command));
+//		if (commandString.startsWith("sum")) {
+//			System.out.println(String.format("New UDP Command %s", commandString));
+//		}
 		if (commandString == null) {
 			return false;
 		}

@@ -33,7 +33,7 @@ public class NetworkSendProcess extends PamProcess {
 		this.outputFormat = sendingFormat;
 		if (parentDataBlock != null) {
 			binarySource = parentDataBlock.getBinaryDataSource();
-			quickId = parentDataBlock.getQuickId();
+			quickId = parentDataBlock.getQuickId2();
 			jsonSource = parentDataBlock.getJSONDataSource();
 		}
 		networkObjectPacker = new NetworkObjectPacker();

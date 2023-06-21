@@ -938,13 +938,13 @@ public class SweepClassifierSetPaneFX extends SettingsPane<ClickTypeProperty> {
 			pamGridPane.setVgap(5);
 
 			Label freqLabel=new Label("Frequency (Hz)");
-			gridPaneHolder.add(freqLabel, 0, 0);
-			gridPaneHolder.add(new Label("Threshold (dB)"), 2, 0);
-			PamGridPane.setHalignment(freqLabel, HPos.CENTER);
-			PamGridPane.setColumnSpan(gridPaneHolder, 2);
-
-			//test band
-			gridPaneHolder.add(new Label("Test Band"), 0, 1);
+////			gridPaneHolder.add(freqLabel, 0, 0);
+////			gridPaneHolder.add(new Label("Threshold (dB)"), 2, 0);
+//			PamGridPane.setHalignment(freqLabel, HPos.CENTER);
+//			PamGridPane.setColumnSpan(gridPaneHolder, 2);
+//
+//			//test band
+//			gridPaneHolder.add(new Label("Test Band"), 0, 1);
 
 			testBandFreqPane=new FreqBandPane(Orientation.HORIZONTAL);
 			testBandFreqPane.setBandText("");
@@ -1234,9 +1234,11 @@ public class SweepClassifierSetPaneFX extends SettingsPane<ClickTypeProperty> {
 			return false;
 		}
 
-		/*@Override
-		protected void disbleControls(boolean disable) {
-			this.gridPaneHolder.setDisable(disable);
+
+		@Override
+//		protected void disbleControls(boolean disable) {
+//			this.gridPaneHolder.setDisable(disable);
+
 			
 //			peakFreqCheckBox.setDisable(enable);
 //			peakWidthCheckBox.setDisable(enable);

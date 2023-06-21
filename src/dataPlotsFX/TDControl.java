@@ -50,7 +50,8 @@ public abstract class TDControl implements PamSettings {
 
 
 	public TDControl(String uniqueDisplayName){
-		if (PamController.getInstance().getRunMode() == PamController.RUN_PAMVIEW) {
+		if (PamController.getInstance().getRunMode() == PamController.RUN_PAMVIEW 
+				|| PamController.getInstance().getRunMode() ==PamController.RUN_NETWORKRECEIVER) {
 			isViewer = true;
 		}
 		setUniqueName(uniqueDisplayName);
