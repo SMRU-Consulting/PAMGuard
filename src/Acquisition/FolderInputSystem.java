@@ -33,6 +33,8 @@ import pamguard.GlobalArguments;
 import Acquisition.pamAudio.PamAudioFileManager;
 import Acquisition.pamAudio.PamAudioFileFilter;
 import Acquisition.pamAudio.PamAudioSystem;
+import PamController.DataInputStore;
+import PamController.InputStoreInfo;
 import PamController.PamControlledUnitSettings;
 import PamController.PamController;
 import PamController.PamSettings;
@@ -58,7 +60,7 @@ import PamguardMVC.debug.Debug;
  * @author Doug Gillespie
  *
  */
-public class FolderInputSystem extends FileInputSystem implements PamSettings{
+public class FolderInputSystem extends FileInputSystem implements PamSettings, DataInputStore {
 
 	//	Timer timer;
 	public static final String daqType = "File Folder Acquisition System";
@@ -102,9 +104,13 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 		boolean ans = super.prepareInputFile();
 		if (ans == false && ++currentFile < allFiles.size()) {
 			System.out.println("Failed to open sound file. Try again with file " + allFiles.get(currentFile).getName());
-
+			/*
+			 *  jumping striaght to the next file messes it up if it thinks the files
+			 *  are continuous, so we HAVE to stop and restart.  
+			 */
+//			return prepareInputFile();
 			PamController.getInstance().pamStop();
-			PamController.getInstance().startLater();
+			PamController.getInstance().startLater(false);
 		}
 		return ans;
 	}
@@ -141,6 +147,9 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 		}
 		String[] selList = {globalFolder};
 //		folderInputParameters.setSelectedFiles(selList);
+		// need to immediately make the allfiles list since it's about to get used by the reprocess manager
+		// need to worry about how to wait for this since it's starting in a different thread. 
+		//makeSelFileList();
 		return selList;
 	}
 
@@ -609,16 +618,16 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 		long currFileEnd = 0;
 		if (currentFile >= 0) {
 			try {
-			WavFileType currentWav = allFiles.get(currentFile);
-			currFileStart = getFileStartTime(currentWav.getAbsoluteFile());
-			if (audioStream != null) {
-				fileSamples = audioStream.getFrameLength();
-				currFileLength = (long) (fileSamples * 1000 / audioStream.getFormat().getFrameRate());
-				currFileEnd = currFileStart + currFileLength;
-			}
+				WavFileType currentWav = allFiles.get(currentFile);
+				currFileStart = getFileStartTime(currentWav.getAbsoluteFile());
+				if (audioStream != null) {
+					fileSamples = audioStream.getFrameLength();
+					currFileLength = (long) (fileSamples * 1000 / audioStream.getFormat().getFrameRate());
+					currFileEnd = currFileStart + currFileLength;
+				}
 			}
 			catch (Exception e) {
-				
+
 			}
 		}
 		if (currFileEnd == 0) {
@@ -643,7 +652,17 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 			}
 			setFolderProgress();
 			//			sayEta();
-			ans = prepareInputFile();
+			/*
+			 * I think that here, we just need a check of the file. the prepareInputFile in 
+			 * this class will (on failure) move straight to the next file and also issue a 
+			 * stop/start, which is not good if it's trying a continuous file, where this is
+			 * being called, if false is returned it should manage moving onto the next file by 
+			 * itself if we use the super.prep .... 
+			 */
+			ans = super.prepareInputFile();
+			if (ans == false) {
+				return false;
+			}
 			currentFileStart = System.currentTimeMillis();
 			//			if (ans && audioFormat.getSampleRate() != currentSampleRate && currentFile > 0) {
 			//				acquisitionControl.getDaqProcess().setSampleRate(currentSampleRate = audioFormat.getSampleRate(), true);
@@ -838,6 +857,94 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings{
 	 */
 	public void dialogFXSetParams() {
 		folderInputPane.setParams(folderInputParameters);
+	}
+
+	@Override
+	public InputStoreInfo getStoreInfo(boolean detail) {
+		if (allFiles == null || allFiles.size() == 0) {
+			return null;
+		}
+		WavFileType firstFile = allFiles.get(0);
+		long firstFileStart = getFileStartTime(firstFile.getAbsoluteFile());
+		WavFileType lastFile = allFiles.get(allFiles.size()-1);
+		long lastFileStart = getFileStartTime(lastFile.getAbsoluteFile());
+		lastFile.getAudioInfo();
+		long lastFileEnd = (long) (lastFileStart + lastFile.getDurationInSeconds()*1000.);
+		InputStoreInfo storeInfo = new InputStoreInfo(acquisitionControl, allFiles.size(), firstFileStart, lastFileStart, lastFileEnd);
+		if (detail) {
+			long[] allFileStarts = new long[allFiles.size()];
+			for (int i = 0; i < allFiles.size(); i++) {
+				allFileStarts[i] = getFileStartTime(allFiles.get(i).getAbsoluteFile());
+				if (allFileStarts[i] < firstFileStart) {
+//					System.out.printf("Swap first file from %s to %s\n", firstFile.getName(), allFiles.get(i).getName());
+					firstFile = allFiles.get(i);
+					firstFileStart = allFileStarts[i];
+				}
+				if (allFileStarts[i] > lastFileEnd) {
+//					System.out.printf("Swap last file from %s to %s\n", lastFile.getName(), allFiles.get(i).getName());
+					lastFile = allFiles.get(i);
+					lastFileEnd = allFileStarts[i] + (long) (lastFile.getDurationInSeconds()*1000.);
+				}
+			}
+			storeInfo.setFirstFileStart(firstFileStart); // just incase changed. 
+			storeInfo.setLastFileEnd(lastFileEnd); // just incase changed
+			storeInfo.setFileStartTimes(allFileStarts);
+		}
+		return storeInfo;
+	}
+
+	@Override
+	public boolean setAnalysisStartTime(long startTime) {
+		/**
+		 * Called from the reprocess manager just before PAMGuard starts with a time
+		 * we want to process from. This should be equal to the start of one of the files
+		 * so all we have to do (in principle) is to set the currentfile to that index and 
+		 * processing will continue from there. 
+		 */
+		if (allFiles == null || allFiles.size() == 0) {
+			System.out.println("Daq setanal start time: no files to check against");
+			return false;
+		}
+		System.out.printf("setAnalysisStarttTime: checking %d files for start time of %s\n", allFiles.size(), PamCalendar.formatDBDateTime(startTime));
+		/*
+		 * If the starttime is maxint then there is nothing to do, but we do need to set the file index
+		 * correctly to not over confuse the batch processing system. 
+		 */
+		long lastFileTime = getFileStartTime(allFiles.get(allFiles.size()-1).getAbsoluteFile());
+		if (startTime > lastFileTime) {
+			currentFile = allFiles.size();
+			System.out.println("Folder Acquisition processing is complete and no files require processing");
+			return true;
+		}
+		for (int i = 0; i < allFiles.size(); i++) {
+			long fileStart = getFileStartTime(allFiles.get(i).getAbsoluteFile());
+			if (fileStart >= startTime) {
+				currentFile = i;
+				PamCalendar.setSoundFile(true);
+				if (startTime > 0) {
+					PamCalendar.setSessionStartTime(startTime);
+					System.out.printf("Sound Acquisition start processing at file %s time %s\n", allFiles.get(i).getName(),
+							PamCalendar.formatDBDateTime(fileStart));
+				}
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Get a status update for batch processing. 
+	 */
+	public String getBatchStatus() {
+		int nFiles = 0;
+		if (allFiles != null) {
+			nFiles = allFiles.size();
+		}
+		int generalStatus = PamController.getInstance().getPamStatus();
+		File currFile = getCurrentFile();
+		String bs = String.format("%d,%d,%d,%s", nFiles,currentFile,generalStatus,currFile);
+		return bs;
 	}
 
 

@@ -45,6 +45,7 @@ import PamController.PamController;
 import PamController.PamControllerInterface;
 import PamController.PamSettingManager;
 import PamController.PamSettings;
+import PamController.fileprocessing.StoreStatus;
 import PamguardMVC.PamDataBlock;
 import PamguardMVC.PamDataUnit;
 import PamguardMVC.PamProcess;
@@ -262,10 +263,5 @@ public class DecimatorControl extends PamControlledUnit implements PamSettings, 
 		return m == 0;
 	}
 
-	@Override
-	public String getModuleSummary(boolean clear) {
-		return decimatorProcess.getOutputDataBlock().getSummaryString(clear);
-	}
-	
 	
 }
