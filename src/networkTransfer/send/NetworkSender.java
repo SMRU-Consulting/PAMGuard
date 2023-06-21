@@ -29,8 +29,10 @@ import javax.swing.SwingWorker;
 import networkTransfer.emulator.NetworkEmulator;
 import networkTransfer.receive.NetworkReceiver;
 import pamguard.GlobalArguments;
+
 import warnings.PamWarning;
 import warnings.WarningSystem;
+
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -59,6 +61,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	public static final String ID1 = "-netSend.id1";
 	public static final String ID2 = "-netSend.id2";
 	public static final String USESSL = "-netSend.ssl";
+
 
 
 	protected NetworkSendParams networkSendParams = new NetworkSendParams();
@@ -193,6 +196,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		String id1String = GlobalArguments.getParam(ID1);
 		String id2String = GlobalArguments.getParam(ID2);
 		String usesslString = GlobalArguments.getParam(USESSL);
+
 	
 		if (address != null) {
 			networkSendParams.ipAddress = address; // remember it. 
