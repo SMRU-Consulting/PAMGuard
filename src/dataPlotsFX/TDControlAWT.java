@@ -244,7 +244,7 @@ public class TDControlAWT  extends TDControl implements UserDisplayComponent {
 			
 			@Override
 			public void addData(PamObservable o, PamDataUnit u) {
-				fxPanel.scrollDisplayEnd(System.currentTimeMillis());
+				fxPanel.scrollDisplayEnd(u.getEndTimeInMilliseconds());
 			}
 		
 	
