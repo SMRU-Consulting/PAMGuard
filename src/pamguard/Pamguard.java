@@ -29,6 +29,7 @@ import PamController.PamGUIManager;
 import PamController.PamSettingManager;
 import PamController.PamguardVersionInfo;
 import PamController.pamBuoyGlobals;
+import PamController.fileprocessing.ReprocessStoreChoice;
 import PamModel.SMRUEnable;
 import PamUtils.FileFunctions;
 import PamUtils.PamExceptionHandler;
@@ -221,8 +222,7 @@ public class Pamguard {
 					PamGUIManager.setType(PamGUIManager.NOGUI);
 					System.out.println("no gui operation.");
 				}
-				///////////////
-				else if (anArg.equalsIgnoreCase("-psf")) {
+				else if (anArg.equalsIgnoreCase("-psf") || anArg.equalsIgnoreCase("-psfx")) {
 					String autoPsf = args[iArg++];
 					PamSettingManager.remote_psf = autoPsf;
 					System.out.println("Running using settings from " + autoPsf);
@@ -233,12 +233,12 @@ public class Pamguard {
 					pamBuoyGlobals.setNetworkControlPort(Integer.parseInt(port));
 					System.out.println("Setting UDP control port " + port);
 				}
-				else if (anArg.equalsIgnoreCase("-mport")) {
+				else if (anArg.equalsIgnoreCase("-multicast") || anArg.equalsIgnoreCase("-mport")) {
 					// multicast control (for multiple PAMGuards) 
 					String mAddr = args[iArg++];
 					int mPort = Integer.parseInt(args[iArg++]);
 					pamBuoyGlobals.setMultiportConfig(mAddr, mPort);
-					System.out.printf("Setting multiport control addr %s port %d\n", mAddr, mPort);
+					System.out.printf("Setting multicast control addr %s port %d\n", mAddr, mPort);
 				}
 				else if (anArg.equalsIgnoreCase("-nolog")) {
 					System.out.println("Disabling log file from command line switch...");
@@ -293,6 +293,15 @@ public class Pamguard {
 					GlobalArguments.setParam(NetworkSender.USESSL, args[iArg++]);
 				}
 				
+				else if (anArg.equalsIgnoreCase(ReprocessStoreChoice.paramName)) {
+					String arg = args[iArg++];
+					ReprocessStoreChoice choice = ReprocessStoreChoice.valueOf(arg);
+					if (choice == null) {
+						String warn = String.format("Reprocessing storage input parameter %s value \"%s\" is not a recognised value", ReprocessStoreChoice.paramName, arg);
+						WarnOnce.showWarning("Invalid input parameter", warn, WarnOnce.WARNING_MESSAGE);
+					}
+					GlobalArguments.setParam(ReprocessStoreChoice.paramName, arg);
+				}
 				else if (anArg.equalsIgnoreCase("-help")) {
 					System.out.println("--PamGuard Help");
 					System.out.println("\n--For standard GUI deployment run without any options.\n");

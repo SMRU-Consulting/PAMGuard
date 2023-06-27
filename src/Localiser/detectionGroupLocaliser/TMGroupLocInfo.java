@@ -810,11 +810,9 @@ public class TMGroupLocInfo implements GroupLocInfo {
 		 for (int i = 0; i < nSubDetections; i++) {
 			 
 			 localisation = getParentDetection().getSubDetection(i).getLocalisation();
-			 
-			 if(localisation==null) {
+			 if (localisation == null) {
 				 continue;
 			 }
-			 
 			 angles = localisation.getAngles();
 			 angleErrors = localisation.getAngleErrors();
 			 
@@ -884,7 +882,7 @@ public class TMGroupLocInfo implements GroupLocInfo {
 			 totalVectors += nVectors;
 		 }
 		 
-		 if(totalVectors==0) {
+		 if (totalVectors == 0) {
 			 return;
 		 }
 		 
