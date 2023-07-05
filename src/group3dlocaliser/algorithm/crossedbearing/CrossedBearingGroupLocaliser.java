@@ -32,8 +32,8 @@ public class CrossedBearingGroupLocaliser extends LocaliserAlgorithm3D{
 	public CrossedBearingGroupLocaliser() {
 		tmAnnotationType = new TMAnnotationType();
 		TMAnnotationOptions tmAnnotationOptions = new TMAnnotationOptions("CrossedBearingGroupLocaliser");
-		tmAnnotationOptions.getLocalisationParams().setIsSelected(0, true);
-		tmAnnotationOptions.getLocalisationParams().setIsSelected(1, false);
+		tmAnnotationOptions.getLocalisationParams().setIsSelected(0, false);
+		tmAnnotationOptions.getLocalisationParams().setIsSelected(1, true);
 		tmAnnotationOptions.getLocalisationParams().setIsSelected(2, false);
 		tmAnnotationType.setAnnotationOptions(tmAnnotationOptions);
 	}
