@@ -262,6 +262,12 @@ public class Pamguard {
 					GlobalArguments.setParam(FolderInputSystem.GlobalWavFolderArg, wavFolder);
 					System.out.println("Setting input wav file folder to " + wavFolder);
 				}
+				else if (anArg.equalsIgnoreCase(FolderInputSystem.GlobalWavPrefixArg)) {
+					// source folder for wav files (or other supported sound files)
+					String wavPrefix = args[iArg++];
+					GlobalArguments.setParam(FolderInputSystem.GlobalWavPrefixArg, wavPrefix);
+					System.out.println("Setting recording prefix to " + wavPrefix);
+				}
 				else if (anArg.equalsIgnoreCase(PamController.AUTOSTART)) {
 					// auto start processing. 
 					GlobalArguments.setParam(PamController.AUTOSTART, PamController.AUTOSTART);

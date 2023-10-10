@@ -701,19 +701,21 @@ public abstract class PamControlledUnit implements SettingsNameProvider {
 	 * short summary of data state / numbers of detections. <br> You should not 
 	 * override this version of the function, but instead override getModuleSummary(boolean clear)
 	 * which allows for optional clearing of summary data. 
+	 * @param format TODO
 	 * @return module summary string - goings on since the last call to this function
 	 */
-	public String getModuleSummary() {
-		return getModuleSummary(true);
+	public String getModuleSummary(String format) {
+		return getModuleSummary(true, format);
 	}
 
 	/**
 	 * Get a module summary text string for shorthand output to anyting wanting a 
 	 * short summary of data state / numbers of detections. 
 	 * @param clear clear data after generating string, so that counts of detections, etc. start again from 0. 
+	 * @param format TODO
 	 * @return module summary string - goings on since the last call to this function
 	 */
-	public String getModuleSummary(boolean clear) {
+	public String getModuleSummary(boolean clear, String format) {
 		return null;
 	}
 	

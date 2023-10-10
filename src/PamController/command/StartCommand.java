@@ -14,6 +14,9 @@ public class StartCommand extends ExtCommand {
 
 	@Override
 	public String execute(String command) {
+		if(PamController.getInstance().getPamStatus()==PamController.PAM_RUNNING) {
+			return "Pamguard already running";
+		}
 		boolean ok = PamController.getInstance().pamStart();
 		return getReturnString();
 	}

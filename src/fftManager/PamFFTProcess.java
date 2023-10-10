@@ -395,22 +395,26 @@ public class PamFFTProcess extends PamProcess {
 			// amount of data 
 			int[] chanList = PamUtils.getChannelArray(fftParameters.channelMap);
 			try {
-			int n = tempStores[iChan].getN();
+			TempOutputStore[] temptempStores = tempStores;
+			int n = temptempStores[iChan].getN();
 			for (int iF = 0; iF < n; iF++) {
 				for (int iC = 0; iC < chanList.length; iC++) {
 //					pu = tempStores[chanList[iC]].get(iF);
 					try {
-					outputData.addPamData(tempStores[chanList[iC]].get(iF));
+					outputData.addPamData(temptempStores[chanList[iC]].get(iF));
 					}
 					catch (ArrayIndexOutOfBoundsException e) {
 //						e.printStackTrace();
 						System.err.println("PAMFFTProcess.newData: " + e.getMessage() + " " + this.getPamControlledUnit().getUnitName() + " iC: " + iC +  " iF: " + iF);
 					}
+					if(tempStores!=temptempStores) {
+						System.out.println("Temptemp and temp out of sync!!");
+					}
 //					outputData.addPamData(null);
 				}
 			}
 			for (int iC = 0; iC < chanList.length; iC++) {
-				tempStores[chanList[iC]].clearStore();
+				temptempStores[chanList[iC]].clearStore();
 			}
 			}
 			catch (Exception e) {

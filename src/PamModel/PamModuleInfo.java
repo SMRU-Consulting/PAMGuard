@@ -251,7 +251,7 @@ public class PamModuleInfo implements PamDependent{
 		return newUnit;
 	}
 	
-	private void moduleRemoved(PamControlledUnit controlledUnit) {
+	public void moduleRemoved(PamControlledUnit controlledUnit) {
 
 		setNInstances(nInstances - 1);
 	}

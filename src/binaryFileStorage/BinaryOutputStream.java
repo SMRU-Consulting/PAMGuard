@@ -563,8 +563,13 @@ public class BinaryOutputStream {
 		}
 
 		storedObjects++;
-
-
+		
+		try {
+			outputStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		return true;
 	}
 

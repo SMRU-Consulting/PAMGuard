@@ -33,4 +33,8 @@ public class DisplayProviderList {
 		return displayPanelProviders;
 	}
 	
+	public static void resetDisplayPanelProviders() {
+		displayPanelProviders = new ArrayList<DisplayPanelProvider>();
+	}
+	
 }
