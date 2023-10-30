@@ -1101,6 +1101,9 @@ public class WhistleToneConnectProcess extends PamProcess {
 		}
 		
 		if(format.equals("json")) {
+			if(this.sourceData==null) {
+				return "{}";
+			}
 			double blockSizeHz = sourceData.getSampleRate()/2.0/(double)NSUMMARYPOINTS;
 			JSONObject jsonSummery = new JSONObject(); 
 			for (int i = 0; i < NSUMMARYPOINTS; i++) {
