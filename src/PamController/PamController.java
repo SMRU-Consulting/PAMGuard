@@ -1444,7 +1444,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 	 * 
 	 * @return true if ANY process is still running
 	 */
-	private synchronized boolean checkRunStatus() {
+	private boolean checkRunStatus() {
 //		boolean areWeFinished = true;
 //		Debug.out.println("Checking run status...");
 //		for (PamControlledUnit aUnit : pamControlledUnits) {

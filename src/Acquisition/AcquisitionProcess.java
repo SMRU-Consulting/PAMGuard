@@ -292,7 +292,6 @@ public class AcquisitionProcess extends PamProcess implements DataInputStore {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			collectDataThread.setPriority(10);
 			collectDataThread.start();
 		}
 
