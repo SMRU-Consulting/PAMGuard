@@ -383,8 +383,12 @@ public class RecorderControl extends PamControlledUnit implements PamSettings {
 			return;
 		}
 		recorderProcess.setParentDataBlock(rawDataBlock);
-		recorderSettings.setChannelBitmap(recorderSettings.getChannelBitmap(rawDataBlock.getChannelMap()));
-
+		
+		if(recorderSettings.getChannelBitmap(rawDataBlock.getChannelMap())!=0) {
+			recorderSettings.setChannelBitmap(recorderSettings.getChannelBitmap(rawDataBlock.getChannelMap()));
+		}
+		
+		
 		for (int i = 0; i < recorderViews.size(); i++) {
 			recorderViews.get(i).newParams();
 		}
