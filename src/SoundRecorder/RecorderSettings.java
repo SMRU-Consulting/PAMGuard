@@ -42,7 +42,7 @@ public class RecorderSettings implements Serializable, Cloneable, ManagedParamet
 	/**
 	 * Bitmap of channels to be saved (need not be all available channels)
 	 */
-	private int channelBitmap = 3;
+	public int channelBitmap = 3;
 
 	/**
 	 * bit depth (NOT Byte depth) of the recording format.

@@ -600,7 +600,7 @@ public class WhistleToneConnectProcess extends PamProcess {
 						 * so add it to the one we've just found. 
 						 */
 						thisRegion = connectedRegion;
-						if (connectedRegion.getSliceData().size() > 2000) {
+						if (connectedRegion.getSliceData().size() > 200) {
 							System.out.println("*** Very large region in " + whistleMoanControl.getUnitName() + " at " + PamCalendar.formatDateTime(connectedRegion.getStartMillis()));
 						}
 						else {
