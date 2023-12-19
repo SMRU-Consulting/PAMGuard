@@ -67,7 +67,12 @@ public class SummaryCommand extends ExtCommand {
 				JSONObject moduleSummary = new JSONObject();
 				moduleSummary.put("moduleType", aModule.getUnitType());
 				moduleSummary.put("moduleName", aModule.getUnitName());
-				moduleSummary.put("moduleSummary", new JSONObject(aString));
+				if(aString.startsWith("{")) {
+					moduleSummary.put("moduleSummary", new JSONObject(aString));
+
+				}else {
+					moduleSummary.put("moduleSummary", new JSONObject("{\"Pamguard Module has no summary\":\"None\"}"));
+				}
 				jsonSummaries.put(moduleSummary);
 			}
 			
