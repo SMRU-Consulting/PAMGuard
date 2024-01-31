@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
+import PamController.PamController;
+import PamController.PamGUIManager;
 import dataGram.Datagram;
 import warnings.RepeatWarning;
 import PamUtils.PamCalendar;
@@ -60,6 +62,8 @@ public class BinaryOutputStream {
 	private BinaryOfflineDataMapPoint currentDataMapPoint;
 	
 	private int lastObjectType = Integer.MIN_VALUE;
+	
+	private File outputFile;
 
 	public BinaryOutputStream(BinaryStore binaryStore,
 			PamDataBlock parentDataBlock) {
@@ -114,7 +118,7 @@ public class BinaryOutputStream {
 		uidHandler.roundUpUID(DataBlockUIDHandler.ROUNDINGFACTOR);		
 		fileStartUID = parentDataBlock.getUidHandler().getCurrentUID();
 		
-		File outputFile = new File(mainFileName);
+		outputFile = new File(mainFileName);
 
 		boolean open = openPGDFFile(outputFile);
 		
@@ -131,9 +135,32 @@ public class BinaryOutputStream {
 			noiseOutputStream = null;
 		}
 		
-		
+		if(open && PamGUIManager.getGUIType()==PamGUIManager.NOGUI) {
+			makeLock(outputFile);
+		}
 		
 		return open;
+	}
+
+	/**
+	 * Generate lock file to flag transfer that this file is actively being written to for APS.
+	 * Linux does not handle file locks well, so explicitly building them in. 
+	 * @param outputFile
+	 */
+	private void makeLock(File outputFile) {
+		try {
+			File mainLockFile = new File(outputFile.toString()+".lck");
+			mainLockFile.createNewFile();
+			File pgdxLockFile = new File(binaryStore.swapFileType(outputFile, BinaryStore.indexFileType)+".lck");
+			pgdxLockFile.createNewFile();
+			if(wantNoiseOutputFile()) {
+				File noiseFile = binaryStore.swapFileType(outputFile, BinaryStore.noiseFileType);
+				File noiseLockFile = new File(noiseFile.toString()+".lck");
+				noiseLockFile.createNewFile();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -261,6 +288,9 @@ public class BinaryOutputStream {
 	}
 
 	public synchronized boolean closeFile() {
+		if(PamGUIManager.getGUIType()==PamGUIManager.NOGUI) {
+			deleteLock(outputFile);
+		}
 		boolean ok = true;
 //		System.out.println("Close output file " + mainFileName);
 		if (dataOutputStream != null) {
@@ -285,6 +315,23 @@ public class BinaryOutputStream {
 		}
 //		Debug.out.printf("Closed binary storage file %s\n", mainFileName);
 		return ok;
+	}
+	
+	/**
+	 * Delete lock file to flag transfer that this file is no longer being written to for APS.
+	 * Linux does not handle file locks well, so explicitly building them in. 
+	 * @param outputFile
+	 */
+	private void deleteLock(File outputFile) {
+		File mainLockFile = new File(outputFile.toString()+".lck");
+		mainLockFile.delete();
+		File pgdxLockFile = new File(binaryStore.swapFileType(outputFile, BinaryStore.indexFileType)+".lck");
+		pgdxLockFile.delete();
+		if(wantNoiseOutputFile()) {
+			File noiseFile = binaryStore.swapFileType(outputFile, BinaryStore.noiseFileType);
+			File noiseLockFile = new File(noiseFile.toString()+".lck");
+			noiseLockFile.delete();
+		}
 	}
 
 	private long getSamplesFromMilliseconds(long timeMillis) {
