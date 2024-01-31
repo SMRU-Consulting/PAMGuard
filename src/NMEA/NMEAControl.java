@@ -28,6 +28,8 @@ import java.io.Serializable;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import org.json.JSONObject;
+
 import nmeaEmulator.NMEAFrontEnd;
 
 import PamController.PamControlledUnit;
@@ -199,6 +201,18 @@ public class NMEAControl extends PamControlledUnit implements PamSettings {
 		}
 		
 		return true;
+	}
+	
+	@Override
+	public String getModuleSummary(boolean clear, String format) {
+		if(format.equals("json")) {
+			NMEADataUnit lastUnit = acquireNmeaData.getOutputDatablock().getLastUnit();
+			JSONObject json = new JSONObject();
+			json.put("LastDataTime", lastUnit.getTimeMilliseconds());
+			json.put("LastDataString", lastUnit.getCharData().toString());
+			return json.toString();
+		}
+		return "";
 	}
 
 	/* (non-Javadoc)
