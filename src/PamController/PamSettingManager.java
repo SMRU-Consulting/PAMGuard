@@ -44,6 +44,7 @@ import javax.swing.plaf.FontUIResource;
 
 import pamViewFX.fxNodes.utilsFX.PamUtilsFX;
 import pamViewFX.fxSettingsPanes.SettingsFileDialogFX;
+import pamguard.GlobalArguments;
 
 //XMLSettings
 //import org.jdom.Document;
@@ -293,7 +294,7 @@ public class PamSettingManager {
 	 * call this for at least one set of settings. Often the PamSettings
 	 * is implemented by the class that extends PamControlledunit, but
 	 * it's also possible to have multiple sub modules, processes or displays
-	 * implemnt PamSettings so that different settings for different bits of
+	 * implement PamSettings so that different settings for different bits of
 	 * a PamControlledUnit are stored separately.
 	 * @see PamSettings
 	 * @see PamControlledUnit
@@ -476,7 +477,7 @@ public class PamSettingManager {
 	 */
 	public PamSettings findSettingsOwner(String unitType, String unitName, String unitClassName) {
 		for (PamSettings owner:owners) {
-			if (owner.getClass() != null) {
+			if (owner.getClass() != null && unitClassName != null) {
 				if (owner.getClass().getName().equals(unitClassName) == false) {
 					continue;
 				}
@@ -492,7 +493,7 @@ public class PamSettingManager {
 	/**
 	 * Call just before PAMGUARD exits to save the settings
 	 * either to psf and / or database tables.
-	 * @return true if settings saved sucessfully.
+	 * @return true if settings saved successfully.
 	 */
 	public boolean saveFinalSettings() {
 		int runMode = PamController.getInstance().getRunMode();
@@ -1029,8 +1030,9 @@ public class PamSettingManager {
 		loadingLocalSettings = true;
 
 		loadSettingsFileData();
+		
 
-		if (PamSettingManager.RUN_REMOTE == false) {
+		if (PamSettingManager.RUN_REMOTE == false && GlobalArguments.isBatch() == false) {
 			if (settingsFileData != null) {
 				TipOfTheDayManager.getInstance().setShowAtStart(settingsFileData.showTipAtStartup);
 				if (settingsFileData.showTipAtStartup) {

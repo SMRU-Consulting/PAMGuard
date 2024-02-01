@@ -77,6 +77,7 @@ import pamScrollSystem.PamScrollerData;
 import pamScrollSystem.RangeSpinner;
 import pamScrollSystem.RangeSpinnerListener;
 import pamScrollSystem.jumping.ScrollJumper;
+import pamguard.GlobalArguments;
 import soundPlayback.PlaybackControl;
 import soundPlayback.PlaybackProgressMonitor;
 import userDisplay.UserDisplayControl;
@@ -107,6 +108,7 @@ import PamView.GeneralProjector;
 import PamView.ColourArray.ColourArrayType;
 import PamView.dialog.PamLabel;
 import PamView.PamColors;
+import PamView.PamView;
 import PamView.hidingpanel.HidingDialogPanel;
 import PamView.panel.CornerLayout;
 import PamView.panel.CornerLayoutContraint;
@@ -273,14 +275,25 @@ InternalFrameListener, DisplayPanelContainer, SpectrogramParametersUser, PamSett
 		// this should result in settings being loaded if they exist. 
 		PamSettingManager.getInstance().registerSettings(this); // always need to register, even if we're using old parameters
 		//		}
-		if (spectrogramParameters == null) {
+		boolean isBatch = GlobalArguments.getParam("-batch") != null;
+		if (spectrogramParameters == null && isBatch == false) {
 			this.spectrogramParameters = new SpectrogramParameters();
-			//			setSettings(); // force up the dialog. 
-			SpectrogramParameters newParams = SpectrogramParamsDialog
-					.showDialog(userDisplayControl.getPamView().getGuiFrame(), spectrogramPanels, spectrogramParameters);
-			if (newParams != null) {
-				this.spectrogramParameters = newParams;
+			PamView view = userDisplayControl.getPamView();
+			if (view != null) {
+				SpectrogramParameters newParams = SpectrogramParamsDialog
+						.showDialog(userDisplayControl.getGuiFrame(), spectrogramPanels, spectrogramParameters);
+				if (newParams != null) {
+					this.spectrogramParameters = newParams;
+				}
 			}
+		}
+		if (spectrogramParameters == null) {
+			/*
+			 *  this can happen in batch mode if a display was added.
+			 *  Hopefully not a problem, but may need to set some parameters to 
+			 *  set display up correctly.  
+			 */
+			spectrogramParameters = new SpectrogramParameters();
 		}
 
 		spectrogramDisplay = this;
@@ -1184,7 +1197,7 @@ InternalFrameListener, DisplayPanelContainer, SpectrogramParametersUser, PamSett
 		//		SpectrogramParameters newParams = SpectrogramParamsDialog
 		//				.showDialog(userDisplayControl.getPamView().getGuiFrame(), this.getOverlayMarker(), spectrogramParameters);
 		SpectrogramParameters newParams = SpectrogramParamsDialog
-				.showDialog(userDisplayControl.getPamView().getGuiFrame(), spectrogramPanels, spectrogramParameters);
+				.showDialog(userDisplayControl.getGuiFrame(), spectrogramPanels, spectrogramParameters);
 
 
 		if (newParams == null) return;
@@ -1639,6 +1652,9 @@ InternalFrameListener, DisplayPanelContainer, SpectrogramParametersUser, PamSett
 				return;
 			}
 			long t1 = dataUnit.getTimeMilliseconds()-viewerScroller.getValueMillis();
+			if (timeAxis == null) {
+				return;
+			}
 			int x1 = (int) Math.floor(timeAxis.getPosition(t1/1000));
 			int x2 = x1;
 			if (dataUnit.getDurationInMilliseconds() != null) {
