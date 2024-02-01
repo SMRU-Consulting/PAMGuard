@@ -20,6 +20,7 @@ import pamViewFX.pamTask.PamTaskUpdate;
 import PamController.AWTScheduler;
 import PamController.DataOutputStore;
 import PamController.OfflineDataStore;
+import PamController.PamConfiguration;
 import PamController.PamControlledUnit;
 import PamController.PamController;
 import PamController.PamControllerInterface;
@@ -49,9 +50,13 @@ public class DBControlUnit extends DBControl implements DataOutputStore {
 	private boolean initialisationComplete;
 	
 	private BackupInformation backupInformation;
+	private CreateDataMap createDataMap;
 
 	public DBControlUnit(String unitName) {
-		super(unitName, whichStore(), true);
+		this(null, unitName);
+	}
+	public DBControlUnit(PamConfiguration pamConfiguration, String unitName) {
+		super(pamConfiguration, unitName, whichStore(), true);
 		THIS = this;
 		setFullTablesCheck(true);
 		//		int runMode = PamController.getInstance().getRunMode();
@@ -184,8 +189,8 @@ public class DBControlUnit extends DBControl implements DataOutputStore {
 			pamDataBlocks.get(i).removeOfflineDataMap(THIS);
 			updateDataBlocks.add(pamDataBlocks.get(i));
 		}
-		
-		AWTScheduler.getInstance().scheduleTask(new CreateDataMap(updateDataBlocks));
+		createDataMap = new CreateDataMap(updateDataBlocks);
+		AWTScheduler.getInstance().scheduleTask(createDataMap);
 		
 	}
 	
@@ -254,6 +259,7 @@ public class DBControlUnit extends DBControl implements DataOutputStore {
 		 */
 		public CreateDataMap(ArrayList<PamDataBlock> loggingBlocks) {
 			super();
+			createDataMap = this;
 			this.loggingBlocks = loggingBlocks;
 		}
 
@@ -375,6 +381,7 @@ public class DBControlUnit extends DBControl implements DataOutputStore {
 			PamController.getInstance().notifyTaskProgress(new CreateMapInfo(PamTaskUpdate.STATUS_DONE));
 			PamController.getInstance().notifyModelChanged(PamControllerInterface.CHANGED_OFFLINE_DATASTORE);
 //			System.out.println("Create datamap point: DONE2"); 
+			createDataMap = null;
 		}
 
 		/* (non-Javadoc)
@@ -402,6 +409,11 @@ public class DBControlUnit extends DBControl implements DataOutputStore {
 	@Override
 	public String getDataSourceName() {
 		return getUnitName();
+	}
+
+	@Override
+	public String getDataLocation() {
+		return getDatabaseName();
 	}
 
 	@Override
@@ -504,5 +516,13 @@ public class DBControlUnit extends DBControl implements DataOutputStore {
 		return getDbProcess().deleteDataFrom(timeMillis);
 	}
 
+	@Override
+	public int getOfflineState() {
+		int state = super.getOfflineState();
+		if (createDataMap != null) {
+			state = Math.max(state, PamController.PAM_MAPMAKING);
+		}
+		return state;
+	}
 
 }

@@ -23,6 +23,7 @@ package PamController;
 import java.awt.Component;
 import java.awt.Frame;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -30,16 +31,14 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
-import offlineProcessing.OfflineTask;
 import offlineProcessing.OfflineTaskGroup;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import PamController.status.ModuleStatus;
 import PamController.status.ModuleStatusManager;
 import PamController.status.ProcessCheck;
+import PamModel.PamModel;
 import PamModel.PamModuleInfo;
+import PamModel.PamPluginInterface;
 import PamView.ClipboardCopier;
 import PamView.PamGui;
 import PamView.PamSidePanel;
@@ -141,6 +140,8 @@ public abstract class PamControlledUnit implements SettingsNameProvider {
 	
 	private ModuleStatusManager moduleStatusManager;
 	
+	private PamConfiguration pamConfiguration;
+	
 //	private ArrayList<OfflineTask> offlineTasks = new ArrayList<>();
 	
 	/**
@@ -155,8 +156,17 @@ public abstract class PamControlledUnit implements SettingsNameProvider {
 	 *            name of unit
 	 */
 	public PamControlledUnit(String unitType, String unitName) {
+		this(null, unitType, unitName);
+	}
+	
+	public PamControlledUnit(PamConfiguration pamConfiguration, String unitType, String unitName) {
 		this.unitType = unitType;
 		this.unitName = unitName;
+		this.pamConfiguration = pamConfiguration;
+		if (this.pamConfiguration == null) {
+			this.pamConfiguration = PamController.getInstance().getPamConfiguration();
+		}
+		
 		pamProcesses = new ArrayList<PamProcess>();
 		
 		isViewer = PamController.getInstance().getRunMode() == PamController.RUN_PAMVIEW;
@@ -497,6 +507,12 @@ public abstract class PamControlledUnit implements SettingsNameProvider {
 		return true;
 	}
 
+	/**
+	 * Get the GUI associated with this module. However, this may return null, so if you want a frame
+	 * to use for a dialog, better to use PamController.getGuiFrame() which handles null automatically. 
+	 * @return
+	 */
+	@Deprecated
 	public PamView getPamView() {
 		return pamView;
 	}
@@ -674,11 +690,11 @@ public abstract class PamControlledUnit implements SettingsNameProvider {
 	 * @param offlineTaskGroup
 	 */
 	public void addOfflineTaskGroup(OfflineTaskGroup offlineTaskGroup) {
-		if (isViewer){
+//		if (isViewer){
 			offlineTaskGroups.add(offlineTaskGroup);
-		}else{
-			System.out.println("OfflineTaskGroup cannot be added as is not viewer mode");
-		}
+//		}else{
+//			System.out.println("OfflineTaskGroup cannot be added as is not viewer mode");
+//		}
 		
 	}
 	
@@ -830,6 +846,16 @@ public abstract class PamControlledUnit implements SettingsNameProvider {
 		}
 		return worstStatus;
 	}
+	
+	/**
+	 * Get the offline state of this module. This can generally
+	 * be idle, but can be a higher state when map making at startup
+	 * and when running an offline task. 
+	 * @return
+	 */
+	public int getOfflineState() {
+		return PamController.PAM_IDLE;
+	}
 
 //	/**
 //	 * Get a list of available offline tasks for this module. This is mostly used for tasks that 
@@ -864,6 +890,53 @@ public abstract class PamControlledUnit implements SettingsNameProvider {
 	 */
 	public int getInstanceIndex() {
 		return instanceIndex;
+	}
+	
+	/**
+	 * Get detail if this is a plugin. 
+	 * @return plugin detail, or null if it's not a plugin. 
+	 */
+	public PamPluginInterface getPlugin() {
+		List<PamPluginInterface> pluginList = ((PamModel) PamController.getInstance().getModelInterface()).getPluginList();
+		if (pluginList == null) {
+			return null;
+		}
+		for (PamPluginInterface plugin : pluginList) {
+			if (plugin.getClassName().equals(this.getClass().getName())) {
+				return plugin;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * The PamConfiguration holds the master list of modules which form part of a
+	 * configuration. It should be accessed to find list of datablocks, etc. rather than 
+	 * doing everything through PAMController whenever possible.  
+	 * @return the pamConfiguration
+	 */
+	public PamConfiguration getPamConfiguration() {
+		if (pamConfiguration == null) {
+			pamConfiguration = PamController.getInstance().getPamConfiguration();
+		}
+		return pamConfiguration;
+	}
+	
+	/**
+	 * Is this module in the main configuration. If it isn't then it's probably a dummy config
+	 * used in the batch processor or for importing  / exporting configs, so it should be stopped from 
+	 * doing too much !
+	 * @return
+	 */
+	public boolean isInMainConfiguration() {
+		return pamConfiguration == PamController.getInstance().getPamConfiguration();
+	}
+
+	/**
+	 * @param pamConfiguration the pamConfiguration to set
+	 */
+	public void setPamConfiguration(PamConfiguration pamConfiguration) {
+		this.pamConfiguration = pamConfiguration;
 	}
 
 }
