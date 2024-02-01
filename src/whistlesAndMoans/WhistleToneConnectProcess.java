@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.json.JSONObject;
+
 import networkTransfer.receive.BuoyStatusDataUnit;
 import spectrogramNoiseReduction.SpectrogramNoiseProcess;
 import spectrogramNoiseReduction.SpectrogramNoiseSettings;
@@ -582,7 +584,7 @@ public class WhistleToneConnectProcess extends PamProcess {
 						 * so add it to the one we've just found. 
 						 */
 						thisRegion = connectedRegion;
-						if (connectedRegion.getSliceData().size() > 2000) {
+						if (connectedRegion.getSliceData().size() > 200) {
 							System.out.println("*** Very large region in " + whistleMoanControl.getUnitName() + " at " + PamCalendar.formatDateTime(connectedRegion.getStartMillis()));
 						}
 						else {
@@ -1076,15 +1078,36 @@ public class WhistleToneConnectProcess extends PamProcess {
 	 * replicate Decimus function to give counts of whistles in four evenly spaced frequency 
 	 * bins. 
 	 */
-	public String getModuleSummary(boolean clear) {
+	public String getModuleSummary(boolean clear, String format) {
 		String sumText = String.format("%d", NSUMMARYPOINTS);
 		for (int i = 0; i < NSUMMARYPOINTS; i++) {
 			sumText += String.format(",%d",whistleSummaryCount[i]);
 		}
+		
+		if(format.equals("json")) {
+			if(this.sourceData==null) {
+				return "{}";
+			}
+			double blockSizeHz = sourceData.getSampleRate()/2.0/(double)NSUMMARYPOINTS;
+			JSONObject jsonSummery = new JSONObject(); 
+			for (int i = 0; i < NSUMMARYPOINTS; i++) {
+				
+				double currentBlockMin = blockSizeHz*i;
+				double currentBlockMax = blockSizeHz+currentBlockMin;
+				currentBlockMin=currentBlockMin/1000.0;
+				currentBlockMax=currentBlockMax/1000.0;
+				String rangeFormat = String.format("%.2fkHz-%.2fkHz",currentBlockMin,currentBlockMax);
+				jsonSummery.put(rangeFormat,whistleSummaryCount[i]);
+			}
+			sumText = (new JSONObject().put("sliceCounts", jsonSummery)).toString();
+			
+		}
+		
 	
 		if (clear) {
 			clearSummaryData();
 		}
+		
 		return sumText;
 	}
 

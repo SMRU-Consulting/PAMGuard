@@ -141,16 +141,24 @@ public class DisplayControlPanel {
 		controlPanel.add(scalePanel);
 		
 		PamPanel sortPanel = new PamPanel(); 
+		GridBagConstraints sortPanelContraints = new PamGridBagContraints();
+		sortPanel.setLayout(new GridBagLayout());
+		sortPanelContraints.gridwidth = 1;
+		sortPanelContraints.gridx = 0;
+		sortPanelContraints.gridy = 0;
+
 		//Presently clips are sorted in the order in which they were created.
 		//TODO: Add interface to allow for sorting by manual selection time or clip start time.
 		sortPanel.setBorder(new TitledBorder("Sorting"));
-		sortPanel.add(BorderLayout.NORTH, newClipsLast = new PamCheckBox("New Clips Last"));
+		sortPanel.add(newClipsLast = new PamCheckBox("New Clips Last"),sortPanelContraints);
 		newClipsLast.setToolTipText("When checked, newly created clips will be placed at the bottom of the queue. Otherwise they will be placed at the top.");
 		newClipsLast.addActionListener(new DetectChanges(false));
 		sortPanel.setVisible(false);
-
 		
-		sortPanel.add(BorderLayout.SOUTH,showFullSummary = new PamCheckBox("Show Full Clip Summary"));
+		sortPanelContraints.gridy++;
+
+		sortPanel.add(showFullSummary = new PamCheckBox("Show Full Clip Summary"),sortPanelContraints);
+		showFullSummary.setSelected(true);
 		showFullSummary.setToolTipText("When checked, a mouse hover over a clip will show all clip summary data, when unchecked only a short summary will be displayed");
 		showFullSummary.addActionListener(new ActionListener() {
 			@Override

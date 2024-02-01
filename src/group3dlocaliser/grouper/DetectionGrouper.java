@@ -6,8 +6,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import javax.swing.Timer;
 
 import Array.ArrayManager;
 import Array.PamArray;
@@ -85,11 +86,19 @@ public class DetectionGrouper {
 	private DataSelector dataSelector;
 
 	private boolean isViewer;
+		
+	private Timer netRxTimer;
+	
+	private NetRxTimerTask netRxTimerTask;
 
 	public DetectionGrouper(DetectionGroupMonitor detectionGroupMonitor) {
 		this.detectionGroupMonitor = detectionGroupMonitor;
 		developingGroups = new LinkedList<>();
 		isViewer = PamController.getInstance().getRunMode() == PamController.RUN_PAMVIEW;
+		if(PamController.getInstance().getRunMode()==PamController.RUN_NETWORKRECEIVER) {
+			netRxTimer = new Timer();
+			netRxTimerTask = new NetRxTimerTask();
+		}
 	}
 
 	public synchronized void newData(PamDataUnit pamDataUnit) {
@@ -146,6 +155,14 @@ public class DetectionGrouper {
 		maybeCloseMotherGroup(iChanGroup, sampleNo);
 		
 		motherGroup.addDataUnit(iChanGroup, pamDataUnit);
+		
+		if(PamController.getInstance().getRunMode() == PamController.RUN_NETWORKRECEIVER) {
+			netRxTimerTask.cancel();
+			netRxTimer.purge();
+			long buffer = (long) maxInterGroupSample;
+			long sleepMillis = (long) (1000*(buffer + sampleRate)/sampleRate);
+			netRxTimer.schedule(netRxTimerTask = new NetRxTimerTask(),sleepMillis);
+		}
 		//			DetectionGroup oldGroup = findExistingGroup(iChanGroup, pamDataUnit);
 		//		if (oldGroup == null) {
 		//			oldGroup = new DetectionGroup(pamDataUnit);
@@ -163,6 +180,12 @@ public class DetectionGrouper {
 //		motherGroup.
 //		int lastGroup = motherGroup.getLastChannelGroup();
 		long buffer = (long) this.maxInterGroupSample;
+		
+		if(PamController.getInstance().getRunMode() == PamController.RUN_NETWORKRECEIVER) {
+			netRxTimerTask.cancel();
+			netRxTimer.purge();
+		}
+		
 //		if (shouldCloseMotherGroup(lastGroup, sampleNumber, buffer)) {
 		if (sampleNumber > motherGroup.getVeryLastSample() + buffer + sampleRate) {
 			closeMotherGroup();
@@ -170,6 +193,25 @@ public class DetectionGrouper {
 //			System.out.println("Mother group closed on timer");
 		}
 	}
+	
+	protected class NetRxTimerTask extends TimerTask {
+		
+		public boolean runThread = true;
+		
+		@Override
+		public void run() {
+				
+				if (motherGroup == null) {
+					return;
+				}
+				if (motherGroup.getTotalChannelMap() == 0) {
+					return;
+				}
+				closeMotherGroup();	
+		}
+	}
+		
+	
 	
 	private synchronized boolean  maybeCloseMotherGroup(int iChanGroup, long currentSample) {
 		long bufferSamples = (long) (0.00*sampleRate);
