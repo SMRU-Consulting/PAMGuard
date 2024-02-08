@@ -1,7 +1,10 @@
 package AIS;
 
+import NMEA.AcquireNmeaData;
+import NMEA.NMEAControl;
 import NMEA.NMEADataBlock;
 import NMEA.NMEADataUnit;
+import NMEA.NMEAParameters;
 import PamController.PamController;
 import PamDetection.AbstractLocalisation;
 import PamDetection.LocContents;
@@ -148,7 +151,9 @@ public class ProcessAISData extends PamProcess {
 			 * from the string's header.
 			 */
 			boolean ok = aivdm.decodeMessage();
-			aivdm.setTimeMilliseconds(PamCalendar.getTimeInMillis());
+			if(((NMEAControl) aisControl.nmeaDataBlock.getParentProcess().getPamControlledUnit()).getNmeaParameters().sourceType!=NMEAParameters.NmeaSources.TIMESTAMP_FILE) {
+				aivdm.setTimeMilliseconds(PamCalendar.getTimeInMillis());
+			}
 			// only add the data to the list if it's a useful type 
 			// (i.e. not base station data)
 			if (ok) {

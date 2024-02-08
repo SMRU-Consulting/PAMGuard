@@ -34,6 +34,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -53,11 +54,13 @@ public class NMEAParametersDialog extends PamDialog implements ActionListener {
 	private static NMEAParametersDialog singleInstance;
 	private NMEAParameters nmeaParameters;
 	private JTextField portTextField, groupTextField;
+	private JFileChooser nmeaFileSourceChooser;
 	private PamCheckBox multicastCheckBox;
 	private ButtonGroup gpsRadioGroup;
 	private JRadioButton udpNmeaGpsRadio;
 	private JRadioButton serialNmeaGpsRadio;
 	private JRadioButton simNmeaGpsRadio;
+	private JRadioButton timestampFile;
 	private JLabel portSettingsLabel;
 	public int[] bitsPerSecondList = {110, 300, 1200, 2400, 4800, 9600, 
 		19200, 38400, 57600, 115200, 230400, 460800, 921600};
@@ -112,6 +115,7 @@ public class NMEAParametersDialog extends PamDialog implements ActionListener {
 	private JPanel udpPortSelection;
 	private JPanel serialPortSelection;
 	private JPanel simulatedPortSettings;
+	private JPanel timstampFileSettings;
 	private NMEAParametersDialog(Frame parentFrame, NMEAParameters nmeaParameters) {
 		
 		super(parentFrame, "NMEA Parameters", false);
@@ -119,6 +123,7 @@ public class NMEAParametersDialog extends PamDialog implements ActionListener {
 		udpPortSelection = new JPanel();
 		serialPortSelection = new JPanel();
 		simulatedPortSettings = new JPanel();
+		timstampFileSettings = new JPanel();
 		JPanel simSelection = new JPanel();
 		JPanel outerSettingsPanel = new JPanel();
 		outerSettingsPanel.setLayout(new BorderLayout());
@@ -152,15 +157,22 @@ public class NMEAParametersDialog extends PamDialog implements ActionListener {
 		serialPortSelection.add(portComboBox);
 		serialPortSelection.add(new JLabel("BAUD"));
 		serialPortSelection.add(bitsPerSecondComboBox);
+		
+		timstampFileSettings.setLayout(new BorderLayout());
+		timstampFileSettings.add(nmeaFileSourceChooser = new JFileChooser());
+		nmeaFileSourceChooser.addActionListener(this);
+		//new JFileSelector()
 
 		gpsRadioGroup = new ButtonGroup(); // for logical association of rad buttons 
 		//JRadioButton serialNmeaGpsRadio;
 		gpsRadioGroup.add(serialNmeaGpsRadio = new JRadioButton("Serial NMEA data  "));
 		gpsRadioGroup.add(simNmeaGpsRadio = new JRadioButton("Simulated NMEA data  "));
 		gpsRadioGroup.add(udpNmeaGpsRadio = new JRadioButton("External NMEA server"));
+		gpsRadioGroup.add(timestampFile = new JRadioButton("Timestamped NMEA File"));
 		simNmeaGpsRadio.addActionListener(this);
 		udpNmeaGpsRadio.addActionListener(this);
 		serialNmeaGpsRadio.addActionListener(this);
+		timestampFile.addActionListener(this);
 		
 		
 //		simSelection.setLayout(new BoxLayout(simSelection, BoxLayout.Y_AXIS));
@@ -175,6 +187,8 @@ public class NMEAParametersDialog extends PamDialog implements ActionListener {
 		addComponent(simSelection, udpNmeaGpsRadio, c);
 		c.gridy++;
 		addComponent(simSelection, simNmeaGpsRadio, c);
+		c.gridy++;
+		addComponent(simSelection, timestampFile, c);
 		c.gridy++;
 
 		//serialNmeaGpsRadio.addActionListener(enableControlsListener);
@@ -194,6 +208,7 @@ public class NMEAParametersDialog extends PamDialog implements ActionListener {
 		nmeaSettingsPanel.add(serialPortSelection);
 		nmeaSettingsPanel.add(udpPortSelection);
 		nmeaSettingsPanel.add(simulatedPortSettings);
+		nmeaSettingsPanel.add(timstampFileSettings);
 		
 		setHelpPoint("mapping.NMEA.docs.configuringNMEADataSource");
 		setDialogComponent(nmeaSettingsPanel);
@@ -232,6 +247,9 @@ public class NMEAParametersDialog extends PamDialog implements ActionListener {
 			}
 			else if (simNmeaGpsRadio.isSelected()) {
 				nmeaParameters.sourceType = NmeaSources.SIMULATED;
+			}else if (timestampFile.isSelected()) {
+				nmeaParameters.sourceType = NmeaSources.TIMESTAMP_FILE;
+				nmeaParameters.nmeaSourceFile = nmeaFileSourceChooser.getSelectedFile();
 			}
 			nmeaParameters.simThread = nmeaParameters.sourceType == NmeaSources.SIMULATED;
 			
@@ -272,6 +290,7 @@ public class NMEAParametersDialog extends PamDialog implements ActionListener {
 		udpPortSelection.setVisible(udpNmeaGpsRadio.isSelected());
 		serialPortSelection.setVisible(serialNmeaGpsRadio.isSelected());
 		simulatedPortSettings.setVisible(simNmeaGpsRadio.isSelected());
+		timstampFileSettings.setVisible(timestampFile.isSelected());
 		
 		groupTextField.setEnabled(multicastCheckBox.isSelected());
 		pack();
