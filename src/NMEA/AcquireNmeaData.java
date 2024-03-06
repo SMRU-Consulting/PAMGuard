@@ -574,7 +574,7 @@ public class AcquireNmeaData extends PamProcess implements ActionListener, Modul
 				    String[] tokens = nextLine.split(",", 2);
 				    long millis = Long.valueOf(tokens[0]);
 				    if(lastMilli!=0 && lastMilli<millis) {
-				    	Thread.sleep(millis-lastMilli);
+				    	//Thread.sleep(millis-lastMilli);
 				    }
 				    processNmeaStringWithTimestamp(millis,tokens[1]);
 				   // processNmeaString(new StringBuffer(tokens[1]));
@@ -584,7 +584,7 @@ public class AcquireNmeaData extends PamProcess implements ActionListener, Modul
 					
 				}
 				reader.close();
-			}catch(IOException | InterruptedException  e) {
+			}catch(IOException   e) {
 				
 			}
 			
