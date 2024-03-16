@@ -24,6 +24,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import Acquisition.FolderInputSystem;
+import NMEA.NMEAControl;
 import PamController.PamController;
 import PamController.PamGUIManager;
 import PamController.PamSettingManager;
@@ -263,6 +264,12 @@ public class Pamguard {
 					String binFolder = args[iArg++];
 					GlobalArguments.setParam(BinaryStore.GlobalFolderArg, binFolder);
 					System.out.println("Setting output folder for binary files to " + binFolder);
+				}
+				else if (anArg.equalsIgnoreCase(NMEAControl.GlobalPortFlag)) {
+					// output folder for binary files. 
+					String serialPort = args[iArg++];
+					GlobalArguments.setParam(NMEAControl.GlobalPortFlag, serialPort);
+					System.out.println("Setting nmea serial port to " + serialPort);
 				}
 				else if (anArg.equalsIgnoreCase(DBControl.GlobalDatabaseNameArg)) {
 					// database file name

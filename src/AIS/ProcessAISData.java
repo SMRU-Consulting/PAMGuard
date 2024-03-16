@@ -119,7 +119,11 @@ public class ProcessAISData extends PamProcess {
 			newVDM.charData = new String(subString);
 			subString = NMEADataBlock.getSubString(dataString, 6);
 			if (subString == null) return;
-			newVDM.fillBits = Integer.valueOf(subString);
+			try {
+				newVDM.fillBits = Integer.valueOf(subString);
+			}catch(NumberFormatException e) {
+				System.out.println("Caught exception on fill bits: "+e.getMessage()+" full data String: "+dataString+" subString: "+subString);
+			}
 			
 		}
 		catch (Exception Ex) {

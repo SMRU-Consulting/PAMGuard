@@ -122,6 +122,9 @@ public class AISControl extends PamControlledUnit implements PamSettings {
 	public String getModuleSummary(boolean clear, String format) {
 		if(format.equals("json")) {
 			AISDataUnit lastUnit = aisProcess.getOutputDataBlock().getLastUnit();
+			if(lastUnit==null) {
+				return "";
+			}
 			JSONObject json = new JSONObject();
 			json.put("Note", "this is a summary, only reporting the last ais unit at the time requested.");
 			json.put("LastDataTime", lastUnit.getTimeMilliseconds());

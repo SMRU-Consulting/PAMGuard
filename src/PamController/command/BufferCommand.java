@@ -12,7 +12,7 @@ public class BufferCommand extends ExtCommand{
 
 	@Override
 	public String execute(String command) {
-		if(PamController.getInstance().getPamStatus()==PamController.PAM_RUNNING) {
+		if(PamController.getInstance().getPamStatus()==PamController.PAM_RUNNING && AcquisitionControl.getControllers()!=null && AcquisitionControl.getControllers().size()>0) {
 			return String.valueOf(AcquisitionControl.getControllers().get(0).getAcquisitionProcess().getBufferSeconds());
 		}
 		return "0";
