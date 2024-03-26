@@ -63,10 +63,11 @@ public class AISDataBlock extends PamDataBlock<AISDataUnit> implements NMEAEmula
 //				t = newAISUnit.getTimeMilliseconds();
 //			}
 			aisDataUnit.setTimeMilliseconds(t);
-			aisDataUnit.updateDataUnit(t);
+			//This was transmitting updates twice, calling addData via notifyObservers. 
+			/*aisDataUnit.updateDataUnit(t);
 			if (shouldNotify()) {
 				notifyObservers(aisDataUnit);
-			}
+			}*/
 			updatePamData(aisDataUnit, t); // need this to get it to save. 
 		}
 		else {
