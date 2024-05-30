@@ -26,7 +26,8 @@ public class NMEADataBlock extends PamDataBlock<NMEADataUnit> {
 		 when the next scentence of that id arrives. But leave the timer running to delete them anyway
 		 after a minute.
 		*/
-		setNaturalLifetime(20);
+		//setNaturalLifetime(20);
+		setNaturalLifetime(86400);
 	}
 	
 

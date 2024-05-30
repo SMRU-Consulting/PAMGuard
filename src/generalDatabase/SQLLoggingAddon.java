@@ -27,7 +27,8 @@ public interface SQLLoggingAddon {
 	public boolean saveData(SQLTypes sqlTypes, EmptyTableDefinition pamTableDefinition, PamDataUnit pamDataUnit);
 	
 	/**
-	 * Load data - that is read data from the table definition and turn it into something sensible
+	 * Load data - that is read data from the table definition and turn it into something sensi@Override
+	ble
 	 * within or attached to the data unit. 
 	 * @param pamTableDefinition table definition
 	 * @param pamDataUnit data unit
@@ -42,5 +43,6 @@ public interface SQLLoggingAddon {
 	 * @return the name of the Logging Addon
 	 */
 	public String getName();
+
 
 }

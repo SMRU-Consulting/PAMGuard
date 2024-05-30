@@ -1,5 +1,7 @@
 package PamController.command;
 
+import PamController.statusManager.ModuleSummarizer;
+
 public class SummaryPeekCommand extends SummaryCommand {
 
 	public SummaryPeekCommand() {
@@ -12,7 +14,7 @@ public class SummaryPeekCommand extends SummaryCommand {
 		String [] splitCommand = command.split(" ");
 		String format = "csv";
 		if(splitCommand.length>1) format = splitCommand[1];
-		return getModulesSummary(false,format);
+		return ModuleSummarizer.getModulesSummary(false,format);
 	}
 
 	@Override

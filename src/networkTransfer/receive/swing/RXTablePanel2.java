@@ -19,8 +19,13 @@ public class RXTablePanel2 extends DataBlockTableView<BuoyStatusDataUnit>{
 	private NetworkReceiver networkReceiver;
 
 	public RXTablePanel2(NetworkReceiver networkReceiver) {
-		super(networkReceiver.getBuoyStatusDataBlock(), networkReceiver.getUnitName());
+		super(networkReceiver.getBuoyStatusDataBlock(), networkReceiver.getUnitName(),networkReceiver);
 		this.networkReceiver = networkReceiver;
+	}
+	
+	@Override
+	protected void setControlledUnit() {
+		this.networkReceiver = (NetworkReceiver) controlledUnit;
 	}
 
 	@Override

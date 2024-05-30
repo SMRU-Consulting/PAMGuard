@@ -331,6 +331,11 @@ final public class PamModel implements PamSettings {
 		mi.setToolTipText("Sends PAMGuard data over a network to other computers");
 		mi.setHidden(SMRUEnable.isEnable() == false);
 		
+		mi = PamModuleInfo.registerControlledUnit("netTxControl_2.MqttNetSendControl", "Network Sender 2");
+		mi.setModulesMenuGroup(utilitiesGroup);
+		mi.setToolTipText("Sends PAMGuard data over a network to other computers");
+		mi.setHidden(SMRUEnable.isEnable() == false);
+		
 
 //		mi = PamModuleInfo.registerControlledUnit("serialPortLogger.SerialLogger", "Serial Port Logger");
 //		mi.setModulesMenuGroup(utilitiesGroup);
