@@ -84,7 +84,7 @@ public class NetworkReceiver extends PamControlledUnit implements PamSettings {
 
 	private BuoyStatusDataBlock buoyStatusDataBlock;
 
-	private NetworkReceiverInterface connectionThread;
+	public NetworkReceiverInterface connectionThread;
 
 	private NetworkReceiveSidePanel networkReceiveSidePanel;
 
@@ -227,7 +227,9 @@ public class NetworkReceiver extends PamControlledUnit implements PamSettings {
 		if(this.networkReceiveParams.connectionType==NetworkReceiveParams.CONNECTIONTYPE_STANDARD_TCP) {
 			connectionThread = new StandardTCPReceiver(networkReceiveParams,this);
 		}else {
-			connectionThread = new MqttNetReceiver(networkReceiveParams,this);
+			if(connectionThread==null) {
+				connectionThread = new MqttNetReceiver(networkReceiveParams,this);
+			}
 		}
 		connectionThread.runReceiver();
 	}
@@ -325,7 +327,9 @@ public class NetworkReceiver extends PamControlledUnit implements PamSettings {
 		 * May now need to tell the overall pam controller that things are starting or
 		 * stopping !
 		 */
-		PamController.getInstance().netReceiveStatus(changeTime, nPrepared, nStarted, nStopped);
+		if(networkReceiveParams.connectionType==NetworkReceiveParams.CONNECTIONTYPE_STANDARD_TCP) {
+			PamController.getInstance().netReceiveStatus(changeTime, nPrepared, nStarted, nStopped);
+		}
 	}
 
 	/**

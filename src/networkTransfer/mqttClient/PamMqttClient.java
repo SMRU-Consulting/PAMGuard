@@ -29,14 +29,15 @@ import networkTransfer.receive.NetworkReceiveParams;
 
 public class PamMqttClient extends NetworkClient  implements MqttCallback{
 	
-	private MqttAsyncClient mqttClient;
+	protected MqttAsyncClient mqttClient;
 	private MqttConnectOptions mqttOptions;
-	//private MqttDefaultFilePersistence memoryPersistence;
 	private String stationId;
 	private String status;
 	private String mqttConfigureError;
 	public NetworkSendParams networkSendParams;
 	public NetworkReceiveParams networkReceiveParams;
+	
+	
 
 	public PamMqttClient(NetworkParams networkParams){
 		super(networkParams);
@@ -245,7 +246,6 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		
 	}
 	
-
 	@Override
 	public boolean testClient() throws ClientConnectFailedException {
 		sendMessage("test","Pamguard client test at "+Instant.now().toString());
@@ -260,7 +260,5 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		testClient.close();
 		
 	}
-
-	
 
 }

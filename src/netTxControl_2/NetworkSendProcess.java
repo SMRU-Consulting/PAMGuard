@@ -50,10 +50,10 @@ public class NetworkSendProcess extends PamProcess {
 
 	@Override
 	public void pamStart() {
+		this.networkSender.runClient();
 		if (commandProcess && outputFormat==NetworkSendParams.NETWORKSEND_BYTEARRAY) {
 			sendPamCommand(NetworkReceiver.NET_PAM_COMMAND_START);
 		}
-		this.networkSender.runClient();
 	}
 
 	@Override

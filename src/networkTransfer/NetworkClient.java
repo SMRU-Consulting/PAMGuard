@@ -20,6 +20,7 @@ import netTxControl_2.ClientConnectFailedException;
 import netTxControl_2.MqttNetSendControl;
 import netTxControl_2.NetTransmitException;
 import netTxControl_2.NetworkSendParams;
+import networkTransfer.mqttClient.PamMqttClient;
 import netTxControl_2.NetworkQueuedObject;
 import warnings.PamWarning;
 import warnings.WarningSystem;

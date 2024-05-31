@@ -11,6 +11,9 @@ import PamView.component.DataBlockTableView;
 import PamguardMVC.PamDataBlock;
 import networkTransfer.receive.BuoyStatusDataUnit;
 import networkTransfer.receive.BuoyStatusValue;
+import networkTransfer.receive.MqttNetReceiver;
+import networkTransfer.receive.MqttReceiveThread;
+import networkTransfer.receive.NetworkReceiveParams;
 import networkTransfer.receive.NetworkReceiver;
 import networkTransfer.receive.PairedValueInfo;
 
@@ -66,12 +69,35 @@ public class RXTablePanel2 extends DataBlockTableView<BuoyStatusDataUnit>{
 		}
 		return n;
 	}
+	
+	public Object getMqttColumnData(BuoyStatusDataUnit b, int cols1index) {
+		switch(cols1index) {
+		case 3:
+			MqttNetReceiver mqttThread =  (MqttNetReceiver) networkReceiver.connectionThread;
+			if(mqttThread == null) {
+				return "Disconnected";
+			}
+			MqttReceiveThread buoyReceiver = mqttThread.getBuoyReceiveThread(b.getBuoyId1());
+			boolean isAlive = buoyReceiver.isAlive();
+			if (isAlive) {
+				return String.format("Connected : %s", NetworkReceiver.getPamCommandString(b.getCommandStatus()));
+			}
+			else {
+				return "Disconnected";
+			}
+		default:
+			return 0;
+		}
+	}
 
 	private static String[] colNames1 = {"Station Id","IP Addr", "Channel", "Status"};
 	private static String[] colNames2 = {"Last Data", "Position", "Tot' Packets"};
 
 	@Override
 	public Object getColumnData(BuoyStatusDataUnit b, int column) {
+		
+		boolean isMqtt = this.networkReceiver.getNetworkReceiveParams().connectionType==NetworkReceiveParams.CONNECTIONTYPE_MQTT;
+		
 		long t;
 	
 		Integer col = getCols1Index(column);
@@ -84,7 +110,10 @@ public class RXTablePanel2 extends DataBlockTableView<BuoyStatusDataUnit>{
 			case 2:
 				return b.getLowestChannel();
 			case 3:
-				boolean conState = b.getSocket() != null;
+				if(isMqtt) {
+					return getMqttColumnData(b,col);
+				}
+				boolean conState = (b.getSocket() != null);
 				if (conState) {
 					return String.format("Connected : %s", NetworkReceiver.getPamCommandString(b.getCommandStatus()));
 				}

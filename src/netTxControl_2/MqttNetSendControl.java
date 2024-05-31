@@ -48,7 +48,7 @@ public class MqttNetSendControl extends PamControlledUnit implements PamSettings
 	private NetworkSendSidePanel sidePanel;
 	private NetworkSendProcess commandProcess;
 	//PamWarning sendWarning;
-	private NetworkClient client;
+	public NetworkClient client;
 	
 	public MqttNetSendControl(String unitName) {
 		super("Network Sender", unitName);

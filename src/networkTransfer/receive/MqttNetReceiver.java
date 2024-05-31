@@ -20,6 +20,7 @@ public class MqttNetReceiver extends PamMqttClient implements NetworkReceiverInt
 	private NetworkReceiver netReceiver;
 	private NetworkAudioInterpreter networkAudioInterpreter;
 	private BuoyStatusDataBlock buoyStatusDataBlock;
+	private BaseListener baseListener;
 	
 	
 	public MqttNetReceiver(NetworkReceiveParams netRxParams, NetworkReceiver netReceiver) {
@@ -49,6 +50,9 @@ public class MqttNetReceiver extends PamMqttClient implements NetworkReceiverInt
 
 	@Override
 	public void runReceiver() {
+		if(this.isConnected()) {
+			return;
+		}
 		this.configureClient();
 		try {
 			this.connect();
@@ -57,7 +61,8 @@ public class MqttNetReceiver extends PamMqttClient implements NetworkReceiverInt
 		}
 		
 		try {
-			this.subscribeListener(netParams.baseTopic+"/#", new BaseListener());
+			baseListener = new BaseListener(this);
+			this.subscribeListener(netParams.baseTopic+"/#", baseListener);
 		} catch (MqttException e) {
 			e.printStackTrace();
 		}
@@ -66,17 +71,19 @@ public class MqttNetReceiver extends PamMqttClient implements NetworkReceiverInt
 	
 	private class BaseListener implements IMqttMessageListener{
 
-		HashMap<String,BuoyReceiveThread> buoyReceivers;
+		HashMap<String,MqttReceiveThread> buoyReceivers;
+		MqttNetReceiver mqttReceiver;
 		
-		public BaseListener() {
-			buoyReceivers = new HashMap<String,BuoyReceiveThread>();
+		public BaseListener(MqttNetReceiver mqttReceiver) {
+			buoyReceivers = new HashMap<String,MqttReceiveThread>();
+			this.mqttReceiver = mqttReceiver;
 		}
 		
 		@Override
 		public void messageArrived(String topic, MqttMessage message) throws Exception {
 			String buoyId = topic.split("/")[1];
 			if(!buoyReceivers.containsKey(buoyId)) {
-				buoyReceivers.put(buoyId, new BuoyReceiveThread(buoyId));
+				buoyReceivers.put(buoyId, new MqttReceiveThread(buoyId,mqttReceiver));
 			}
 			
 			buoyReceivers.get(buoyId).newMessage(topic,message);
@@ -125,4 +132,14 @@ public class MqttNetReceiver extends PamMqttClient implements NetworkReceiverInt
 		
 	}
 
+	public MqttReceiveThread getBuoyReceiveThread(String pbId) {
+		return baseListener.buoyReceivers.get(pbId);
+	}
+	
+	public MqttReceiveThread getBuoyReceiveThread(int idInteger) {
+		String pbId = "pb"+idInteger;
+		return baseListener.buoyReceivers.get(pbId);
+
+	}
+	
 }
