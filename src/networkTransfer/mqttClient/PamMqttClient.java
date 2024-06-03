@@ -18,6 +18,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import netTxControl_2.ClientConnectFailedException;
 import netTxControl_2.NetTransmitException;
@@ -64,7 +65,12 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 			}
 		}
 		try {
-			mqttClient = new MqttAsyncClient("ssl://"+this.networkParams.ipAddress+":"+this.networkParams.portNumber,stationId);
+			if(this.networkParams.useSSL) {
+				mqttClient = new MqttAsyncClient("ssl://"+this.networkParams.ipAddress+":"+this.networkParams.portNumber,stationId,new MemoryPersistence());
+			}else {
+				mqttClient = new MqttAsyncClient("tcp://"+this.networkParams.ipAddress+":"+this.networkParams.portNumber,stationId,new MemoryPersistence());
+
+			}
 		} catch (MqttException e) {
 			e.printStackTrace();
 			mqttConfigureError = e.getMessage();
@@ -118,6 +124,9 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		} catch (MqttException e) {
 			e.printStackTrace();
 			String readableReason = "";
+			if(e.getCause()==null) {
+				throw new ClientConnectFailedException(e.getMessage(),e);
+			}
 			if(e.getCause().getMessage().equals("readHandshakeRecord")) {
 				readableReason = "Broker requires certificate. Include keystore in parameters";
 			}else if(e.getCause().getMessage().contains("unable to find valid certification path to requested target")) {
