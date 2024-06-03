@@ -80,6 +80,11 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		mqttOptions.setCleanSession(false);
 		mqttOptions.setConnectionTimeout(0);
 		mqttOptions.setMaxInflight(200);
+		if(this.networkParams.userId!=null&&this.networkParams.password!=null&&!this.networkParams.userId.isEmpty()&&!this.networkParams.password.isEmpty()) {
+			mqttOptions.setUserName(this.networkParams.userId);
+			mqttOptions.setPassword(this.networkParams.password.toCharArray());
+
+		}
 		mqttClient.setCallback(this);
 		if(this.networkParams.useSSL) {
 			try {
