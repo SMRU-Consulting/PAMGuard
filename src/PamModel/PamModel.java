@@ -23,6 +23,7 @@ package PamModel;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -44,7 +45,6 @@ import whistlesAndMoans.AbstractWhistleDataUnit;
 import fftManager.FFTDataUnit;
 import fftManager.PamFFTControl;
 import group3dlocaliser.Group3DLocaliserControl;
-import metadata.MetaDataContol;
 import meygenturbine.MeygenTurbine;
 import printscreen.PrintScreenControl;
 import rockBlock.RockBlockControl;
@@ -471,7 +471,8 @@ final public class PamModel implements PamSettings {
 			mi.setToolTipText("Interface to Tethys Database");
 			mi.setModulesMenuGroup(utilitiesGroup);
 			mi.setMaxNumber(1);
-			mi.setHidden(SMRUEnable.isEnable() == false);
+			//mi.addGUICompatabilityFlag(PamGUIManager.FX); //has FX enabled GUI.
+//			mi.setHidden(SMRUEnable.isEnable() == false);
 		}		
 		
 		/*
@@ -521,7 +522,8 @@ final public class PamModel implements PamSettings {
 		mi.setModulesMenuGroup(sensorsGroup);
 		mi.setToolTipText("Imports CPOD data");
 		mi.setHidden(SMRUEnable.isEnable() == false);
-		
+		mi.addGUICompatabilityFlag(PamGUIManager.FX); //has FX enabled GUI.
+
 		/*
 		 * ************* Start Displays  Group *******************
 		 */
@@ -590,6 +592,7 @@ final public class PamModel implements PamSettings {
 		mi.addDependency(new PamDependency(RawDataUnit.class, "Acquisition.AcquisitionControl"));	
 		mi.setToolTipText("Decimates (reduces the frequency of) audio data");
 		mi.setModulesMenuGroup(processingGroup);
+		mi.addGUICompatabilityFlag(PamGUIManager.FX); //has FX enabled GUI.
 
 		mi = PamModuleInfo.registerControlledUnit(CepstrumControl.class.getName(), CepstrumControl.unitType);	
 		mi.addDependency(new PamDependency(FFTDataUnit.class, PamFFTControl.class.getName()));	
@@ -874,7 +877,7 @@ final public class PamModel implements PamSettings {
 			mi.setModulesMenuGroup(displaysGroup);
 			mi.addGUICompatabilityFlag(PamGUIManager.FX);
 
-			mi = PamModuleInfo.registerControlledUnit("detectionPlotFX.DetectionDisplayControl", "Detection Display" );
+			mi = PamModuleInfo.registerControlledUnit("detectionPlotFX.DetectionDisplayControl2", "Detection Display" );
 			mi.setToolTipText("Display detection data");
 			mi.setModulesMenuGroup(displaysGroup);
 			mi.addGUICompatabilityFlag(PamGUIManager.FX);
@@ -1194,7 +1197,13 @@ final public class PamModel implements PamSettings {
 					    // Save the name of the class to the global pluginBeingLoaded variable, and load the class.
 					    this.setPluginBeingLoaded(className);
 //						Class c = cl.loadClass(className);
-						Class c = Class.forName(className, true, classLoader);
+					    /*
+					     * Was Failing here  if a plugin is loaded before a plugin that has classes
+					     * this one is dependent on. Seems that if we set the second parameter to 
+					     * false then it doesn't fully initialize the class, so will be OK, get past
+					     * this stage and fully load the class when it's used.  
+					     */
+						Class c = Class.forName(className, false, classLoader);
 						if (getPluginBeingLoaded()==null) {
 							continue;
 						}
@@ -1212,13 +1221,15 @@ final public class PamModel implements PamSettings {
 								if (intf[j].getName().equals("PamModel.PamPluginInterface")) {
 									
 									// create an instance of the interface class.  
-									PamPluginInterface pf = (PamPluginInterface) c.newInstance();
+									Constructor constructor = c.getDeclaredConstructor(null);
+									PamPluginInterface pf = (PamPluginInterface) constructor.newInstance(null);
 									if (getPluginBeingLoaded()==null) {
 										continue;
 									}
 
 									// Let the user know which valid plugins have been found
-									System.out.println("   Creating instance of " + pf.getDefaultName() + ": "  + pf.getClassName());
+									System.out.printf("   Loading plugin interface for %s : %s version %s\n",
+											pf.getDefaultName(), pf.getClassName(), pf.getVersion());
 									if (getPluginBeingLoaded()==null) {
 										continue;
 									}
@@ -1234,7 +1245,7 @@ final public class PamModel implements PamSettings {
 
 										pluginList.add(pf); // add it to the list
 									} else {
-										System.out.println("     Error: "+pf.getDefaultName()+" cannot run in this mode.  Skipping module.");									
+										System.out.println("     Error: " + pf.getDefaultName()+" cannot run in this mode.  Skipping module.");									
 									}
 									if (getPluginBeingLoaded()==null) {
 										continue;
@@ -1243,12 +1254,16 @@ final public class PamModel implements PamSettings {
 								
 								// now check for interfaces that implement DaqSystemInterface
 								if (intf[j].getName().equals("Acquisition.DaqSystemInterface")) {
-									DaqSystemInterface pf = (DaqSystemInterface) c.newInstance(); // create an instance of the interface class
+									Constructor constructor = c.getDeclaredConstructor(null);
+									DaqSystemInterface pf = (DaqSystemInterface) constructor.newInstance(null);
+//									DaqSystemInterface pf = (DaqSystemInterface) c.newInstance(); // create an instance of the interface class
 									if (getPluginBeingLoaded()==null) {
 										continue;
 									}
-									
-									System.out.println("   Creating instance of " + pf.getDefaultName() + ": "  + className);
+
+									System.out.printf("   Loading daq plugin interface for %s version %s\n",
+											pf.getDefaultName(), pf.getVersion());
+//									System.out.println("   Creating instance of " + pf.getDefaultName() + ": "  + className);
 									if (getPluginBeingLoaded()==null) {
 										continue;
 									}
@@ -1264,12 +1279,14 @@ final public class PamModel implements PamSettings {
 							// if there were any errors while accessing the plugin, let the user know and then move
 							// on to the next plugin.
 							} catch (Throwable e1) {
+								e1.printStackTrace();
 								String title = "Error accessing plug-in module";
 								String msg = "There is an error with the plug-in module " + className + ".<p>" +
 										"This may have been caused by an incompatibility between " +
 										"the plug-in and this version of PAMGuard.  Please check the developer's website " +
 										"for help.<p>" +
-										"This plug-in will not be available for loading";
+										"This plug-in will not be available for loading<p>" + 
+										e1.getClass().getName() + ": " + e1.getLocalizedMessage();
 								String help = null;
 								int ans = WarnOnce.showWarning(PamController.getMainFrame(), title, msg, WarnOnce.WARNING_MESSAGE, help, e1);
 								System.err.println("Exception while loading " +	className);
@@ -1279,12 +1296,14 @@ final public class PamModel implements PamSettings {
 						}						
 					}
 				} catch (Throwable ex) {
+					ex.printStackTrace();
 					String title = "Error accessing plug-in module";
 					String msg = "There is an error with the plug-in module " + jarList.get(i).getName() + ".<p>" +
 							"This may have been caused by an incompatibility between " +
 							"the plug-in and this version of PAMGuard.  Please check the developer's website " +
 							"for help.<p>" +
-							"This plug-in will not be available for loading";
+							"This plug-in will not be available for loading<p>"  + 
+							ex.getClass().getName() + ": " + ex.getLocalizedMessage();
 					String help = null;
 					int ans = WarnOnce.showWarning(PamController.getMainFrame(), title, msg, WarnOnce.WARNING_MESSAGE, help, ex);
 					System.err.println("Exception while loading " +	jarList.get(i).getName());

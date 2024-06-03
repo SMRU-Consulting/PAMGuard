@@ -147,9 +147,15 @@ public class TDAcousticScroller extends AcousticScrollerFX implements PamSetting
 		createTimeSpinner(); 
 
 		this.settingsPane.setParams(scrollerColourParams);
-
+		
 		updateDataGramColours(scrollerColourParams);
 
+	}
+	
+	private void setSpinnerValue(long millis) {
+		spinnerCall = true;
+		spinner.getValueFactory().setValue(millis);
+		spinnerCall = false; 
 	}
 
 	boolean spinnerCall = false; 
@@ -180,9 +186,7 @@ public class TDAcousticScroller extends AcousticScrollerFX implements PamSetting
 		
 		//add a listener so that the spinner changes of the visible amount chnages
 		super.getScrollBarPane().visibleAmountProperty().addListener((obsVal, oldVal, newVal)->{
-			spinnerCall = true;
-			spinner.getValueFactory().setValue(newVal.longValue());
-			spinnerCall = false; 
+			 setSpinnerValue(newVal.longValue());
 		});
 		
 		//add a listener so the visible amount changes of the spinner changes value. 
@@ -215,6 +219,13 @@ public class TDAcousticScroller extends AcousticScrollerFX implements PamSetting
 					}
 				}
 		});
+	}
+	
+	
+	@Override
+	public void setVisibleMillis(long visibleAmount) {
+		super.setVisibleMillis(visibleAmount);
+		 setSpinnerValue(visibleAmount);
 	}
 
 
@@ -629,6 +640,7 @@ public class TDAcousticScroller extends AcousticScrollerFX implements PamSetting
 
 		}
 	}
+
 
 
 	@Override

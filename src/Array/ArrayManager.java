@@ -10,13 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.JFrame;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import pamMaths.PamQuaternion;
 import pamMaths.PamVector;
 import userDisplay.UserDisplayControl;
-import depthReadout.DepthControl;
 import Array.importHydrophoneData.HydrophoneImport;
 import Array.importHydrophoneData.StreamerImport;
 import Array.layoutFX.ArrayGUIFX;
@@ -25,6 +21,7 @@ import Array.sensors.swing.ArraySensorPanelProvider;
 import GPS.GPSControl;
 import GPS.GPSDataBlock;
 import GPS.GpsData;
+import GPS.GpsDataUnit;
 import PamController.PamControlledUnit;
 import PamController.PamControlledUnitGUI;
 import PamController.PamControlledUnitSettings;
@@ -32,6 +29,7 @@ import PamController.PamController;
 import PamController.PamGUIManager;
 import PamController.PamSettingManager;
 import PamController.PamSettings;
+import PamController.masterReference.MasterReferencePoint;
 import PamController.positionreference.PositionReference;
 import PamModel.PamModuleInfo;
 import PamUtils.PamUtils;
@@ -89,7 +87,7 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 
 //	private DepthControl depthControl;
 
-	private ImportDataSystem<ArrayList<Double>> hydrophoneImportManager;
+	private ImportDataSystem<Hydrophone> hydrophoneImportManager;
 
 	private ImportDataSystem<ArrayList<Double>> streamerImportManager;
 	
@@ -138,7 +136,7 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 
 		//enable importing of time stamped hydrophone and streamer data if in viewer mode. 
 		if (isViewer){
-			hydrophoneImportManager= new ImportDataSystem<ArrayList<Double>>(new HydrophoneImport(hydrophonesProcess.getHydrophoneDataBlock()));
+			hydrophoneImportManager= new ImportDataSystem<Hydrophone>(new HydrophoneImport(hydrophonesProcess.getHydrophoneDataBlock()));
 			hydrophoneImportManager.setName("Hydrophone Data Import");
 			streamerImportManager = new ImportDataSystem<ArrayList<Double>>(new StreamerImport(hydrophonesProcess.getStreamerDataBlock()));
 			streamerImportManager.setName("Streamer Data Import");
@@ -993,6 +991,7 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 	 * @return geometry data. 
 	 */
 	public SnapshotGeometry getSnapshotGeometry(int hydrophoneMap, long timeMillis) {
+				
 		PamArray currentArray = getCurrentArray();
 		if (currentArray == null) {
 			return null;
@@ -1051,12 +1050,17 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 			/**
 			 * Rotate the hydrophone about the centre of it's streamer. 
 			 */
-			Hydrophone hydrophone = currentArray.getHiddenHydrophone(i);
+//			Hydrophone hydrophone = currentArray.getHiddenHydrophone(i);
+			Hydrophone hydrophone = currentArray.getHydrophone(i, timeMillis);
+			
+			
+			
 			if (hydrophone == null) {
 				continue;
 			}
 			PamVector hydrophoneVec = hydrophone.getVector();
 			PamVector hydrophoneErrorVec = hydrophone.getErrorVector();
+						
 			if (streamerQuaternion != null) {
 				hydrophoneVec = PamVector.rotateVector(hydrophoneVec, streamerQuaternion);
 				hydrophoneErrorVec = PamVector.rotateVector(hydrophoneErrorVec, streamerQuaternion);
@@ -1080,14 +1084,45 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 			}
 		}
 
-		if (nGood > 0) for (int p = 0; p < 3; p++) {
-			centre[p] /= nGood;
+		if (nGood > 0) { 
+			for (int p = 0; p < 3; p++) {
+				centre[p] /= nGood;
+			}
+			return new SnapshotGeometry(currentArray, timeMillis, streamerList, hydrophoneList, firstStreamerPos,
+					new PamVector(centre), geometry, streamerError, hydrophoneError);
 		}
-		
-		return new SnapshotGeometry(currentArray, timeMillis, streamerList, hydrophoneList, firstStreamerPos,
-				new PamVector(centre), geometry, streamerError, hydrophoneError);
+		else {
+			return getMasterReferenceGeometry(timeMillis);
+		}	
 		
 	}
+	
+	/**
+	 * Create a snapshot geometry from the master reference position, which will either be the GPS data, or 
+	 * the centre point of the array. Worst case is that it ends up as 0,0,0
+	 * @param timeMillis
+	 * @return
+	 */
+	private SnapshotGeometry getMasterReferenceGeometry(long timeMillis) {
+		GPSControl gpsControl = GPSControl.getGpsControl();
+		GpsData referencePoint = null;
+		if (gpsControl != null) {
+			GpsDataUnit shipPos = gpsControl.getShipPosition(timeMillis, true);
+			if (shipPos != null) {
+				referencePoint = shipPos.getGpsData();
+			}
+		}
+		if (referencePoint == null && MasterReferencePoint.getFixTime() != null && MasterReferencePoint.getLatLong() != null) {
+			// running out of options, so fall back to the master reference point, interpolated (probably has zero speeed)
+			referencePoint = new GpsData(MasterReferencePoint.getFixTime(), MasterReferencePoint.getLatLong()).getPredictedGPSData(timeMillis);
+		}
+		if (referencePoint == null) {
+			return null;
+		}
+		SnapshotGeometry snapgeom = new SnapshotGeometry(getCurrentArray(), timeMillis, null, null, referencePoint, new PamVector(0,0,0), null, null, null);
+		return snapgeom;
+	}
+
 //	
 //	public SnapshotGeometry getSubDetectionGeometry(PamDataUnit superDataUnit) {
 //		/**
