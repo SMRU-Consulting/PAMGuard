@@ -1,4 +1,4 @@
-package netTxControl_2;
+package networkTransfer.send;
 
 import java.net.UnknownHostException;
 

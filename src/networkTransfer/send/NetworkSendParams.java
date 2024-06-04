@@ -9,32 +9,24 @@ import PamModel.parametermanager.PamParameterSet;
 import PamModel.parametermanager.PrivatePamParameterData;
 import PamModel.parametermanager.PamParameterSet.ParameterSetType;
 import PamguardMVC.PamDataBlock;
+import networkTransfer.NetworkParams;
 
-public class NetworkSendParams implements Serializable, Cloneable, ManagedParameters {
+public class NetworkSendParams extends NetworkParams implements Serializable, Cloneable, ManagedParameters {
 
 	public static final long serialVersionUID = 1L;
 	
 	public static final int NETWORKSEND_BYTEARRAY = 0;
 	
 	public static final int NETWORKSEND_JSON = 1;
-
-	public String ipAddress = "localhost";
 	
-	public int portNumber = 8011;
-	
-	public String password;
-	
-	public String userId;
+	public static final int NETWORKSEND_BOTH = 2;
 	
 	public int stationId1;
 	
 	public int stationId2;
-	
-	public boolean savePassword = true;
-	
+		
 	public int sendingFormat = NETWORKSEND_BYTEARRAY;
 	
-	public boolean useSSL = false;
 	
 	/**
 	 * Max number of queued Objects. 
@@ -93,13 +85,8 @@ public class NetworkSendParams implements Serializable, Cloneable, ManagedParame
 	
 	
 	@Override
-	protected NetworkSendParams clone() {
-		try {
-			return (NetworkSendParams) super.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-			return null;
-		}
+	public NetworkSendParams clone() {
+		return (NetworkSendParams) super.clone();
 	}
 
 	public void clearDataBlocks() {

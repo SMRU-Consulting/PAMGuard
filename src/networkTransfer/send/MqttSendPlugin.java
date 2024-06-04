@@ -1,4 +1,4 @@
-package netTxControl_2;
+package networkTransfer.send;
 
 import PamModel.PamDependency;
 import PamModel.PamPluginInterface;
@@ -10,7 +10,7 @@ public class MqttSendPlugin implements PamPluginInterface{
 	@Override
 	public String getDefaultName() {
 		// TODO Auto-generated method stub
-		return MqttNetSendControl.unitType;
+		return "Network Sender";
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class MqttSendPlugin implements PamPluginInterface{
 	@Override
 	public String getClassName() {
 		// TODO Auto-generated method stub
-		return MqttNetSendControl.class.getName();
+		return NetworkSender.class.getName();
 	}
 
 	@Override

@@ -4,11 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import networkTransfer.receive.NetworkReceiver;
 import binaryFileStorage.BinaryDataSource;
 import binaryFileStorage.BinaryObjectData;
 import jsonStorage.JSONObjectData;
 import jsonStorage.JSONObjectDataSource;
+import networkTransfer.receive.NetworkReceiver;
 import PamController.PamControlledUnit;
 import PamUtils.PamCalendar;
 import PamguardMVC.PamDataBlock;
@@ -50,6 +50,7 @@ public class NetworkSendProcess extends PamProcess {
 
 	@Override
 	public void pamStart() {
+		this.networkSender.runClient();
 		if (commandProcess && outputFormat==NetworkSendParams.NETWORKSEND_BYTEARRAY) {
 			sendPamCommand(NetworkReceiver.NET_PAM_COMMAND_START);
 		}
@@ -80,8 +81,8 @@ public class NetworkSendProcess extends PamProcess {
 			e.printStackTrace();
 		}
 		byte[] data = networkObjectPacker.packData(id1, id2, (short) NetworkReceiver.NET_PAM_COMMAND, command, timeData);
-		NetworkQueuedObject qo = new NetworkQueuedObject(id1, id2, NetworkReceiver.NET_PAM_COMMAND, command, data);
-		networkSender.queueDataObject(qo);
+		NetworkQueuedObject qo = new NetworkQueuedObject(id1, id2, NetworkReceiver.NET_PAM_COMMAND, command, data,"command");
+		networkSender.transmitData(qo);
 	}
 
 	@Override
@@ -106,7 +107,7 @@ public class NetworkSendProcess extends PamProcess {
 			int id2 = networkSender.networkSendParams.stationId2;
 			
 			byte[] data = networkObjectPacker.packDataUnit(id1,id2, (PamDataBlock) dataBlock, dataUnit);
-			qo = new NetworkQueuedObject(id1, id2, NetworkReceiver.NET_PAM_DATA, quickId, data);
+			qo = new NetworkQueuedObject(id1, id2, NetworkReceiver.NET_PAM_DATA, quickId, data,dataUnit.getParentDataBlock().getDataName());
 		}
 
 		// pack the data into a json string
@@ -115,14 +116,14 @@ public class NetworkSendProcess extends PamProcess {
 			if (jsonString==null) {
 				System.out.println("Error creating json string from " + dataBlock.getClass());
 			} else {
-				qo = new  NetworkQueuedObject(jsonString);
+				qo = new  NetworkQueuedObject(jsonString,dataUnit.getParentDataBlock().getDataName());
 			}
 //			System.out.print("***" + jsonString);
 		}
 		
 		// Add to the output queue
 		if (qo!=null) {
-			networkSender.queueDataObject(qo);
+			networkSender.transmitData(qo);
 		}
 	}
 

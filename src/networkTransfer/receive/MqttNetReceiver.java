@@ -8,10 +8,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import PamUtils.PamCalendar;
 import PamguardMVC.PamDataUnit;
-import netTxControl_2.ClientConnectFailedException;
 import networkTransfer.NetworkObject;
 import networkTransfer.NetworkReceiverInterface;
 import networkTransfer.mqttClient.PamMqttClient;
+import networkTransfer.send.ClientConnectFailedException;
 import nidaqdev.networkdaq.NetworkAudioInterpreter;
 
 public class MqttNetReceiver extends PamMqttClient implements NetworkReceiverInterface,NetworkDataUser{

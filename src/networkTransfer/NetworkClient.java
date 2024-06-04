@@ -16,12 +16,12 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
-import netTxControl_2.ClientConnectFailedException;
-import netTxControl_2.MqttNetSendControl;
-import netTxControl_2.NetTransmitException;
-import netTxControl_2.NetworkSendParams;
 import networkTransfer.mqttClient.PamMqttClient;
-import netTxControl_2.NetworkQueuedObject;
+import networkTransfer.send.ClientConnectFailedException;
+import networkTransfer.send.NetTransmitException;
+import networkTransfer.send.NetworkQueuedObject;
+import networkTransfer.send.NetworkSendParams;
+import networkTransfer.send.NetworkSender;
 import warnings.PamWarning;
 import warnings.WarningSystem;
 
