@@ -1367,6 +1367,9 @@ public class PamController implements PamControllerInterface, PamSettings {
 					dumpBufferStatus("Stopping stuck in loop", false);
 					break; // crap out anyway.
 				}
+				if((double) (t2-t1)/1000.>20.) {
+					PamController.getInstance().setPamStatus(PamController.PAM_STALLED);
+				}
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {

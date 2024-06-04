@@ -397,6 +397,7 @@ public class PamFFTProcess extends PamProcess {
 			// amount of data 
 			int[] chanList = PamUtils.getChannelArray(fftParameters.channelMap);
 			try {
+<<<<<<< HEAD
 				int n = tempStores[iChan].getN();
 				for (int iF = 0; iF < n; iF++) {
 					for (int iC = 0; iC < chanList.length; iC++) {
@@ -412,11 +413,38 @@ public class PamFFTProcess extends PamProcess {
 									iC, chanList.length, iF, n);
 						}
 						//					outputData.addPamData(null);
+=======
+			TempOutputStore[] temptempStores = tempStores;
+			int n = temptempStores[iChan].getN();
+			for (int iF = 0; iF < n; iF++) {
+				for (int iC = 0; iC < chanList.length; iC++) {
+//					pu = tempStores[chanList[iC]].get(iF);
+					try {
+					outputData.addPamData(temptempStores[chanList[iC]].get(iF));
+>>>>>>> refs/heads/SMRUC_branch
 					}
+<<<<<<< HEAD
+=======
+					catch (ArrayIndexOutOfBoundsException e) {
+//						e.printStackTrace();
+						System.err.println("PAMFFTProcess.newData: " + e.getMessage() + " " + this.getPamControlledUnit().getUnitName() + " iC: " + iC +  " iF: " + iF);
+					}
+					if(tempStores!=temptempStores) {
+						System.out.println("Temptemp and temp out of sync!!");
+					}
+//					outputData.addPamData(null);
+>>>>>>> refs/heads/SMRUC_branch
 				}
+<<<<<<< HEAD
 				for (int iC = 0; iC < chanList.length; iC++) {
 					tempStores[chanList[iC]].clearStore();
 				}
+=======
+			}
+			for (int iC = 0; iC < chanList.length; iC++) {
+				temptempStores[chanList[iC]].clearStore();
+			}
+>>>>>>> refs/heads/SMRUC_branch
 			}
 			catch (Exception e) {
 				e.printStackTrace();

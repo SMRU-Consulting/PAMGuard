@@ -1,0 +1,342 @@
+package netTxControl_2;
+
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serializable;
+import java.util.ArrayList;
+
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+
+import PamController.PamControlledUnit;
+import PamController.PamControlledUnitSettings;
+import PamController.PamController;
+import PamController.PamSettingManager;
+import PamController.PamSettings;
+import PamModel.SMRUEnable;
+import PamView.PamSidePanel;
+import PamguardMVC.PamDataBlock;
+import networkTransfer.NetworkClient;
+import networkTransfer.NetworkParams;
+import networkTransfer.emulator.NetworkEmulator;
+import networkTransfer.mqttClient.PamMqttClient;
+import pamguard.GlobalArguments;
+import warnings.PamWarning;
+import warnings.WarningSystem;
+
+/**
+ * Send near real time data over the network to another PAMGUARD configuration.
+ * <p>Not currently configured in Java.  
+ * @author Doug Gillespie
+ *
+ */
+public class MqttNetSendControl extends PamControlledUnit implements PamSettings {
+	
+	public static final String ADDRESS = "-netSend.address";
+	public static final String PORT = "-netSend.port";
+	public static final String ID1 = "-netSend.id1";
+	public static final String ID2 = "-netSend.id2";
+	public static final String USESSL = "-netSend.ssl";
+
+	public static final String unitType = "MqttNetSendControl";
+
+
+	protected NetworkSendParams networkSendParams = new NetworkSendParams();
+	private NetworkEmulator networkEmulator;
+	private boolean initialisationComplete = false;
+	private NetworkSendSidePanel sidePanel;
+	private NetworkSendProcess commandProcess;
+	//PamWarning sendWarning;
+	public NetworkClient client;
+	
+	public MqttNetSendControl(String unitName) {
+		super("Network Sender", unitName);
+		commandProcess = new NetworkSendProcess(this, null,NetworkSendParams.NETWORKSEND_BYTEARRAY);
+		commandProcess.setCommandProcess(true);
+		addPamProcess(commandProcess);
+		PamSettingManager.getInstance().registerSettings(this);
+		if(this.networkSendParams.mqtt) {
+			client = new PamMqttClient(this.networkSendParams);
+		}else {
+			client = new TCPSendClient(this.networkSendParams);
+		}
+		sidePanel = new NetworkSendSidePanel(this);
+	}
+
+	/* (non-Javadoc)
+	 * @see PamController.PamControlledUnit#createDetectionMenu(java.awt.Frame)
+	 */
+	@Override
+	public JMenuItem createDetectionMenu(Frame parentFrame) {
+		JMenuItem menuItem = new JMenuItem(getUnitName() + " Settings ...");
+		menuItem.addActionListener(new SenderSettings(parentFrame));
+		if (SMRUEnable.isEnable() && isViewer) {
+			JMenu menu = new JMenu(getUnitName());
+			menu.add(menuItem);
+			menuItem = new JMenuItem("Emulate Transmitted Data ...");
+			menuItem.addActionListener(new MitigateEmulateMenu(parentFrame));
+			menu.add(menuItem);
+			return menu;
+		}
+		else {
+			return menuItem;
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see PamController.PamControlledUnit#getSidePanel()
+	 */
+	@Override
+	public PamSidePanel getSidePanel() {
+		return sidePanel;
+	}
+
+	private class SenderSettings implements ActionListener {
+
+		private Frame parentFrame;
+
+		public SenderSettings(Frame parentFrame) {
+			this.parentFrame = parentFrame;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			senderSettings(parentFrame);			
+		}
+		
+	}
+
+	public void senderSettings(Frame parentFrame) {
+		NetworkSendParams p = NetworkSendDialog.showDialog(parentFrame, this, networkSendParams);
+		if (p != null) {
+			networkSendParams = (NetworkSendParams) p.clone();
+			sortDataSources();
+		}
+	}
+
+	private class MitigateEmulateMenu implements ActionListener {
+		
+		private Frame parentFrame;
+
+		public MitigateEmulateMenu(Frame parentFrame) {
+			this.parentFrame = parentFrame;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			mitigateEmulate(parentFrame);			
+		}
+	}
+	
+	/**
+	 * Call the emulator to pop up a dialog which willcontrol everything. 
+	 * @param parentFrame
+	 */
+	public void mitigateEmulate(Frame parentFrame) {
+		getNetworkEmulator().showEmulateDialog(parentFrame);
+	}
+	
+	/**
+	 * Get  / create the NetworkEmulator. 
+	 * @return
+	 */
+	private NetworkEmulator getNetworkEmulator() {
+		if (networkEmulator == null) {
+			//networkEmulator = new NetworkEmulator(this);
+		}
+		return networkEmulator;
+	}
+
+	@Override
+	public Serializable getSettingsReference() {
+		NetworkSendParams p = (NetworkSendParams) networkSendParams.clone();
+		if (p.savePassword == false) {
+			p.password = null;
+		}
+		return p;
+	}
+
+	@Override
+	public long getSettingsVersion() {
+		return NetworkSendParams.serialVersionUID;
+	}
+
+	@Override
+	public boolean restoreSettings(
+			PamControlledUnitSettings pamControlledUnitSettings) {
+		networkSendParams = (NetworkSendParams) ((NetworkParams) pamControlledUnitSettings.getSettings()).clone();
+		
+		String address = GlobalArguments.getParam(ADDRESS);
+		String portString = GlobalArguments.getParam(PORT);
+		String id1String = GlobalArguments.getParam(ID1);
+		String id2String = GlobalArguments.getParam(ID2);
+		String usesslString = GlobalArguments.getParam(USESSL);
+
+	
+		if (address != null) {
+			networkSendParams.ipAddress = address; // remember it. 
+		}
+		
+		if(portString != null) {
+			networkSendParams.portNumber = Integer.valueOf(portString);
+		}
+		
+		if(id1String!=null) {
+			networkSendParams.stationId1 = Integer.valueOf(id1String);
+		}
+		
+		if(id2String!=null) {
+			networkSendParams.stationId2 = Integer.valueOf(id2String);
+		}
+		
+		if(usesslString != null) {
+			networkSendParams.useSSL = Boolean.valueOf(usesslString);
+		}
+		
+		return (networkSendParams != null);
+	}
+
+	/**
+	 * @return the networkSendParams
+	 */
+	public NetworkSendParams getNetworkSendParams() {
+		return networkSendParams;
+	}
+
+
+	@Override
+	public void notifyModelChanged(int changeType) {
+		super.notifyModelChanged(changeType);
+		switch (changeType) {
+		case PamController.INITIALIZATION_COMPLETE:
+			sortDataSources();
+			client.notifyModelChanged(changeType);
+			initialisationComplete  = true;
+			break;
+		case PamController.REMOVE_CONTROLLEDUNIT:
+		case PamController.ADD_CONTROLLEDUNIT:
+			if (initialisationComplete) {
+				sortDataSources();
+			}
+			break;
+		case PamController.CHANGED_PROCESS_SETTINGS:
+			this.client.updateParams(this.getNetworkSendParams());
+			this.client.configureClient();
+		}
+		
+	}
+
+	
+
+	private void sortDataSources() {
+		ArrayList<PamDataBlock> wanted = listWantedDataSources();
+		int nProcess = getNumPamProcesses();
+		for (int i = nProcess - 1; i >= 1; i--) {
+			removePamProcess(getPamProcess(i));
+		}
+		for (PamDataBlock aBlock:wanted) {
+			addPamProcess(new NetworkSendProcess(this, aBlock,networkSendParams.sendingFormat));
+
+		}
+		
+		// set the command process to use the same format as all of the new processes
+		commandProcess.setOutputFormat(networkSendParams.sendingFormat);
+	}
+
+	public ArrayList<PamDataBlock> listWantedDataSources() {
+		ArrayList<PamDataBlock> possibles = listPossibleDataSources(networkSendParams.sendingFormat);
+		ArrayList<PamDataBlock> wants = new ArrayList<PamDataBlock>();
+		for (PamDataBlock aBlock:possibles) {
+			if (networkSendParams.findDataBlock(aBlock) != null) {
+				wants.add(aBlock);
+			}
+		}
+		return wants;
+	}
+	
+	
+	public ArrayList<PamDataBlock> listPossibleDataSources(int outputFormat) {
+		ArrayList<PamDataBlock> possibles = new ArrayList<PamDataBlock>();
+		ArrayList<PamDataBlock> allDataBlocks = PamController.getInstance().getDataBlocks();
+		for (PamDataBlock aBlock:allDataBlocks) {
+			
+			// if the data block has a binary source, add it to the list of potential outputs
+			if ( (outputFormat == NetworkSendParams.NETWORKSEND_BYTEARRAY && aBlock.getBinaryDataSource() != null) ||
+				 (outputFormat == NetworkSendParams.NETWORKSEND_JSON && aBlock.getJSONDataSource() != null)) {
+				possibles.add(aBlock);
+			}
+			
+			// if the data block also has a background manager, add it's data block to the list as well (json-output only for now)
+			if (aBlock.getBackgroundManager()!=null) {
+				if (outputFormat == NetworkSendParams.NETWORKSEND_JSON && aBlock.getBackgroundManager().getBackgroundDataBlock().getJSONDataSource() != null) {
+					possibles.add(aBlock.getBackgroundManager().getBackgroundDataBlock());
+				}
+			}
+		}
+		return possibles;
+	}
+	
+	/* (non-Javadoc)
+	 * @see PamController.PamControlledUnit#pamClose()
+	 */
+	@Override
+	public void pamClose() {
+		super.pamClose();
+		client.close();
+	}
+
+	/* (non-Javadoc)
+	 * @see PamController.PamControlledUnit#pamHasStopped()
+	 */
+	@Override
+	public void pamHasStopped() {
+		client.disconnect();
+	}
+
+	/* (non-Javadoc)
+	 * @see PamController.PamControlledUnit#pamToStart()
+	 */
+	@Override
+	public void pamToStart() {
+		super.pamToStart();
+		
+	}
+	
+	
+	
+	
+	/**/
+
+	public void transmitData(NetworkQueuedObject qo) {
+		try {
+			client.sendMessage(qo);
+		} catch (NetTransmitException e) {
+			e.printStackTrace();
+			if(client!=null) {
+				client.setWarning("Error transmitting data. "+e.getMessage());
+			}
+		}
+	}
+
+	public String getStatus() {
+		return client.getStatus();
+	}
+
+	public void runClient() {
+		if(client.isConnected()) {
+			return;
+		}
+		client.configureClient();
+		try {
+			client.connect();
+		} catch (ClientConnectFailedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	
+	
+}

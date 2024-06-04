@@ -1144,9 +1144,9 @@ public class ClickControl extends PamControlledUnit implements PamSettings {
 	}
 
 	@Override
-	public String getModuleSummary() {
+	public String getModuleSummary(String format) {
 		// TODO Auto-generated method stub
-		return super.getModuleSummary();
+		return super.getModuleSummary(format);
 	}
 
 	@Override
@@ -1295,7 +1295,7 @@ public class ClickControl extends PamControlledUnit implements PamSettings {
 
 
 	@Override
-	public String getModuleSummary(boolean clear) {
+	public String getModuleSummary(boolean clear, String format) {
 		/*
 		 * char* GPPClickDetector::getModuleSummary(bool clearData) {
 	static char sumTxt[128];
@@ -1321,6 +1321,9 @@ public class ClickControl extends PamControlledUnit implements PamSettings {
 	return sumTxt;
 }
 		 */
+		
+		if(format.equals("json")) return null;
+		
 		ClickIdentifier clickId = getClickIdentifier();
 		if (clickId == null) {
 			return null;

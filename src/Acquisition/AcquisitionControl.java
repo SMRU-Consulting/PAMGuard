@@ -848,8 +848,8 @@ public class AcquisitionControl extends RawInputControlledUnit implements PamSet
 	}
 	
 	@Override
-	public String getModuleSummary(boolean clear) {
-		return getDaqProcess().getRawDataBlock().getSummaryString(clear);
+	public String getModuleSummary(boolean clear, String format) {
+		return getDaqProcess().getRawDataBlock().getSummaryString(clear, format);
 	}
 	
 	/**
