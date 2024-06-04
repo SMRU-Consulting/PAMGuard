@@ -19,11 +19,11 @@ import javax.swing.border.TitledBorder;
 import PamView.dialog.PamDialog;
 import PamView.dialog.PamGridBagContraints;
 import PamView.panel.PamPanel;
-import netTxControl_2.ClientConnectFailedException;
-import netTxControl_2.NetworkSendDialog;
-import netTxControl_2.NetworkSendParams;
-import netTxControl_2.TCPSendClient;
 import networkTransfer.mqttClient.PamMqttClient;
+import networkTransfer.send.ClientConnectFailedException;
+import networkTransfer.send.NetworkSendDialog;
+import networkTransfer.send.NetworkSendParams;
+import networkTransfer.send.TCPSendClient;
 
 public class NetworkParamsPanel extends PamPanel{
 	

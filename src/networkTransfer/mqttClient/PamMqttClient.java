@@ -20,13 +20,13 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import netTxControl_2.ClientConnectFailedException;
-import netTxControl_2.NetTransmitException;
-import netTxControl_2.NetworkQueuedObject;
-import netTxControl_2.NetworkSendParams;
 import networkTransfer.NetworkClient;
 import networkTransfer.NetworkParams;
 import networkTransfer.receive.NetworkReceiveParams;
+import networkTransfer.send.ClientConnectFailedException;
+import networkTransfer.send.NetTransmitException;
+import networkTransfer.send.NetworkQueuedObject;
+import networkTransfer.send.NetworkSendParams;
 
 public class PamMqttClient extends NetworkClient  implements MqttCallback{
 	

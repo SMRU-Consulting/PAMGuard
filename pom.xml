@@ -909,7 +909,7 @@
 	C:\Users\*yourusername*\.m2\repository\pamguard\org\x3\2.2.2
 	-->
  	<dependency>
-	    <groupId>org.pamguard</groupId>
+	    <groupId>pamguard.org</groupId>
 	    <artifactId>x3</artifactId>
 	    <version>2.2.7</version>
 	</dependency>

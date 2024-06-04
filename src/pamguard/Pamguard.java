@@ -46,6 +46,7 @@ import dataPlotsFX.JamieDev;
 import generalDatabase.DBControl;
 import networkTransfer.send.NetworkSender;
 import offlineProcessing.OfflineTaskManager;
+import rawDeepLearningClassifier.DLControl;
 import rocca.RoccaDev;
 
 import java.io.BufferedReader;
@@ -300,25 +301,48 @@ public class Pamguard {
 					System.out.println("Setting autoexit ON");
 				}
 				else if (anArg.equalsIgnoreCase(NetworkSender.ADDRESS)) {
-					// auto exit at end of processing. 
 					GlobalArguments.setParam(NetworkSender.ADDRESS, args[iArg++]);
 				}
 				else if (anArg.equalsIgnoreCase(NetworkSender.ID1)) {
-					// auto exit at end of processing. 
+					
 					GlobalArguments.setParam(NetworkSender.ID1, args[iArg++]);
 				}
 				else if (anArg.equalsIgnoreCase(NetworkSender.ID2)) {
-					// auto exit at end of processing. 
+					
 					GlobalArguments.setParam(NetworkSender.ID2, args[iArg++]);
 				}
 				else if (anArg.equalsIgnoreCase(NetworkSender.PORT)) {
-					// auto exit at end of processing. 
+					
 					GlobalArguments.setParam(NetworkSender.PORT, args[iArg++]);
 				}
 				else if (anArg.equalsIgnoreCase(NetworkSender.USESSL)) {
-					// auto exit at end of processing. 
+					
 					GlobalArguments.setParam(NetworkSender.USESSL, args[iArg++]);
 				}
+				else if (anArg.equalsIgnoreCase(NetworkSender.USEMQTT)) {
+					
+					GlobalArguments.setParam(NetworkSender.USEMQTT, args[iArg++]);
+				}
+				else if (anArg.equalsIgnoreCase(NetworkSender.TRUSTPATH)) {
+					
+					GlobalArguments.setParam(NetworkSender.TRUSTPATH, args[iArg++]);
+				}
+				else if (anArg.equalsIgnoreCase(NetworkSender.TRUSTPASS)) {
+					
+					GlobalArguments.setParam(NetworkSender.TRUSTPASS, args[iArg++]);
+				}
+				else if (anArg.equalsIgnoreCase(NetworkSender.KEYPATH)) {
+					
+					GlobalArguments.setParam(NetworkSender.KEYPATH, args[iArg++]);
+				}
+				else if (anArg.equalsIgnoreCase(NetworkSender.KEYPASS)) {
+					
+					GlobalArguments.setParam(NetworkSender.KEYPASS, args[iArg++]);
+				}
+				else if(anArg.equals(DLControl.MODELPATH)) {
+					GlobalArguments.setParam(DLControl.MODELPATH, args[iArg++]);
+				}
+				
 				
 				else if (anArg.equalsIgnoreCase(ReprocessStoreChoice.paramName)) {
 					String arg = args[iArg++];
