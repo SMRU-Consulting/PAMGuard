@@ -37,6 +37,9 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	public static final String PORT = "-netSend.port";
 	public static final String ID1 = "-netSend.id1";
 	public static final String ID2 = "-netSend.id2";
+	public static final String USER = "-netSend.user";
+	public static final String PASSWORD = "-netSend.password";
+
 	public static final String USESSL = "-netSend.ssl";
 	public static final String USEMQTT = "-netSend.mqtt";
 	public static final String TRUSTPATH = "-netSend.trustPath";

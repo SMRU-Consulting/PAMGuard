@@ -78,7 +78,12 @@ public class RXTablePanel2 extends DataBlockTableView<BuoyStatusDataUnit>{
 				return "Disconnected";
 			}
 			MqttReceiveThread buoyReceiver = mqttThread.getBuoyReceiveThread(b.getBuoyId1());
-			boolean isAlive = buoyReceiver.isAlive();
+			boolean isAlive;
+			if(buoyReceiver==null) {
+				isAlive = false;
+			}else {
+				isAlive = buoyReceiver.isAlive();
+			}
 			if (isAlive) {
 				return String.format("Connected : %s", NetworkReceiver.getPamCommandString(b.getCommandStatus()));
 			}
