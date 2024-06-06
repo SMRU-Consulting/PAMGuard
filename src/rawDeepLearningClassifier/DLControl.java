@@ -395,10 +395,10 @@ public class DLControl extends PamControlledUnit implements PamSettings {
 	@Override
 	public boolean restoreSettings(PamControlledUnitSettings pamControlledUnitSettings) {
 		RawDLParams newParameters = (RawDLParams) pamControlledUnitSettings.getSettings();
-		if(GlobalArguments.getParam(MODELPATH)!=null) {
-			newParameters.modelURI = new File(GlobalArguments.getParam(MODELPATH)).toURI();
-		}
 		rawDLParmas = newParameters.clone();
+		if(GlobalArguments.getParam(MODELPATH)!=null) {
+			rawDLParmas.modelURI = new File(GlobalArguments.getParam(MODELPATH)).toURI();
+		}
 		return true;
 	}
 
@@ -616,7 +616,7 @@ public class DLControl extends PamControlledUnit implements PamSettings {
 	
 	/**
 	 * Get the data selector. 
-	 * @param source - the source data block 
+	 * @param sourc7e - the source data block 
 	 * @return the data selector.
 	 */
 	public void createDataSelector(PamDataBlock<?> source) {

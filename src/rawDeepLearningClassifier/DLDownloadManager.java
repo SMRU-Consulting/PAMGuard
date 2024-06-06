@@ -26,6 +26,7 @@ import PamController.PamGUIManager;
 import PamUtils.PlatformInfo;
 import PamUtils.PlatformInfo.OSType;
 import ai.djl.util.ZipUtils;
+import pamguard.GlobalArguments;
 import rawDeepLearningClassifier.defaultModels.RightWhaleModel1;
 
 /**
@@ -300,8 +301,8 @@ public class DLDownloadManager {
 	 */
 	static public String getModelFolder() {
 		String settingsFolder;
-		if(PlatformInfo.calculateOS() == OSType.LINUX && PamGUIManager.getGUIType() == PamGUIManager.NOGUI) {
-			settingsFolder = "/root/PamguardSystem";
+		if(GlobalArguments.getParam(DLControl.MODELPATH)!=null) {
+			settingsFolder = GlobalArguments.getParam(DLControl.MODELPATH);
 		}else {
 			settingsFolder = System.getProperty("user.home");
 		}
