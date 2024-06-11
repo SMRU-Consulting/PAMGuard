@@ -820,7 +820,7 @@ public class TDGraphFX extends PamBorderPane {
 				continue;
 			}
 			timeScroller.addDataBlock(dataInfo.getDataBlock());
-			if (!tdControl.isViewer()) {
+			if (!tdControl.isViewer() && !tdControl.isNetRx()) {
 				@SuppressWarnings("rawtypes")
 				PamDataBlock sourceBlock;
 

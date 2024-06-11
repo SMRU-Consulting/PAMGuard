@@ -1144,9 +1144,9 @@ public class ClickControl extends PamControlledUnit implements PamSettings {
 	}
 
 	@Override
-	public String getModuleSummary() {
+	public String getModuleSummary(String format) {
 		// TODO Auto-generated method stub
-		return super.getModuleSummary();
+		return super.getModuleSummary(format);
 	}
 
 	@Override
@@ -1291,6 +1291,44 @@ public class ClickControl extends PamControlledUnit implements PamSettings {
 			clickFFTDataOrganiser = new ClickFFTOrganiser(this);
 		}
 		return clickFFTDataOrganiser;
+	}
+
+
+	@Override
+	public String getModuleSummary(boolean clear, String format) {
+		/*
+		 * char* GPPClickDetector::getModuleSummary(bool clearData) {
+	static char sumTxt[128];
+	if (summaryCounts == NULL) {
+		allocArrays();;
+	}
+
+	int nSpecies = clickParams->nClassifierSets;
+	sprintf(sumTxt,"Unk,%d", summaryCounts[0]);
+	if (clearData) {
+		summaryCounts[0] = 0;
+	}
+	ClassifierSet *set;
+	int id;
+	for (int i = 0; i < nSpecies; i++) {
+		set =  clickParams->classifierSets[i];
+		id = (int)set->speciesCode;
+		sprintf(sumTxt+strlen(sumTxt),",%s,%d", set->name, summaryCounts[id]);
+		if (clearData) {
+			summaryCounts[id] = 0;
+		}
+	}
+	return sumTxt;
+}
+		 */
+		
+		if(format.equals("json")) return null;
+		
+		ClickIdentifier clickId = getClickIdentifier();
+		if (clickId == null) {
+			return null;
+		}
+		return clickId.getClassificationSummary(clear);
 	}
 
 

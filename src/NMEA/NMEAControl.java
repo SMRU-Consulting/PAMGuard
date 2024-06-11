@@ -28,8 +28,11 @@ import java.io.Serializable;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import nmeaEmulator.NMEAFrontEnd;
+import org.json.JSONObject;
 
+import Acquisition.FolderInputSystem;
+import nmeaEmulator.NMEAFrontEnd;
+import pamguard.GlobalArguments;
 import PamController.PamControlledUnit;
 import PamController.PamControlledUnitSettings;
 import PamController.PamController;
@@ -62,6 +65,8 @@ public class NMEAControl extends PamControlledUnit implements PamSettings {
 	NMEAParameters nmeaParameters = new NMEAParameters();
 //	JMenuItem nmeaMenu;
 	NMEAControl nmeaControl;
+	
+	public static final String GlobalPortFlag = "-serialPort";
 	
 	public static final String nmeaUnitType = "NMEA Data";
 
@@ -198,7 +203,27 @@ public class NMEAControl extends PamControlledUnit implements PamSettings {
 			this.nmeaParameters = ((NMEAParameters) pamControlledUnitSettings.getSettings()).clone();
 		}
 		
+		String portArg = GlobalArguments.getParam(NMEAControl.GlobalPortFlag);
+		if (portArg != null) {
+			this.nmeaParameters.serialPortName=portArg;
+		}
+		
 		return true;
+	}
+	
+	@Override
+	public String getModuleSummary(boolean clear, String format) {
+		if(format.equals("json")) {
+			NMEADataUnit lastUnit = acquireNmeaData.getOutputDatablock().getLastUnit();
+			if(lastUnit==null) {
+				return "";
+			}
+			JSONObject json = new JSONObject();
+			json.put("LastDataTime", lastUnit.getTimeMilliseconds());
+			json.put("LastDataString", lastUnit.getCharData().toString());
+			return json.toString();
+		}
+		return "";
 	}
 
 	/* (non-Javadoc)

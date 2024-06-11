@@ -1,7 +1,10 @@
 package rawDeepLearningClassifier;
 
 import java.awt.Frame;
+import java.io.File;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import javax.swing.JMenu;
@@ -24,6 +27,7 @@ import ai.djl.engine.Engine;
 import dataPlotsFX.data.TDDataProviderRegisterFX;
 import detectionPlotFX.data.DDPlotRegister;
 import pamViewFX.fxNodes.pamDialogFX.PamDialogFX2AWT;
+import pamguard.GlobalArguments;
 import rawDeepLearningClassifier.dataPlotFX.DLDetectionPlotProvider;
 import rawDeepLearningClassifier.dataPlotFX.DLPredictionProvider;
 import rawDeepLearningClassifier.ddPlotFX.RawDLDDPlotProvider;
@@ -117,6 +121,12 @@ public class DLControl extends PamControlledUnit implements PamSettings {
 	 * currently held click trains etc once processing has completed.
 	 */
 	public static final int PROCESSING_END = 2;
+	
+	
+	/**
+	 * Global flag for deep learning model name
+	 */
+	public static final String MODELPATH = "-modelPath";
 
 	/**
 	 * List of different deep learning models that are available.
@@ -385,8 +395,10 @@ public class DLControl extends PamControlledUnit implements PamSettings {
 	@Override
 	public boolean restoreSettings(PamControlledUnitSettings pamControlledUnitSettings) {
 		RawDLParams newParameters = (RawDLParams) pamControlledUnitSettings.getSettings();
-		;
 		rawDLParmas = newParameters.clone();
+		if(GlobalArguments.getParam(MODELPATH)!=null) {
+			rawDLParmas.modelURI = new File(GlobalArguments.getParam(MODELPATH)).toURI();
+		}
 		return true;
 	}
 

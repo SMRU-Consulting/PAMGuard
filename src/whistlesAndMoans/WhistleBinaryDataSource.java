@@ -11,6 +11,7 @@ import java.util.List;
 import whistlesAndMoans.WhistleToneConnectProcess.ShapeConnector;
 import Localiser.algorithms.timeDelayLocalisers.bearingLoc.BearingLocaliser;
 import PamController.PamController;
+import PamModel.SMRUEnable;
 import PamUtils.PamUtils;
 import PamguardMVC.PamDataBlock;
 import PamguardMVC.PamDataUnit;
@@ -154,7 +155,7 @@ public class WhistleBinaryDataSource extends BinaryDataSource {
 			 * as file version went from 3 to 4. May have been some middly stuff where file version and module 
 			 * There is some FV 3 with MV 1, in which case data were probably duplicated. 
 			 */
-			if (fileVersion > 3) { // basic data now in standard format. 
+			if (fileVersion > 3 && !SMRUEnable.isEnableDecimus()) { // basic data now in standard format. 
 				firstSliceSample = startSample = binaryObjectData.getDataUnitBaseData().getStartSample();
 				
 				// if the DataUnitBaseData contains a sequence map, use it in place of the channel map
@@ -178,7 +179,7 @@ public class WhistleBinaryDataSource extends BinaryDataSource {
 			if (moduleVersion >= 1) {
 				amplitude = (double) dis.readShort() / 100.;
 			}
-			if (fileVersion >= 4) {
+			if (fileVersion >= 4 && !SMRUEnable.isEnableDecimus()) {
 				// As of FILE version 4, the time delays are now stored in the DataUnitBaseData object.
 				// If there are no time delays yet, this method would return null.  In previous versions
 				// however, if there were no time delays an empty array would be created.  Therefore,
@@ -264,6 +265,14 @@ public class WhistleBinaryDataSource extends BinaryDataSource {
 //		cr.addOfflineSlice(sliceData);
 //		cr.condenseInfo();
 		crdu = new ConnectedRegionDataUnit(binaryObjectData.getDataUnitBaseData(), cr, wmDetector);
+		if(SMRUEnable.isEnableDecimus()) {
+			crdu.setTimeMilliseconds(binaryObjectData.getTimeMilliseconds());
+			crdu.setTimeDelaysSeconds(delays);
+			crdu.setCalculatedAmlitudeDB(amplitude);
+			crdu.setSampleDuration((long) ((nSlices+1) * fftHop));
+			crdu.setSequenceBitmap(binaryObjectData.getDataUnitBaseData().getSequenceBitmap());
+			crdu.setChannelBitmap(binaryObjectData.getDataUnitBaseData().getChannelBitmap());
+		}
 //		crdu.setTimeMilliseconds(binaryObjectData.getTimeMilliseconds());
 //		crdu.setTimeDelaysSeconds(delays);
 //		crdu.setCalculatedAmlitudeDB(amplitude);

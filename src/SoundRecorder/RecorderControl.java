@@ -383,8 +383,12 @@ public class RecorderControl extends PamControlledUnit implements PamSettings {
 			return;
 		}
 		recorderProcess.setParentDataBlock(rawDataBlock);
-		recorderSettings.setChannelBitmap(recorderSettings.getChannelBitmap(rawDataBlock.getChannelMap()));
-
+		
+		if(recorderSettings.getChannelBitmap(rawDataBlock.getChannelMap())!=0) {
+			recorderSettings.setChannelBitmap(recorderSettings.getChannelBitmap(rawDataBlock.getChannelMap()));
+		}
+		
+		
 		for (int i = 0; i < recorderViews.size(); i++) {
 			recorderViews.get(i).newParams();
 		}
@@ -449,6 +453,17 @@ public class RecorderControl extends PamControlledUnit implements PamSettings {
 				System.err.println("Unable to set recording storage folder " + globFolder);
 			}
 		}
+		
+		String globPrefix = GlobalArguments.getParam(FolderInputSystem.GlobalWavPrefixArg);
+		if (globPrefix != null) {
+			if (globPrefix.length()<6) {
+				recorderSettings.fileInitials = globPrefix; // remember it. 
+			}
+			else {
+				System.err.println("Unable to set recording storage folder " + globFolder);
+			}
+		}
+
 
 		newParams();
 		
@@ -663,7 +678,7 @@ public class RecorderControl extends PamControlledUnit implements PamSettings {
 	}
 
 	@Override
-	public String getModuleSummary(boolean clear) {
+	public String getModuleSummary(boolean clear, String format) {
 		File path = new File(recorderSettings.outputFolder);
 		long space = -1;
 		double freeSpace = -1;
@@ -676,6 +691,19 @@ public class RecorderControl extends PamControlledUnit implements PamSettings {
 		}
 		int currButton = pressedButton;
 		int currState = recorderStatus;
+		if(format.equals("json")) {
+			String state = "";
+			if(currState==IDLE) state="IDLE";
+			if(currState==RECORDING) state="RECORDING";
+			String currentFilePath = "System not recording";
+			if(currState==RECORDING) currentFilePath = recorderStorage.getFileName();
+			if(currentFilePath!=null) currentFilePath = currentFilePath.replace("\\", "\\\\");
+			
+			String jsonString = String.format("{\"state\":\"%s\",\"freeSpaceKB\":%3.1f,\"currentFile\":\"%s\"}",
+							state,freeSpace,currentFilePath);
+			return jsonString;
+		}
+		
 		return String.format("%d,%d,%3.1f", currButton, currState, freeSpace);
 	}
 

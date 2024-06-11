@@ -24,6 +24,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import Acquisition.FolderInputSystem;
+import NMEA.NMEAControl;
 import PamController.PamController;
 import PamController.PamGUIManager;
 import PamController.PamSettingManager;
@@ -45,6 +46,7 @@ import dataPlotsFX.JamieDev;
 import generalDatabase.DBControl;
 import networkTransfer.send.NetworkSender;
 import offlineProcessing.OfflineTaskManager;
+import rawDeepLearningClassifier.DLControl;
 import rocca.RoccaDev;
 
 import java.io.BufferedReader;
@@ -264,6 +266,12 @@ public class Pamguard {
 					GlobalArguments.setParam(BinaryStore.GlobalFolderArg, binFolder);
 					System.out.println("Setting output folder for binary files to " + binFolder);
 				}
+				else if (anArg.equalsIgnoreCase(NMEAControl.GlobalPortFlag)) {
+					// output folder for binary files. 
+					String serialPort = args[iArg++];
+					GlobalArguments.setParam(NMEAControl.GlobalPortFlag, serialPort);
+					System.out.println("Setting nmea serial port to " + serialPort);
+				}
 				else if (anArg.equalsIgnoreCase(DBControl.GlobalDatabaseNameArg)) {
 					// database file name
 					String dbName = args[iArg++];
@@ -276,6 +284,12 @@ public class Pamguard {
 					GlobalArguments.setParam(FolderInputSystem.GlobalWavFolderArg, wavFolder);
 					System.out.println("Setting input wav file folder to " + wavFolder);
 				}
+				else if (anArg.equalsIgnoreCase(FolderInputSystem.GlobalWavPrefixArg)) {
+					// source folder for wav files (or other supported sound files)
+					String wavPrefix = args[iArg++];
+					GlobalArguments.setParam(FolderInputSystem.GlobalWavPrefixArg, wavPrefix);
+					System.out.println("Setting recording prefix to " + wavPrefix);
+				}
 				else if (anArg.equalsIgnoreCase(PamController.AUTOSTART)) {
 					// auto start processing. 
 					GlobalArguments.setParam(PamController.AUTOSTART, PamController.AUTOSTART);
@@ -287,19 +301,18 @@ public class Pamguard {
 					System.out.println("Setting autoexit ON");
 				}
 				else if (anArg.equalsIgnoreCase(NetworkSender.ADDRESS)) {
-					// auto exit at end of processing. 
 					GlobalArguments.setParam(NetworkSender.ADDRESS, args[iArg++]);
 				}
 				else if (anArg.equalsIgnoreCase(NetworkSender.ID1)) {
-					// auto exit at end of processing. 
+					
 					GlobalArguments.setParam(NetworkSender.ID1, args[iArg++]);
 				}
 				else if (anArg.equalsIgnoreCase(NetworkSender.ID2)) {
-					// auto exit at end of processing. 
+					
 					GlobalArguments.setParam(NetworkSender.ID2, args[iArg++]);
 				}
 				else if (anArg.equalsIgnoreCase(NetworkSender.PORT)) {
-					// auto exit at end of processing. 
+					
 					GlobalArguments.setParam(NetworkSender.PORT, args[iArg++]);
 				}
 				else if (anArg.equalsIgnoreCase(ReprocessStoreChoice.paramName)) {

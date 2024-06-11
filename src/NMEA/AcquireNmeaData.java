@@ -24,7 +24,10 @@ import geoMag.MagneticVariation;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -101,6 +104,7 @@ public class AcquireNmeaData extends PamProcess implements ActionListener, Modul
 
 	private Thread activeNMEAsource;
 	private volatile boolean stopActiveNMEAsource = false;
+	private boolean readFile = false;
 	//private SerialThread serialThread;
 	private PamWarning serialPortWarning;
 
@@ -163,6 +167,15 @@ public class AcquireNmeaData extends PamProcess implements ActionListener, Modul
 		activeNMEAsource = new Thread(new UdpThread());
 		timer.start();
 		activeNMEAsource.start();
+	}
+	
+	public void makeTimestampFileThread() {
+		timer.stop();
+		activeNMEAsource = null;
+		activeNMEAsource = new Thread(new TimestampFileThread());
+		timer.start();
+		activeNMEAsource.start();
+
 	}
 	
 	public void makeMulticastThread() {
@@ -285,7 +298,10 @@ public class AcquireNmeaData extends PamProcess implements ActionListener, Modul
 				makeMulticastThread();
 			else
 				makeUdpThread();
-		}else{
+		}else if(sourceType == NmeaSources.TIMESTAMP_FILE) {
+			makeTimestampFileThread();
+		}
+		else{
 			makeSimThread();
 		}
 		
@@ -537,7 +553,45 @@ public class AcquireNmeaData extends PamProcess implements ActionListener, Modul
 //
 //	}
 
+	class TimestampFileThread implements Runnable {
 
+		@Override
+		public void run() {
+			
+			try {
+				FileInputStream instream = new FileInputStream(nmeaControl.nmeaParameters.nmeaSourceFile);
+				InputStreamReader fileIn = new InputStreamReader(instream);
+				BufferedReader reader = new BufferedReader(fileIn);
+				String nextLine;
+				long lastMilli = 0;
+				while(!stopActiveNMEAsource && !readFile) {
+					
+				}
+				while (!stopActiveNMEAsource && (nextLine=reader.readLine())!=null) {
+					System.out.println(nextLine);
+				    String[] tokens = nextLine.split(",", 2);
+				    long millis = Long.valueOf(tokens[0]);
+				    if(lastMilli!=0 && lastMilli<millis) {
+				    	//Thread.sleep(millis-lastMilli);
+				    }
+				    processNmeaStringWithTimestamp(millis,tokens[1]);
+				   // processNmeaString(new StringBuffer(tokens[1]));
+				    lastMilli = millis;
+				}
+				while(!stopActiveNMEAsource) {
+					
+				}
+				reader.close();
+			}catch(IOException   e) {
+				
+			}
+			
+			stopActiveNMEAsource=false;
+			
+			
+		}
+		
+	}
 
 	class UdpThread implements Runnable {
 		public void run() {
@@ -693,6 +747,14 @@ public class AcquireNmeaData extends PamProcess implements ActionListener, Modul
 		outputDatablock.addPamData(newUnit);
 	}
 	
+	private void processNmeaStringWithTimestamp(long timeMillis, String nmeaString) {
+		lastSigTime = timeMillis;
+		StringBuffer nmeaSringBuffer = new StringBuffer(nmeaString);
+		NMEADataUnit newUnit = new NMEADataUnit(timeMillis, nmeaSringBuffer);
+		outputDatablock.addPamData(newUnit);
+
+	}
+	
 	/**
 	 * Checks the checksum of an NMEA data string. 
 	 * <p>the checksum is an exclusive OR of all characters
@@ -798,7 +860,11 @@ public class AcquireNmeaData extends PamProcess implements ActionListener, Modul
 	public void pamStart() {
 		lastSigTime = System.currentTimeMillis();
 		signalCheckTimer = new Timer(10000, new SignalTimerAction());
-		signalCheckTimer.start();
+		if(nmeaControl.nmeaParameters.sourceType==NMEAParameters.NmeaSources.TIMESTAMP_FILE) {
+			readFile=true;
+		}else {
+			signalCheckTimer.start();
+		}
 
 	}
 
@@ -806,6 +872,9 @@ public class AcquireNmeaData extends PamProcess implements ActionListener, Modul
 	public void pamStop() {
 		if (signalCheckTimer!=null) {
 			signalCheckTimer.stop();
+		}
+		if(nmeaControl.nmeaParameters.sourceType==NMEAParameters.NmeaSources.TIMESTAMP_FILE) {
+			stopNMEASource();
 		}
 	}
 	

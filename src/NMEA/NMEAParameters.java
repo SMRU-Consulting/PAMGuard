@@ -20,6 +20,7 @@
  */
 package NMEA;
 
+import java.io.File;
 import java.io.Serializable;
 
 import PamModel.parametermanager.ManagedParameters;
@@ -40,6 +41,8 @@ public class NMEAParameters implements Serializable, Cloneable, ManagedParameter
 	public String multicastGroup;
 
 	public int channelMap ;
+	
+	public File nmeaSourceFile;
 
 	public boolean simThread;
 	
@@ -82,7 +85,8 @@ public class NMEAParameters implements Serializable, Cloneable, ManagedParameter
 		SERIAL (0),
 		UDP (1),
 		SIMULATED (2), 
-		MULTICAST (3);
+		MULTICAST (3),
+		TIMESTAMP_FILE(4);
 		NmeaSources(int value){this.value= value;}
 		private final int value;
 		public int value(){return value;}
@@ -90,6 +94,7 @@ public class NMEAParameters implements Serializable, Cloneable, ManagedParameter
 		public final int udpValue = 1;
 		public final int simulatedValue = 2;
 		public final int multicastValue = 3;
+		public final int timestampFileValue = 4;
 	}
 	
 	public NmeaSources sourceType = NmeaSources.SIMULATED;

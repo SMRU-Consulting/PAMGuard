@@ -37,6 +37,11 @@ public abstract class TDControl implements PamSettings {
 	 * Boolean to indicate whether PAMGUARD is in viewer mode or not. 
 	 */
 	private boolean isViewer;
+	
+	/**
+	 * Boolean to indicate whether PAMGUARD is in network receiver mode or not. 
+	 */
+	private boolean isNetRx;
 
 	/**
 	 * The unique name of the display
@@ -53,6 +58,9 @@ public abstract class TDControl implements PamSettings {
 	public TDControl(String uniqueDisplayName){
 		if (PamController.getInstance().getRunMode() == PamController.RUN_PAMVIEW) {
 			isViewer = true;
+		}
+		if (PamController.getInstance().getRunMode() ==PamController.RUN_NETWORKRECEIVER) {
+			isNetRx = true;
 		}
 		setUniqueName(uniqueDisplayName);
 		
@@ -185,6 +193,14 @@ public abstract class TDControl implements PamSettings {
 	 */
 	public boolean isViewer() {
 		return isViewer;
+	}
+	
+	/**
+	 * Check whether PAMGUARD is in network receiver mode. 
+	 * @return true if in network receiver mode. 
+	 */
+	public boolean isNetRx() {
+		return isNetRx;
 	}
 
 	public abstract PamObserver getDataObserver();

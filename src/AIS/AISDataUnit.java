@@ -55,12 +55,13 @@ public class AISDataUnit extends PamDataUnit implements Serializable, Cloneable 
 	 */
 	protected boolean isInRange = true;
 	protected boolean newUnit = true;
+	public boolean lastUnitStaticOnly = false;
 	/**
 	 * AIVDM, etc.
 	 */
 	protected String dataType;
 
-	protected StationType stationType;
+	public StationType stationType;
 	/**
 	 * Pulled out from the start of the AIVDM string. 
 	 */

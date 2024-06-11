@@ -22,6 +22,8 @@ public class AISDataBlock extends PamDataBlock<AISDataUnit> implements NMEAEmula
 		super(AISDataUnit.class, "AIS Data", parentProcess, 0);
 		this.aisControl = aisControl;
 		setNaturalLifetime(600);
+		//setNaturalLifetime(87100);
+
 	}
 	/**
 	 * aisDataUnit is always a new unit extracted from a 
@@ -63,10 +65,11 @@ public class AISDataBlock extends PamDataBlock<AISDataUnit> implements NMEAEmula
 //				t = newAISUnit.getTimeMilliseconds();
 //			}
 			aisDataUnit.setTimeMilliseconds(t);
+			//This was transmitting updates twice, calling addData via notifyObservers. 
 			aisDataUnit.updateDataUnit(t);
-			if (shouldNotify()) {
+			/*if (shouldNotify()) {
 				notifyObservers(aisDataUnit);
-			}
+			}*/
 			updatePamData(aisDataUnit, t); // need this to get it to save. 
 		}
 		else {

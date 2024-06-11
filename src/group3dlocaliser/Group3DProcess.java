@@ -163,6 +163,11 @@ public class Group3DProcess extends PamProcess implements DetectionGroupMonitor 
 			return;
 //		long t1 = System.currentTimeMillis();
 //		System.out.printf("New %s in Group3Dprocess", o.toString());
+		
+		if(localiserAlgorithm3D instanceof CrossedBearingGroupLocaliser && pamDataUnit.getLocalisation()==null) {
+			return;
+		}
+		
 		detectionGrouper.newData(pamDataUnit);
 //		long t2 = System.currentTimeMillis();
 //

@@ -1362,10 +1362,13 @@ public class PamController implements PamControllerInterface, PamSettings {
 			long t1 = System.currentTimeMillis();
 			while (checkRunStatus()) {
 				long t2 = System.currentTimeMillis();
-				if (t2 - t1 > 5000) {
+				if (t2 - t1 > 5000 & Math.abs(t2-t1)%10000<5) {
 					System.out.printf("Stopping, but stuck in loop for CheckRunStatus for %3.1fs\n", (double) (t2-t1)/1000.);
 					dumpBufferStatus("Stopping stuck in loop", false);
 					break; // crap out anyway.
+				}
+				if((double) (t2-t1)/1000.>20.) {
+					PamController.getInstance().setPamStatus(PamController.PAM_STALLED);
 				}
 				try {
 					Thread.sleep(100);

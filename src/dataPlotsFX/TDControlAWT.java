@@ -15,6 +15,7 @@ import userDisplay.UserDisplayComponent;
 import userDisplay.UserDisplayControl;
 import PamController.PAMStartupEnabler;
 import PamController.PamController;
+import PamguardMVC.PamDataUnit;
 import PamguardMVC.PamObservable;
 import PamguardMVC.PamObserverAdapter;
 import PamguardMVC.PamRawDataBlock;
@@ -30,7 +31,7 @@ public class TDControlAWT  extends TDControl implements UserDisplayComponent {
 	/**
 	 * Checks for incoming data. 
 	 */
-	private DataObserver dataObserver;
+	private PamObserverAdapter dataObserver;
 
 	private String uniqueName;
 
@@ -57,7 +58,11 @@ public class TDControlAWT  extends TDControl implements UserDisplayComponent {
 	 * Create the vital components for the display. 
 	 */
 	private void create(){
-		dataObserver = new DataObserver();
+		if(PamController.getInstance().getRunMode()==PamController.RUN_NETWORKRECEIVER) {
+			dataObserver = new NetRxDataObserver();
+		}else {
+			dataObserver = new DataObserver();
+		}
 	}
 
 
