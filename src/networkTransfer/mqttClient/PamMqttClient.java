@@ -246,18 +246,22 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 
 	public void sendMessage(String topicExtension, String string) {
 		MqttMessage message = new MqttMessage(string.getBytes());
-
+		
+		sendMessage(topicExtension,message);
+	}
+	
+	public void sendMessage(String topicExtension, MqttMessage message) {
 		try {
 			mqttClient.publish("APS/"+stationId+"/"+topicExtension, message);
 		} catch (MqttPersistenceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			this.setWarning("Mqtt Message Error: "+e.getMessage(),2);
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			this.setWarning("Mqtt Message Error: "+e.getMessage(),2);
 		}
-
-		
 	}
 	
 	@Override

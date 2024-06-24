@@ -332,7 +332,7 @@ public class DLControl extends PamControlledUnit implements PamSettings {
 		RawDLParams newParameters = (RawDLParams) pamControlledUnitSettings.getSettings();
 		rawDLParmas = newParameters.clone();
 		if(GlobalArguments.getParam(MODELPATH)!=null) {
-			rawDLParmas.modelURI = new File(GlobalArguments.getParam(MODELPATH)).toURI();
+			//rawDLParmas.modelURI = new File(GlobalArguments.getParam(MODELPATH)).toURI();
 		}
 		return true;
 	}

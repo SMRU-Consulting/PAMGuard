@@ -183,7 +183,16 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		String trustStorePassString = GlobalArguments.getParam(TRUSTPASS);
 		String keyPathString = GlobalArguments.getParam(KEYPATH);
 		String keyPassString = GlobalArguments.getParam(KEYPASS);
+		String user = GlobalArguments.getParam(USER);
+		String password = GlobalArguments.getParam(PASSWORD);
 
+		if(user!=null) {
+			networkSendParams.userId = user;
+		}
+		
+		if(password!=null) {
+			networkSendParams.password = password;
+		}
 	
 		if (address != null) {
 			networkSendParams.ipAddress = address; // remember it. 
