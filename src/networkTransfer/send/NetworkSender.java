@@ -215,7 +215,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		}
 		
 		if(usemqttString!=null) {
-			networkSendParams.mqtt = Boolean.valueOf(usesslString);
+			networkSendParams.mqtt = Boolean.valueOf(usemqttString);
 		}
 		
 		if(trustStorePathString!=null) {
