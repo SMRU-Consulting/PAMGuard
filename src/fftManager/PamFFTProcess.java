@@ -412,24 +412,20 @@ public class PamFFTProcess extends PamProcess {
 									iC, chanList.length, iF, n);
 						}
 						//					outputData.addPamData(null);
-
-					
-
-						
-				
+					}
+				}
+				for (int iC = 0; iC < chanList.length; iC++) {
+					tempStores[chanList[iC]].clearStore();
 				}
 			}
-		
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		/*
 		 * finally store the pointer position in the ArrayList for that channel
 		 */
-				channelPointer[iChan] = dataPointer;
-		
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-
-		}
+		channelPointer[iChan] = dataPointer;
 
 	}
 
