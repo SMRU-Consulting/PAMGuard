@@ -352,6 +352,17 @@ public class AcquisitionControl extends RawInputControlledUnit implements PamSet
 			}
 		}
 	}
+	
+	public void setAutoSettings(AcquisitionParameters newParameters) {
+		if (newParameters != null) {
+			acquisitionParameters = newParameters.clone();
+			setSelectedSystem();
+			acquisitionProcess.setupDataBlock();
+			setupStatusBar();
+			fillStatusBarText();
+			PamController.getInstance().notifyModelChanged(PamControllerInterface.CHANGED_PROCESS_SETTINGS);
+		}
+	}
 
 	private DaqSystem lastSelSystem = null;
 	public void setSelectedSystem() {
