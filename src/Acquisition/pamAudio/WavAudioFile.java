@@ -295,5 +295,11 @@ public class WavAudioFile implements PamAudioFileLoader {
 		}
 	}
 
+	@Override
+	public PamAudioSettingsPane getSettingsPane() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }

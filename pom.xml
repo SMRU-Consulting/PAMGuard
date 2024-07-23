@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.pamguard</groupId>
   <artifactId>Pamguard</artifactId>
-  <version>2.02.12</version>
+  <version>2.02.11d</version>
   <name>Pamguard</name>
   <description>Pamguard using Maven to control dependencies</description>
 	<url>www.pamguard.org</url>
@@ -101,6 +101,7 @@
 								<exclude>META-INF/*.SF</exclude> <!--  get rid of manifests from library jars - also done in orig ant build file -->
 								<exclude>META-INF/*.DSA</exclude>
 								<exclude>META-INF/*.RSA</exclude>
+								<exclude>test/resources/**</exclude><!--  get rid of deep learning moduels and wav files used for unit tests -->
 							</excludes>
 						</filter>
 					</filters>
@@ -179,7 +180,7 @@
 	          -->
 	        </executions>
 	      </plugin>
-	      
+	     	   
 	    </plugins>
     
     
@@ -308,7 +309,7 @@
 	<dependency>
 		<groupId>io.github.macster110</groupId>
 		<artifactId>jdl4pam</artifactId>
-		<version>0.0.99a</version>
+		<version>0.0.99b</version>
 	</dependency> 
 			
 	<!-- https://mvnrepository.com/artifact/gov.nist.math/jama -->
@@ -579,7 +580,7 @@
 	<dependency>
 	    <groupId>com.fazecast</groupId>
 	    <artifactId>jSerialComm</artifactId>
-	    <version>2.11.0</version>
+	    <version>2.5.3</version>
 	</dependency>
 
 	<!-- https://mvnrepository.com/artifact/edu.emory.mathcs/JTransforms -->
