@@ -622,6 +622,11 @@ public class AcquisitionProcess extends PamProcess implements DataInputStore {
 
 	private long lastStatusTime;
 	private long statusInterval = 60000;
+	
+	public void setStatusInterval(long statusIntervalMillis) {
+		System.out.println("Setting status interval milliseconds to "+statusIntervalMillis);
+		this.statusInterval = statusIntervalMillis;
+	}
 
 	public void streamClosed() {
 		//		acquisitionStopped();
@@ -663,7 +668,6 @@ public class AcquisitionProcess extends PamProcess implements DataInputStore {
 			return false;
 		}
 		RawDataUnit newDataUnit, threadDataUnit;
-
 		int readCount = 0;
 		while (newDataQueue.hasData()) {
 //			System.out.println("size:"+newDataUnits.size());
@@ -1253,6 +1257,10 @@ public class AcquisitionProcess extends PamProcess implements DataInputStore {
 		else {
 			return false;
 		}
+	}
+
+	public DaqStatusDataUnit getPreviousDaqStatus() {
+		return previousDaqStatus;
 	}
 
 
