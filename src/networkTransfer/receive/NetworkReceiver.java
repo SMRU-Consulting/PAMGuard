@@ -11,6 +11,7 @@ import nidaqdev.networkdaq.NetworkAudioInterpreter;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.util.ListIterator;
 import java.util.Vector;
 
 import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import binaryFileStorage.BinaryDataSource;
 import binaryFileStorage.BinaryObjectData;
@@ -48,6 +50,7 @@ import PamController.PamSettings;
 import PamUtils.PamCalendar;
 import PamView.PamSidePanel;
 import PamView.PamTabPanel;
+import PamView.dialog.warn.WarnOnce;
 import PamView.symbol.StandardSymbolManager;
 import PamguardMVC.AcousticDataUnit;
 import PamguardMVC.DataUnitBaseData;
@@ -125,6 +128,7 @@ public class NetworkReceiver extends PamControlledUnit implements PamSettings {
 
 		BuoyDataSerialiser buoyDataSerialiser = new BuoyDataSerialiser(this);
 		PamSettingManager.getInstance().registerSettings(buoyDataSerialiser);
+		this.setTableMouseListener(new TableMouseListener());
 	}
 
 	@Override

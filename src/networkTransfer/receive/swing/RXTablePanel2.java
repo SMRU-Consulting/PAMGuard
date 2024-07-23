@@ -1,14 +1,20 @@
 package networkTransfer.receive.swing;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import GPS.GpsData;
 import PamController.PamController;
 import PamUtils.PamCalendar;
 import PamView.component.DataBlockTableView;
 import PamguardMVC.PamDataBlock;
+//import control.RXTableMouseListener;
 import networkTransfer.receive.BuoyStatusDataUnit;
 import networkTransfer.receive.BuoyStatusValue;
 import networkTransfer.receive.MqttNetReceiver;
@@ -22,13 +28,13 @@ public class RXTablePanel2 extends DataBlockTableView<BuoyStatusDataUnit>{
 	private NetworkReceiver networkReceiver;
 
 	public RXTablePanel2(NetworkReceiver networkReceiver) {
-		super(networkReceiver.getBuoyStatusDataBlock(), networkReceiver.getUnitName(),networkReceiver);
+		super(networkReceiver.getBuoyStatusDataBlock(), networkReceiver.getUnitName());
 		this.networkReceiver = networkReceiver;
 	}
 	
-	@Override
+	//@Override
 	protected void setControlledUnit() {
-		this.networkReceiver = (NetworkReceiver) controlledUnit;
+		//this.networkReceiver = (NetworkReceiver) controlledUnit;
 	}
 
 	@Override

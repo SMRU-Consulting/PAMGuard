@@ -19,6 +19,7 @@ import PamView.dialog.PamTextDisplay;
 import PamView.panel.PamPanel;
 import networkTransfer.receive.BuoyStatusDataBlock;
 import networkTransfer.receive.BuoyStatusDataUnit;
+import networkTransfer.receive.NetworkReceiveParams;
 import networkTransfer.receive.NetworkReceiver;
 
 public class RXSummaryPanel {
@@ -69,7 +70,11 @@ public class RXSummaryPanel {
 		if (mainPanel.isVisible() == false) {
 			return;
 		}
-		rxPort.setText(String.format("%d", networkReceiver.getNetworkReceiveParams().receivePort));
+		if(networkReceiver.getNetworkReceiveParams().connectionType==NetworkReceiveParams.CONNECTIONTYPE_MQTT) {
+			rxPort.setText("mqtt");
+		}else {
+			rxPort.setText(String.format("%d", networkReceiver.getNetworkReceiveParams().receivePort));
+		}
 		
 		BuoyStatusDataBlock bsdb = networkReceiver.getBuoyStatusDataBlock();
 		int nDead = 0, nActive = 0;

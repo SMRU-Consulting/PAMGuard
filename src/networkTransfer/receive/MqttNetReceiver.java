@@ -33,7 +33,7 @@ public class MqttNetReceiver extends PamMqttClient implements NetworkReceiverInt
 	@Override
 	public void stopConnectionThread() {
 
-		
+		this.disconnect();
 	}
 
 	@Override
