@@ -4,15 +4,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.pamguard</groupId>
   <artifactId>Pamguard</artifactId>
-<<<<<<< HEAD
   <version>2.02.12_APS</version>
   <name>Pamguard</name>
   <description>Pamguard using Maven to control dependencies</description>
-=======
-  <version>2.02.10c_APS</version>
-  <name>Pamguard Java12+</name>
-  <description>Pamguard for Java 12+, using Maven to control dependcies</description>
->>>>>>> refs/heads/SMRUCDev
 	<url>www.pamguard.org</url>
 	<organization>
 		<name>Sea Mammal Research Unit, University of St. Andrews</name>
