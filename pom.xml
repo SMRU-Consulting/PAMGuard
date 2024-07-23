@@ -5,15 +5,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.pamguard</groupId>
   <artifactId>Pamguard</artifactId>
-<<<<<<< SMRUCDev
   <version>2.02.10c_APS</version>
   <name>Pamguard Java12+</name>
   <description>Pamguard for Java 12+, using Maven to control dependcies</description>
-=======
-  <version>2.02.11e_APS</version>
-  <name>Pamguard</name>
-  <description>Pamguard using Maven to control dependencies</description>
->>>>>>> d8f6d2f DAQ Testing Dependencies
 	<url>www.pamguard.org</url>
 	<organization>
 		<name>Sea Mammal Research Unit, University of St. Andrews</name>
