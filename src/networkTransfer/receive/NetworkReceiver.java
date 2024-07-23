@@ -824,6 +824,55 @@ public class NetworkReceiver extends PamControlledUnit implements PamSettings {
 		}
 		return true;
 	}
+	
+	private class TableMouseListener implements RXTableMouseListener<BuoyStatusDataUnit> {
+
+		@Override
+		public void popupMenuAction(MouseEvent e, BuoyStatusDataUnit dataUnit, String colName) {
+			//			System.out.println("Popup menu on column " + colName + " " + dataUnit);
+			showDecimusPopup(e, dataUnit, colName);
+		}
+
+	}
+	
+	public void showDecimusPopup(MouseEvent e, BuoyStatusDataUnit dataUnit, String colName) {
+		String station = null;
+		JPopupMenu popMenu = new JPopupMenu();
+		JMenuItem menuItem = new JMenuItem("Clear list ...");
+		menuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				removeDataUnits(e, null);
+			}
+		});
+		popMenu.add(menuItem);
+
+		popMenu.show(e.getComponent(), e.getX(), e.getY());
+	}
+	
+	protected void removeDataUnits(ActionEvent e, BuoyStatusDataUnit dataUnit) {
+		String warnMsg;
+		if (this.getBuoyStatusDataBlock() == null) {
+			return;
+		}
+		if (dataUnit == null) {
+			warnMsg = "Delete all Decimus devices from list";
+		}
+		else {
+			warnMsg = String.format("Delete Decimus %d(%d) from list", dataUnit.getBuoyId1(), dataUnit.getBuoyId2());
+		}
+		int ans = WarnOnce.showWarning(getGuiFrame(), "Remove Deimus units", warnMsg, WarnOnce.OK_CANCEL_OPTION);
+		if (ans != WarnOnce.OK_OPTION) {
+			return;
+		}
+		if (dataUnit == null) {
+			this.getBuoyStatusDataBlock().clearAll();
+		}
+		else {
+			this.getBuoyStatusDataBlock().remove(dataUnit);
+		}
+		this.getBuoyStatusDataBlock().notifyObservers();
+	}
 
 	/**
 	 * @return the tableMouseListener
