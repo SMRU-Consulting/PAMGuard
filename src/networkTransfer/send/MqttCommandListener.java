@@ -34,16 +34,15 @@ public class MqttCommandListener extends CommandManager implements IMqttMessageL
 	public boolean sendData(ExtCommand extCommand, String dataString) {
 		MqttMessage message = new MqttMessage(dataString.getBytes());
 		currentHeldMessage.message.setPayload(dataString.getBytes());
-		this.pamMqttClient.sendMessage(currentHeldMessage.topic+"/response", message.toString());
+		this.pamMqttClient.sendMessage(currentHeldMessage.topic+"/response", message);
 		//
-		currentHeldMessage.message.notifyAll();
+		//currentHeldMessage.message.notifyAll();
 		return true;
 		
 	}
 	
 	public void holdMessage(String topic, MqttMessage message) {
-		this.pamMqttClient.sendMessage(topic,message.toString());
-		
+		this.pamMqttClient.sendMessage(topic,message);
 	}
 
 	private class MessageHold{

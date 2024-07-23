@@ -336,8 +336,18 @@ public class Pamguard {
 					GlobalArguments.setParam(NetworkSender.KEYPATH, args[iArg++]);
 				}
 				else if (anArg.equalsIgnoreCase(NetworkSender.KEYPASS)) {
+<<<<<<< HEAD
 					
 					GlobalArguments.setParam(NetworkSender.KEYPASS, args[iArg++]);
+=======
+					GlobalArguments.setParam(NetworkSender.KEYPASS, args[iArg++]);
+				}
+				else if(anArg.equalsIgnoreCase(NetworkSender.USER)){
+					GlobalArguments.setParam(NetworkSender.USER, args[iArg++]);
+				}
+				else if(anArg.equalsIgnoreCase(NetworkSender.PASSWORD)){
+					GlobalArguments.setParam(NetworkSender.PASSWORD, args[iArg++]);
+>>>>>>> refs/heads/SMRUCDev
 				}
 				else if(anArg.equals(DLControl.MODELPATH)) {
 					GlobalArguments.setParam(DLControl.MODELPATH, args[iArg++]);

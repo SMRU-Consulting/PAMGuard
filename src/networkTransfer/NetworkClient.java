@@ -63,7 +63,7 @@ public abstract class NetworkClient {
 		
 		
 		if(this.networkParams.useSystemTrustStore) {
-			//System.setProperty( "Djavax.net.ssl.trustStoreType", "WINDOWS-ROOT");
+			System.setProperty( "Djavax.net.ssl.trustStoreType", "WINDOWS-ROOT");
 			SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
 			sslContext.init(null, null, new SecureRandom());
 			return sslContext.getSocketFactory();
