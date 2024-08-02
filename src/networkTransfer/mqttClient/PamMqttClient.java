@@ -189,6 +189,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 			MqttMessage message;
 			if(qo.data!=null) {
 				message = new MqttMessage(qo.data);
+				message.setQos(1);
 			}else {
 				message = new MqttMessage(qo.jsonString.getBytes());
 			}
