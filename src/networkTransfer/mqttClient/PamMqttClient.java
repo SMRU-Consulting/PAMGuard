@@ -194,7 +194,8 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 				message = new MqttMessage(qo.jsonString.getBytes());
 			}
 			String type = qo.streamName;
-			mqttClient.publish("APS/"+stationId+"/"+type, message);
+			//mqttClient.publish("APS/"+stationId+"/"+type, message);
+			mqttClient.publish("APS/"+stationId+"/"+type,message.getPayload(),1,false);
 		} catch (MqttException e) {
 			throw new NetTransmitException(e);
 		} 
