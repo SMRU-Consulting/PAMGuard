@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
 
+import PamController.PamControlledUnit;
 import PamController.PamController;
 import PamDetection.RawDataUnit;
 import PamUtils.PamUtils;
@@ -126,9 +127,9 @@ public class PamFFTProcess extends PamProcess {
 		setupFFT();
 	}
 	
-	public PamFFTProcess(FFTParameters fftParams, PamDataBlock parentDataBlock) {
-		super(null, parentDataBlock);
-		fftParameters =  fftControl.fftParameters;
+	public PamFFTProcess(FFTParameters fftParams, PamDataBlock parentDataBlock,PamControlledUnit parentUnit) {
+		super(parentUnit, parentDataBlock);
+		fftParameters =  fftParams;
 		setParentDataBlock(parentDataBlock);
 		outputData = new FFTDataBlock(fftParams.name, this, 
 				fftParameters.channelMap, fftParameters.fftHop,

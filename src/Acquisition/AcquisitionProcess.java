@@ -632,6 +632,7 @@ public class AcquisitionProcess extends PamProcess {
 		this.statusInterval = statusIntervalMillis;
 	}
 
+	
 	public void streamClosed() {
 		//		acquisitionStopped();
 	}
@@ -967,6 +968,38 @@ public class AcquisitionProcess extends PamProcess {
 		}
 		return dB;
 	}
+	
+	public double rawAmplitude2dBV(double rawAmplitude, int channel, boolean fast){
+
+		channel = checkSingleChannel(channel);
+
+		double vp2p = getPeak2PeakVoltage(channel);
+
+		Preamplifier preamp = acquisitionControl.acquisitionParameters.preamplifier;
+		if (getRunningSystem() != null) {
+			ampSystem = getRunningSystem();
+		}
+		if (ampSystem == null) {
+			ampSystem = acquisitionControl.findDaqSystem(null);
+		}
+		double xtra = 0;
+		if (ampSystem != null) {
+			xtra = ampSystem.getChannelGain(channel); 
+		}
+		
+		/*
+		 * Need an extra divide by 2 in here since the standard scaling of PAMGUARD
+		 * data is -1 to +1, so data really needed to be scaled against half
+		 * the peak to peak voltage. 
+		 */
+		double dB = 20 * Math.log10(rawAmplitude * 1000* vp2p / 2) - (xtra+preamp.getGain());
+
+		// if the answer is -Infinity or Infinity or NaN, just set it to 0
+		if (!Double.isFinite(dB)) {
+			dB = 0;
+		}
+		return dB;
+	}
 
 	/**
 	 * Check it's a single channel and not a channel map. 
@@ -1099,6 +1132,23 @@ public class AcquisitionProcess extends PamProcess {
 		double binWidth = sampleRate / fftLength;
 		fftAmplitude /= Math.sqrt(binWidth);
 		double dB = rawAmplitude2dB(fftAmplitude, channel, fast);
+		return dB;
+	}
+	
+	public double fftAmplitude2dBV(double fftAmplitude, int channel, float sampleRate, int fftLength, boolean isSquared, boolean fast){
+		if (isSquared) {
+			fftAmplitude = Math.sqrt(fftAmplitude);
+		}
+		// correct for PArsevel (1/sqrt(fftLength and for the fact that the data were summed
+		// over a fft length which requires an extra 1/sqrt(fftLength) correction.
+		fftAmplitude /= fftLength;
+		// allow for negative frequencies
+		fftAmplitude *= sqrt2;
+		// thats the energy in an nHz bandwidth. also need bandwidth correction to get
+		// to spectrum level data
+		double binWidth = sampleRate / fftLength;
+		fftAmplitude /= Math.sqrt(binWidth);
+		double dB = rawAmplitude2dBV(fftAmplitude, channel, fast);
 		return dB;
 	}
 	

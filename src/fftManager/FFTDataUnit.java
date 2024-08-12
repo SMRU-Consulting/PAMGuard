@@ -63,6 +63,42 @@ public class FFTDataUnit extends DataUnit2D<PamDataUnit,SuperDetection> implemen
 	public int getFftSlice() {
 		return fftSlice;
 	}
+	
+	public double[] getVoltageMagnitudeData() {
+		/**
+		 * Return the values in decibels (spectrum level I think). 
+		 */
+		if (fftData == null) {
+			return null;
+		}
+
+		double[] magSqData =  fftData.magsq();
+		AcquisitionProcess daqProcess = null;
+
+		//		int iChannel = PamUtils.getSingleChannel(getChannelBitmap());
+	
+		int iChannel = this.getParentDataBlock().getARealChannel(PamUtils.getSingleChannel(getChannelBitmap()));
+		
+		double gain = getParentDataBlock().getCumulativeGain(iChannel);
+		if (gain == 0) {
+			getParentDataBlock().getCumulativeGain(iChannel);
+		}
+
+		// get the acquisition process. 
+		try {
+			daqProcess = (AcquisitionProcess) (getParentDataBlock().getSourceProcess());
+			daqProcess.prepareFastAmplitudeCalculation(iChannel);
+		}
+		catch (ClassCastException e) {
+			return magSqData;
+		}
+		double mGain = gain/gain;
+		for (int i = 0; i < magSqData.length; i++) {
+			magSqData[i] = daqProcess.fftAmplitude2dBV(magSqData[i]/mGain, iChannel, 
+					getParentDataBlock().getSampleRate(), magSqData.length*2, true, true);
+		}
+		return magSqData;
+	}
 
 	/**
 	 * Return the values in decibels (spectrum level I think).  
