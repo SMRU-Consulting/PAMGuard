@@ -170,7 +170,7 @@ public abstract class TDControl implements PamSettings {
 
 	}
 
-	protected TDDisplayFX getTDDisplay() {
+	public TDDisplayFX getTDDisplay() {
 		return tdMainDisplay;
 
 	}
