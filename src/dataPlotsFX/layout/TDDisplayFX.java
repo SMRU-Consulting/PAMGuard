@@ -315,6 +315,16 @@ public class TDDisplayFX extends PamBorderPane {
 		}
 
 	}
+	
+	public void resetGraphs() {
+		this.tdGraphs = new ArrayList<TDGraphFX>();
+		createGraphs();
+		//layout the graphs within the main panel
+		layoutTDGraphs(tdParametersFX.orientation);		
+
+		//need to set the divder positon after the graphs as this doesn;t work if set before. 
+		splitPaneHolder.setDividerPosition(0, 0.95);
+	}
 
 
 	/**
