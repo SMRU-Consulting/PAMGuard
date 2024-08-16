@@ -1122,6 +1122,8 @@ public class AcquisitionProcess extends PamProcess {
 		if (isSquared) {
 			fftAmplitude = Math.sqrt(fftAmplitude);
 		}
+		//Now the fftAmplitude is always RMS of the ADC output.
+		
 		// correct for PArsevel (1/sqrt(fftLength and for the fact that the data were summed
 		// over a fft length which requires an extra 1/sqrt(fftLength) correction.
 		fftAmplitude /= fftLength;
@@ -1136,20 +1138,25 @@ public class AcquisitionProcess extends PamProcess {
 	}
 	
 	public double fftAmplitude2dBV(double fftAmplitude, int channel, float sampleRate, int fftLength, boolean isSquared, boolean fast){
-		if (isSquared) {
+		double binWidth = sampleRate / fftLength;
+		
+		if(isSquared) {
 			fftAmplitude = Math.sqrt(fftAmplitude);
 		}
-		// correct for PArsevel (1/sqrt(fftLength and for the fact that the data were summed
-		// over a fft length which requires an extra 1/sqrt(fftLength) correction.
+		
 		fftAmplitude /= fftLength;
-		// allow for negative frequencies
+		
 		fftAmplitude *= sqrt2;
-		// thats the energy in an nHz bandwidth. also need bandwidth correction to get
-		// to spectrum level data
-		double binWidth = sampleRate / fftLength;
-		fftAmplitude /= Math.sqrt(binWidth);
-		double dB = rawAmplitude2dBV(fftAmplitude, channel, fast);
-		return dB;
+
+		double squareAmplitude = fftAmplitude*fftAmplitude;
+		
+		squareAmplitude /= binWidth;
+		
+		double vp2p = getPeak2PeakVoltage(channel);
+		
+		double mSys_DAQ = 2/vp2p;
+		
+		return 10*Math.log10(squareAmplitude/(mSys_DAQ*mSys_DAQ));
 	}
 	
 	/**

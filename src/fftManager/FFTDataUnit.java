@@ -64,7 +64,12 @@ public class FFTDataUnit extends DataUnit2D<PamDataUnit,SuperDetection> implemen
 		return fftSlice;
 	}
 	
-	public double[] getVoltageMagnitudeData() {
+	/**
+	 * ADC output spectral density. 
+	 * 
+	 * @return
+	 */
+	public double[] getADCVoltageInputSpectralDensity() {
 		/**
 		 * Return the values in decibels (spectrum level I think). 
 		 */
@@ -99,20 +104,25 @@ public class FFTDataUnit extends DataUnit2D<PamDataUnit,SuperDetection> implemen
 		}
 		return magSqData;
 	}
+	
+	
 
 	/**
 	 * Return the values in decibels (spectrum level I think).  
 	 * Should be good to go for plotting on the spectrogram.
+	 * <br><br>
+	 * Reviewed by ST on 8/15/24:
+	 * This returns the Power Spectral Density of the signal in dB re: 1 microPascal^2/hz
+	 * Compliant with ISO/DIS 7605 
 	 */
 	@Override
 	public double[] getMagnitudeData() {
-		/**
-		 * Return the values in decibels (spectrum level I think). 
-		 */
 		if (fftData == null) {
 			return null;
 		}
 
+		//Parseval's Theorem says 'the mean-square of the function is equal to the sum of the square of its transform'
+		//So, the returned array summed is the mean-square ADC output.
 		double[] magSqData =  fftData.magsq();
 		AcquisitionProcess daqProcess = null;
 
