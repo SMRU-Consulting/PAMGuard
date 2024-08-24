@@ -105,7 +105,40 @@ public class FFTDataUnit extends DataUnit2D<PamDataUnit,SuperDetection> implemen
 		return magSqData;
 	}
 	
+	public double[] getMagitudeStage(String stage) {
+		if (fftData == null) {
+			return null;
+		}
+
+		//Parseval's Theorem says 'the mean-square of the function is equal to the sum of the square of its transform'
+		//So, the returned array summed is the mean-square ADC output.
+		double[] magSqData =  fftData.magsq();
+		AcquisitionProcess daqProcess = null;
+
+		//		int iChannel = PamUtils.getSingleChannel(getChannelBitmap());
 	
+		int iChannel = this.getParentDataBlock().getARealChannel(PamUtils.getSingleChannel(getChannelBitmap()));
+		
+		double gain = getParentDataBlock().getCumulativeGain(iChannel);
+		if (gain == 0) {
+			getParentDataBlock().getCumulativeGain(iChannel);
+		}
+
+		// get the acquisition process. 
+		try {
+			daqProcess = (AcquisitionProcess) (getParentDataBlock().getSourceProcess());
+			daqProcess.prepareFastAmplitudeCalculation(iChannel);
+		}
+		catch (ClassCastException e) {
+			return magSqData;
+		}
+		double mGain = gain/gain;
+		for (int i = 0; i < magSqData.length; i++) {
+			magSqData[i] = daqProcess.getPSD(magSqData[i]/mGain, iChannel, 
+					getParentDataBlock().getSampleRate(), magSqData.length*2, true, true, stage);
+		}
+		return magSqData;
+	}
 
 	/**
 	 * Return the values in decibels (spectrum level I think).  

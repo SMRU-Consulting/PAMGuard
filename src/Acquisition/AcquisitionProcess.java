@@ -44,6 +44,7 @@ import PamguardMVC.PamProcess;
 import PamguardMVC.PamRawDataBlock;
 import PamguardMVC.RequestCancellationObject;
 import PamguardMVC.dataOffline.OfflineDataLoadInfo;
+import Spectrogram.WindowFunction;
 import dataGram.DatagramManager;
 import dataMap.OfflineDataMapPoint;
 import pamScrollSystem.AbstractScrollManager;
@@ -1106,6 +1107,63 @@ public class AcquisitionProcess extends PamProcess {
 		}
 		return ans;
 	}
+	
+	
+	
+	public double getPSD(double fftAmplitude, int channel, float sampleRate, int fftLength, boolean isSquared, boolean fast, String stage){
+		double binWidth = sampleRate / fftLength;
+		double B = WindowFunction.getHannScaling(fftLength);
+		double p_ss;
+		double PSD_rms;
+		
+		switch(stage) {
+//		case "first":
+//			return fftAmplitude;
+		case "second":
+			p_ss = 2*fftAmplitude/(fftLength*fftLength*Math.sqrt(fftLength));
+			PSD_rms = p_ss/(binWidth*B);
+			return getPower_dB(PSD_rms,channel)-24;
+		case "third":
+			p_ss = 2*fftAmplitude/(fftLength*Math.sqrt(fftLength));
+			PSD_rms = p_ss/(binWidth*B);
+			return getPower_dB(PSD_rms,channel)-24;
+		case "forth":
+			p_ss = 2*fftAmplitude/(Math.sqrt(fftLength));
+			PSD_rms = p_ss/(binWidth*B);
+			return getPower_dB(PSD_rms,channel)-24;
+		case "fifth":
+			p_ss = 2*fftAmplitude/(fftLength);
+			PSD_rms = p_ss/(binWidth*B);
+			return getPower_dB(PSD_rms,channel)-24;
+		case "sixth":
+			p_ss = 2*fftAmplitude/(fftLength*fftLength);
+			PSD_rms = p_ss/(binWidth*B);
+			return getPower_dB(PSD_rms,channel);
+		default:
+			return fftAmplitude2dB(fftAmplitude,channel,sampleRate,fftLength,isSquared,fast);
+		}
+	}
+	
+	public double getPower_dB(double N_adc, int channel){
+
+		channel = checkSingleChannel(channel);
+		
+		double M_hyd_dB = getAmplitudeConstantTerm(channel); 
+
+		double M_DAQ_dB = 20 * Math.log10(getPeak2PeakVoltage(channel)/2);
+		
+		double M_tot = M_DAQ_dB-M_hyd_dB;
+		
+		double dB = 10 * Math.log10(N_adc) + M_tot;
+
+		// if the answer is -Infinity or Infinity or NaN, just set it to 0
+		if (!Double.isFinite(dB)) {
+			dB = 0;
+		}
+		return dB;
+	}
+	
+	
 	/**
 	 * Convert the amplitude of fft data into a spectrum level measurement in
 	 * dB re 1 micropacal / sqrt(Hz).
