@@ -15,6 +15,7 @@ import org.w3c.dom.Element;
 
 import pamMaths.PamQuaternion;
 import pamMaths.PamVector;
+import pamguard.GlobalArguments;
 import userDisplay.UserDisplayControl;
 import depthReadout.DepthControl;
 import Array.importHydrophoneData.HydrophoneImport;
@@ -110,6 +111,8 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 
 	public static final double DEFAULT_HYDROPHONE_SENSITIVITY = -170;
 	public static final double DEFAULT_PREAMP_GAIN = 0;
+	
+	public static final String FIRST_IDX_SENS = "-array.firstHydrophone";
 
 
 	private ArrayManager(String unitName) {
@@ -326,6 +329,14 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 			Ex.printStackTrace();
 			return false;
 		}
+		
+		String sens = GlobalArguments.getParam(FIRST_IDX_SENS);
+		
+		if(sens!=null) {
+			double sensitivity = Double.valueOf(sens);
+			this.recentArrays.get(0).getHydrophone(0).setSensitivity(sensitivity);
+		}
+		
 		return true;
 	}
 

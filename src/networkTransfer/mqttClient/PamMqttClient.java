@@ -33,11 +33,12 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 	protected MqttAsyncClient mqttClient;
 	private MqttConnectOptions mqttOptions;
 	private String stationId;
+	private String mqttConnectionId;
 	private String status;
 	private String mqttConfigureError;
 	public NetworkSendParams networkSendParams;
 	public NetworkReceiveParams networkReceiveParams;
-	
+	private IMqttToken connectToken;
 	
 
 	public PamMqttClient(NetworkParams networkParams){
@@ -45,9 +46,11 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		if(networkParams instanceof NetworkSendParams) {
 			this.networkSendParams = (NetworkSendParams) networkParams;
 			stationId = "pb"+networkSendParams.stationId1;
+			mqttConnectionId = this.stationId+"PAM";
 		}else {
 			this.networkReceiveParams = (NetworkReceiveParams) networkParams;
 			stationId = networkReceiveParams.stationName;
+			mqttConnectionId = this.stationId;
 		}
 		configureClient();
 	}
@@ -57,6 +60,10 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		mqttConfigureError = null;
 		this.setWarning("Attempting initial configure...",1);
 		if(this.mqttClient!=null) {
+			if(connectToken!=null && !connectToken.isComplete()) {
+				System.out.println("Must wait for previous instance to finish connecting");
+				return;
+			}
 			try {
 				this.mqttClient.close(true);
 			} catch (MqttException e) {
@@ -66,9 +73,9 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		}
 		try {
 			if(this.networkParams.useSSL) {
-				mqttClient = new MqttAsyncClient("ssl://"+this.networkParams.ipAddress+":"+this.networkParams.portNumber,stationId,new MemoryPersistence());
+				mqttClient = new MqttAsyncClient("ssl://"+this.networkParams.ipAddress+":"+this.networkParams.portNumber,mqttConnectionId,new MemoryPersistence());
 			}else {
-				mqttClient = new MqttAsyncClient("tcp://"+this.networkParams.ipAddress+":"+this.networkParams.portNumber,stationId,new MemoryPersistence());
+				mqttClient = new MqttAsyncClient("tcp://"+this.networkParams.ipAddress+":"+this.networkParams.portNumber,mqttConnectionId,new MemoryPersistence());
 
 			}
 		} catch (MqttException e) {
@@ -105,14 +112,19 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 
 	@Override
 	public boolean connect() throws ClientConnectFailedException{
+		if(connectToken!=null && !connectToken.isComplete()) {
+			System.out.println("Must wait for previous instance to finish connecting");
+			return false;
+		}
+		
 		if(mqttConfigureError!=null) {
 			configureClient();
 			if(mqttConfigureError!=null) {
 				return false;
 			}
 		}
+				
 		
-		IMqttToken connectToken;
 		
 		try {
 			connectToken = mqttClient.connect(mqttOptions);
@@ -144,9 +156,11 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		
 		if(!mqttClient.isConnected()) {
 			Exception reason = connectToken.getException();
-			Throwable cause = reason.getCause();
-			String message = reason.getMessage();
-			throw new ClientConnectFailedException(message);
+			if(reason!=null) {
+				String message = reason.getMessage();
+				throw new ClientConnectFailedException(message);
+			}
+			throw new ClientConnectFailedException("Unknown reason for connection failure");
 		}
 
 		return true;
@@ -181,9 +195,14 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 			throw new NetTransmitException("Mqtt client is not initialized",new NullPointerException());
 		}
 		if(!this.mqttClient.isConnected()) {
-			
-			throw new NetTransmitException("Mqtt client is not connected", null);
-			
+			try {
+				this.connect();
+			} catch (ClientConnectFailedException e) {
+				throw new NetTransmitException("Mqtt client is not connected", e);
+			}
+			if(!this.mqttClient.isConnected()) {
+				throw new NetTransmitException("Mqtt client is not connected", null);
+			}
 		}
 		try {
 			MqttMessage message;

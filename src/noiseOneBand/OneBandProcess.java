@@ -2,7 +2,7 @@ package noiseOneBand;
 
 import networkTransfer.receive.BuoyStatusDataUnit;
 import noiseOneBand.offline.OneBandDatagramProvider;
-
+import whistlesAndMoans.WhistleJSONDataSource;
 import Acquisition.AcquisitionProcess;
 import Filters.FIRArbitraryFilter;
 import Filters.Filter;
@@ -40,6 +40,8 @@ public class OneBandProcess extends PamProcess {
 		addOutputDataBlock(waveOutDataBlock);
 		measureDataBlock = new OneBandDataBlock(oneBandControl.getUnitName(), oneBandControl, this, 1);
 		measureDataBlock.setBinaryDataSource(new OneBandDataSource(oneBandControl, measureDataBlock, "Noise"));
+		measureDataBlock.setJSONDataSource(new OneBandJsonDataSource());
+
 		measureDataBlock.SetLogging(new OneBandLogging(oneBandControl, measureDataBlock));
 		measureDataBlock.setDatagramProvider(new OneBandDatagramProvider(oneBandControl));
 		measureDataBlock.addObserver(new SelfObserver());
