@@ -2,6 +2,7 @@ package tethys.pamdata;
 
 import java.util.List;
 
+import Localiser.LocalisationAlgorithm;
 import PamDetection.LocalisationInfo;
 import PamguardMVC.PamDataUnit;
 import nilus.AlgorithmType;
@@ -11,6 +12,7 @@ import nilus.DescriptionType;
 import nilus.Detection;
 import nilus.DetectionEffortKind;
 import nilus.GranularityEnumType;
+import tethys.Collection;
 import tethys.localization.TethysLocalisationInfo;
 import tethys.niluswraps.PDeployment;
 import tethys.output.StreamExportParams;
@@ -62,9 +64,10 @@ public interface TethysDataProvider {
 
 	/**
 	 * Get Algorithm information for a Tethys Detections document
+	 * @param collection Detections or Localisations may have different parameter sets. 
 	 * @return Algorithm information
 	 */
-	public AlgorithmType getAlgorithm();
+	public AlgorithmType getAlgorithm(Collection collection);
 	
 	/**
 	 * Get a list of allowed granularity types for this output 
@@ -138,6 +141,13 @@ public interface TethysDataProvider {
 	 */
 	public boolean wantExportDialogCard(ExportWizardCard wizPanel);
 	
+	/**
+	 * Get the localisation algorithm (if there is one). This is generally 
+	 * found automatically from the datablock, but it may be necessary to override. 
+	 * @return Localisation Algorithm, or null. 
+	 */
+	public LocalisationAlgorithm getLocalisationAlgorithm();
+
 	/**
 	 * Get localisation info for the datablock. Can be null, but probably never is. More likely to have a zero of available types;
 	 * @return

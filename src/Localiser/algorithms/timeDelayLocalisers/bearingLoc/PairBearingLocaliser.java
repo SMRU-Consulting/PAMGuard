@@ -1,14 +1,20 @@
 package Localiser.algorithms.timeDelayLocalisers.bearingLoc;
 
+import java.awt.Window;
+import java.io.Serializable;
 import java.util.Arrays;
 
 import Array.ArrayManager;
 import Array.PamArray;
 import Jama.Matrix;
 import Jama.QRDecomposition;
+import Localiser.LocalisationAlgorithmInfo;
 import PamDetection.LocContents;
 import PamUtils.PamUtils;
 import pamMaths.PamVector;
+import tethys.localization.LocalizationBuilder;
+import tethys.localization.LocalizationCreator;
+import tethys.swing.export.LocalizationOptionsPanel;
 
 /**
  * Really simple BearingLocaliser which works with two element closely
@@ -294,4 +300,26 @@ public class PairBearingLocaliser implements BearingLocaliser {
 		return speedOfSound;
 	}
 
+	@Override
+	public String getAlgorithmName() {
+		return "Pair bearing localiser";
+	}
+
+	@Override
+	public Serializable getParameters() {
+		return null;
+	}
+	@Override
+	public LocalisationAlgorithmInfo getAlgorithmInfo() {
+		return this;
+	}
+	@Override
+	public LocalizationCreator getTethysCreator() {
+		// TODO Auto-generated method stub
+		return null;
+	}	
+	@Override
+	public LocalizationOptionsPanel getLocalizationOptionsPanel(Window parent, LocalizationBuilder locBuilder) {
+		return null;
+	}
 }
