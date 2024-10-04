@@ -194,16 +194,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		if(this.mqttClient==null) {
 			throw new NetTransmitException("Mqtt client is not initialized",new NullPointerException());
 		}
-		if(!this.mqttClient.isConnected()) {
-			try {
-				this.connect();
-			} catch (ClientConnectFailedException e) {
-				throw new NetTransmitException("Mqtt client is not connected", e);
-			}
-			if(!this.mqttClient.isConnected()) {
-				throw new NetTransmitException("Mqtt client is not connected", null);
-			}
-		}
+
 		try {
 			MqttMessage message;
 			if(qo.data!=null) {

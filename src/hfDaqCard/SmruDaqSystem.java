@@ -372,22 +372,15 @@ public class SmruDaqSystem extends DaqSystem implements PamSettings {
 		boolean needRestart = false;
 		int iChan;
 		int nRotations = 0;
-		boolean on = false;
 		while (keepRunning) {
 			iChan = 0;
-			dataMillis = daqControl.getAcquisitionProcess().absSamplesToMilliseconds(totalSamples);
-			//System.out.println(dataMillis%1000);
-			//System.out.println((dataMillis+500)%1000);
-			if(dataMillis%1000 < 100 && !on) {
-				on = true;
-				smruDaqJNI.setLED(0, 0, 1);
-				smruDaqJNI.setLED(0, 1, 0);
-			}
-			if((dataMillis+500)%1000 < 100 && on) {
-				on=false;
-				smruDaqJNI.setLED(0, 0, 0);
+			if(nRotations++==10) {
 				smruDaqJNI.setLED(0, 1, 1);
+			}else if(nRotations==20) {
+				smruDaqJNI.setLED(0, 1, 0);
+				nRotations = 0;
 			}
+			dataMillis = daqControl.getAcquisitionProcess().absSamplesToMilliseconds(totalSamples);
 			for (int iBoard = 0; iBoard < nDaqCards && keepRunning; iBoard++) {
 				for (int i = 0; i < boardChannels[iBoard] && keepRunning; i++) {
 					newData = smruDaqJNI.readSamples(iBoard, i, wantedSamples);
