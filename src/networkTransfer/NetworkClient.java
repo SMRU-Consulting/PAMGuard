@@ -10,18 +10,22 @@ import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
+import javax.net.SocketFactory;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
+import PamController.PamController;
+import PamController.PamGUIManager;
 import networkTransfer.mqttClient.PamMqttClient;
 import networkTransfer.send.ClientConnectFailedException;
 import networkTransfer.send.NetTransmitException;
 import networkTransfer.send.NetworkQueuedObject;
 import networkTransfer.send.NetworkSendParams;
 import networkTransfer.send.NetworkSender;
+import pamguard.Pamguard;
 import warnings.PamWarning;
 import warnings.WarningSystem;
 
@@ -59,14 +63,15 @@ public abstract class NetworkClient {
 
 	public abstract boolean testClient() throws ClientConnectFailedException;
 	
-	public SSLSocketFactory getSSLSocketFactory() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException {
+	public SocketFactory getSSLSocketFactory() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException {
 		
 		
 		if(this.networkParams.useSystemTrustStore) {
-			System.setProperty( "Djavax.net.ssl.trustStoreType", "WINDOWS-ROOT");
-			SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
-			sslContext.init(null, null, new SecureRandom());
-			return sslContext.getSocketFactory();
+			if(PamController.getInstance().getRunMode()==PamGUIManager.NOGUI) {
+				System.setProperty("javax.net.ssl.trustStore","/etc/ssl/certs/aps_store.jks");
+			    System.setProperty("javax.net.ssl.trustStorePassword", "APSKEYSTORE001");
+			}
+			return SSLSocketFactory.getDefault();
 		}
 		
 		SSLContext context = SSLContext.getInstance("TLSv1.3");

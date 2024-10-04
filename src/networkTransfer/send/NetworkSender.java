@@ -46,6 +46,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	public static final String TRUSTPASS = "-netSend.trustPass";
 	public static final String KEYPATH = "-netSend.keyPath";
 	public static final String KEYPASS = "-netSend.keyPass";
+	public static final String SENDJSON = "-netSend.json";
 
 
 	protected NetworkSendParams networkSendParams = new NetworkSendParams();
@@ -185,6 +186,8 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		String keyPassString = GlobalArguments.getParam(KEYPASS);
 		String user = GlobalArguments.getParam(USER);
 		String password = GlobalArguments.getParam(PASSWORD);
+		String useJson = GlobalArguments.getParam(SENDJSON);
+
 
 		if(user!=null) {
 			networkSendParams.userId = user;
@@ -234,6 +237,10 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 			networkSendParams.keyStorePassword = keyPassString;
 		}
 		
+		if(useJson!=null) {
+			networkSendParams.sendingFormat = NetworkSendParams.NETWORKSEND_JSON;
+		}
+		
 		return (networkSendParams != null);
 	}
 
@@ -261,8 +268,8 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 			}
 			break;
 		case PamController.CHANGED_PROCESS_SETTINGS:
-			this.client.updateParams(this.getNetworkSendParams());
-			this.client.configureClient();
+			//this.client.updateParams(this.getNetworkSendParams());
+			//this.client.configureClient();
 		}
 		
 	}
@@ -367,7 +374,6 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		if(client.isConnected()) {
 			return;
 		}
-		client.configureClient();
 		try {
 			client.connect();
 		} catch (ClientConnectFailedException e) {

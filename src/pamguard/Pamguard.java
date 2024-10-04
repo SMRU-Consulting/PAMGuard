@@ -24,6 +24,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import Acquisition.FolderInputSystem;
+import Array.ArrayManager;
 import NMEA.NMEAControl;
 import PamController.PamController;
 import PamController.PamGUIManager;
@@ -311,6 +312,10 @@ public class Pamguard {
 					
 					GlobalArguments.setParam(NetworkSender.ID2, args[iArg++]);
 				}
+				else if (anArg.equalsIgnoreCase(NetworkSender.SENDJSON)) {
+					
+					GlobalArguments.setParam(NetworkSender.SENDJSON, args[iArg++]);
+				}
 				else if (anArg.equalsIgnoreCase(NetworkSender.PORT)) {
 					
 					GlobalArguments.setParam(NetworkSender.PORT, args[iArg++]);
@@ -343,6 +348,9 @@ public class Pamguard {
 				}
 				else if(anArg.equalsIgnoreCase(NetworkSender.PASSWORD)){
 					GlobalArguments.setParam(NetworkSender.PASSWORD, args[iArg++]);
+				}
+				else if(anArg.equalsIgnoreCase(ArrayManager.FIRST_IDX_SENS)){
+					GlobalArguments.setParam(ArrayManager.FIRST_IDX_SENS, args[iArg++]);
 				}
 				else if(anArg.equals(DLControl.MODELPATH)) {
 					GlobalArguments.setParam(DLControl.MODELPATH, args[iArg++]);
