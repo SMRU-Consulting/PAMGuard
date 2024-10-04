@@ -1,5 +1,6 @@
 package dataMap.layoutFX;
 
+import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -13,36 +14,45 @@ import dataMap.DataMapControl;
 import dataMap.DataMapDrawing;
 import dataMap.OfflineDataMap;
 import dataMap.OfflineDataMapPoint;
-import dataPlotsFX.layout.AxisPane;
+import dataPlotsFX.scrollingPlot2D.PlotParams2D;
+import dataPlotsFX.scrollingPlot2D.StandardPlot2DColours;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.PixelWriter;
+import javafx.scene.image.PixelBuffer;
+import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
+import javafx.scene.image.WritablePixelFormat;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import PamController.OfflineDataStore;
 import PamController.PamController;
-import PamUtils.PamCalendar;
 import PamguardMVC.PamDataBlock;
+import pamViewFX.fxGlyphs.PamGlyphDude;
 import pamViewFX.fxNodes.PamBorderPane;
+import pamViewFX.fxNodes.PamButton;
 import pamViewFX.fxNodes.PamHBox;
 import pamViewFX.fxNodes.pamAxis.PamAxisFX;
 import pamViewFX.fxNodes.pamAxis.PamAxisPane;
 import pamViewFX.fxNodes.utilsFX.ColourArray;
+import pamViewFX.fxNodes.utilsFX.ColourArray.ColourArrayType;
+import pamViewFX.fxNodes.utilsFX.PamUtilsFX;
 
 public class DataStreamPaneFX extends PamBorderPane {
 	
 	/**
 	 * The preferred width of the axis.
 	 */
-	public static double axisPrefWidth=80; 
+	public static double PREF_AXIS_WIDTH=80; 
+	
+	public static double PREF_HEADER_HEIGHT=20; 
 
 	/**
 	 * Reference to the data map control
@@ -67,7 +77,7 @@ public class DataStreamPaneFX extends PamBorderPane {
 	/**
 	 * Name associated with the data stream.
 	 */
-	private DataName dataName;
+	private DataMapInfo dataName;
 	
 	private int totalDatas, maxDatas;
 
@@ -119,6 +129,8 @@ public class DataStreamPaneFX extends PamBorderPane {
 	 */
 	private Timeline timeline;
 
+	private PamButton showButton;
+
 	/**
 	 * Constructor for the data stream pane. 
 	 * @param dataMapControl - the DataMapControl control the  DataStreamPaneFX  belongs to 
@@ -133,8 +145,10 @@ public class DataStreamPaneFX extends PamBorderPane {
 		hasDatagram = (dataBlock.getDatagramProvider() != null);
 		dataGraph = new DataGraphFX();
 		dataGraph.setupAxis();
-		dataName = new DataName();
-		
+		dataName = new DataMapInfo();
+		dataName.setName(dataBlock.getDataName()); 
+		dataName.setLongName(dataBlock.getLongDataName()); 
+
 		this.setTop(topPane=createTopPane());
 		this.setCenter(dataGraph);
 	}
@@ -147,10 +161,39 @@ public class DataStreamPaneFX extends PamBorderPane {
 		topPane.getStyleClass().add("pane-opaque");
 		topPane.getChildren().add(new Label(this.dataBlock.getDataName()));
 		topPane.setAlignment(Pos.CENTER);
-		return topPane;
+		
+		PamBorderPane pane = new PamBorderPane();
+		
+		pane.setCenter(topPane);
+		
+		showButton = new PamButton();
+		showButton.setStyle("-fx-padding: 0 10 0 10; -fx-border-radius: 0 0 0 0; -fx-background-radius: 0 0 0 0;");
+		showButton.setOnAction((action)->{
+			this.setCollapsed(!this.isCollapsed()); 
+			setButtonGraphic();
+		});
+		 setButtonGraphic();
+		 
+		pane.setLeft(showButton);
+		
+		pane.setPrefHeight(PREF_HEADER_HEIGHT);
+		
+		return pane;
 	}
 	
 	
+	
+	
+	private void setButtonGraphic() {
+		if (this.isCollapsed()) {
+			showButton.setGraphic(PamGlyphDude.createPamIcon("mdi2c-chevron-down", (int) PREF_HEADER_HEIGHT-2));
+		}
+		else {
+			showButton.setGraphic(PamGlyphDude.createPamIcon("mdi2c-chevron-up", (int) PREF_HEADER_HEIGHT-2));
+		}
+		
+	}
+
 	/**
 	 * @return the dataGraph
 	 */
@@ -161,7 +204,7 @@ public class DataStreamPaneFX extends PamBorderPane {
 	/**
 	 * @return the dataName
 	 */
-	public DataName getDataName() {
+	public DataMapInfo getDataName() {
 		return dataName;
 	}
 	
@@ -196,10 +239,10 @@ public class DataStreamPaneFX extends PamBorderPane {
 		private double lastPlotted2DminVal;
 		
 		private static final int NCOLOURPOINTS = 100;
+
+		private static final double MAX_LOG_LOOKUP = 1.;
 		
 		//for 3D data gram 
-		
-		private ColourArray datagramColours;
 		
 		/**
 		 * The wheel scroll factor. 
@@ -237,11 +280,23 @@ public class DataStreamPaneFX extends PamBorderPane {
 		private int totalWheelRotation;
 
 		private long lastTime;
+		
+		private StandardPlot2DColours plotColours2D = new StandardPlot2DColours(); 
+
+		/**
+		 * A lookup table for log values to speed up image drawing for 3D images
+		 */
+		private double[] logimagetable;
 
 
 		private DataGraphFX() {
 			createDataGraph();
 			addDataGraphMouse();
+			
+			//set some sensible default amplitude limits. 
+			plotColours2D.getAmplitudeLimits()[0].set(-80);
+			plotColours2D.getAmplitudeLimits()[0].set(80);
+
 		}
 		
 		
@@ -269,7 +324,10 @@ public class DataStreamPaneFX extends PamBorderPane {
 			});
 			
 			canvasHolder.setOnScroll(e->{
-				wheelMoved(e);
+				//only change colours of the control key is down. 
+				if (e.isControlDown()) {
+					wheelMoved(e);
+				}
 			});
 			
 		}
@@ -308,6 +366,8 @@ public class DataStreamPaneFX extends PamBorderPane {
 			//create canvas for overlaid drawings
 			drawCanvas=new Canvas(90,90); 
 
+			plotCanvas. getGraphicsContext2D(). setImageSmoothing(false);
+			
 			Pane pane = new Pane();
 			pane.getChildren().add(plotCanvas);
 			pane.getChildren().add(drawCanvas);
@@ -349,11 +409,12 @@ public class DataStreamPaneFX extends PamBorderPane {
 			axisPane=new PamAxisPane(datastreamAxis, Orientation.VERTICAL); 
 			axisPane.getStyleClass().add("pane");
 			axisPane.setOrientation(Orientation.VERTICAL);
-			axisPane.setPrefWidth(DataStreamPaneFX.axisPrefWidth);
+			axisPane.setPrefWidth(DataStreamPaneFX.PREF_AXIS_WIDTH);
 			axisPane.setStrokeColor(Color.BLACK);
 			
 			this.setLeft(axisPane);
 			this.setCenter(canvasHolder);
+			
 		}
 		
 		
@@ -386,7 +447,7 @@ public class DataStreamPaneFX extends PamBorderPane {
 			
 			long time2 = System.currentTimeMillis();
 
-			//System.out.println("Paint Canvas: " + this + "   " + System.currentTimeMillis() + "  " + (time2-time1));
+//			System.out.println("Paint Canvas: " + this + "   " + System.currentTimeMillis() + "  " + (time2-time1));
 
 		}
 		
@@ -439,7 +500,7 @@ public class DataStreamPaneFX extends PamBorderPane {
 		private void paintPlotCanvas(GraphicsContext gc){
 			setupAxis();
 			gc.clearRect(0, 0, plotCanvas.getWidth(), plotCanvas.getHeight());
-			if (hasDatagram && showDatagram) {
+			if (isHasDatagram() && showDatagram) {
 				datagramPaint(gc);
 			}
 			else {
@@ -453,7 +514,7 @@ public class DataStreamPaneFX extends PamBorderPane {
 		public void setupAxis(){
 			sortScales();
 			//use log scale only if datagram is null. 
-			if (findDatagramScaleInfo()==null)datastreamAxis.setLogScale(dataMapControl.dataMapParameters.vLogScale);
+			if (findDatagramScaleInfo()==null)datastreamAxis.setLogScale(scrollingDataPanel.getDataMapParams().vLogScale);
 			datastreamAxis.setRange(getYScaleMin(), getYScaleMax());
 			datastreamAxis.setLabel(getScaleUnits());
 			paintAxis();
@@ -467,6 +528,7 @@ public class DataStreamPaneFX extends PamBorderPane {
 		}
 		
 		private void datagramPaint(GraphicsContext g) {
+//			System.out.println("PAINT DATA STREAM BOX: " + getScaleType() + "  " + getDataName().getName());
 			if (getScaleType() == DatagramScaleInformation.PLOT_3D) {
 				datagramPaint3D(g);
 			}
@@ -536,7 +598,8 @@ public class DataStreamPaneFX extends PamBorderPane {
 			
 		}
 		
-		private void datagramPaint3D(GraphicsContext g) {
+		private synchronized void datagramPaint3D(GraphicsContext g) {
+//			System.out.println("Paint 3D Canvas: " + this + "   " + System.currentTimeMillis());
 			
 			/*
 			 *  hopefully, there will be datagram data for this block, so do a pretty
@@ -569,15 +632,24 @@ public class DataStreamPaneFX extends PamBorderPane {
 				return;
 			}
 			
-			DatagramImageData datagramImageData = datagramManager.getImageData(dataBlock, startMillis, endMillis, (int) getWidth());
+//			long time1 = System.currentTimeMillis();
+			
+			//JavaFX rendering works better with less pixels. 
+			DatagramImageData datagramImageData = datagramManager.getImageData(dataBlock, startMillis, endMillis, (int) Math.min(getWidth(), 1000.));
+			
 			double[][] imageData = datagramImageData.imageData;
-
-			if (datagramColours == null) {
-				datagramColours = ColourArray.createHotArray(NCOLOURPOINTS);
+			
+			if (logimagetable==null) {
+				//now generate a log lookup table for the image because Math.log takes a long time!
+				//a bit complicate because, if we have a huge value then the lookup table is useless
+				//so need to us a median
+				generateLogImageTable(2000); 
 			}
+						
 			int nXPoints = imageData.length;
 			int nYPoints = imageData[0].length;
 			
+		
 			double[] minMaxValue;
 			if (getMinMaxValues(imageData, false)!=null){
 				minMaxValue = Arrays.copyOf(minMaxVal,2);
@@ -585,16 +657,7 @@ public class DataStreamPaneFX extends PamBorderPane {
 			else{
 				return;
 			}
-			
-			minMaxValue[1] *= wheelScrollFactor;
-			minMaxValue[0] = Math.log(minMaxValue[0]);
-			minMaxValue[1] = Math.log(minMaxValue[1]);
-			/* 
-			 * now fudge the scale a little since black is zero and we want 
-			 * anything > 0 to be significantly away from black.
-			 */
-			double scaleRange = (minMaxValue[1] - minMaxValue[0]) * 1.2;
-			minMaxValue[0] = minMaxValue[1]-scaleRange;
+
 
 			int iCol, y;
 			int x1, x2;
@@ -603,38 +666,66 @@ public class DataStreamPaneFX extends PamBorderPane {
 			if (imageData.length == 0 || imageData[0].length == 0) {
 				return;
 			}
-			datagramImage = new WritableImage(imageData.length, imageData[0].length);
-			PixelWriter writableRaster = datagramImage.getPixelWriter();
+			
+			//use a pixel buffer for rendering an image as it's much faster!
+			IntBuffer buffer = IntBuffer.allocate(nXPoints * nYPoints);
+			int[] pixels = buffer.array();
+			PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(nXPoints, nYPoints, buffer, PixelFormat.getIntArgbPreInstance());
+
+			datagramImage = new WritableImage(pixelBuffer);
 			g.setFill(Color.LIGHTGRAY);
 			g.fillRect(0, 0, nXPoints, nYPoints);
+			
+			Color col = null;
+			int colorARGB = 0;
+					
+//			long time2 = System.currentTimeMillis();
 			for (int i = 0; i < nXPoints; i++) {
 				for (int j = 0; j < nYPoints; j++) {
 					y = nYPoints-j-1;
-					if (imageData[i][j] < 0) {
+					if (imageData[i][y] < 0) {
 						//writableRaster.setColor(i,y,Color.LIGHTGRAY);
 					}
-					else if (imageData[i][j] == 0) {
+					else if (imageData[i][y] == 0) {
 						//writableRaster.setColor(i,y, Color.LIGHTGRAY);
 					}
 					else {
-						iCol = (int) (NCOLOURPOINTS * (Math.log(imageData[i][j]) - minMaxValue[0]) / scaleRange);
-						iCol = Math.min(Math.max(0, iCol), NCOLOURPOINTS-1);
-						writableRaster.setColor(i, y, datagramColours.getColour(iCol));
+						
+						
+//						iCol = (int) (NCOLOURPOINTS * (approximateLogLookup(imageData[i][y]) - minMaxValue[0]) / scaleRange);
+//						iCol = Math.min(Math.max(0, iCol), NCOLOURPOINTS-1);
+						
+						col =plotColours2D.getColours(20*approximateLogLookup(imageData[i][y]) ); 
+						
+						
+//						if (i==0) {
+//						System.out.println("dB image: " + 20*approximateLogLookup(imageData[i][y])+ "  " + plotColours2D.getAmplitudeLimits()[0].get()); 
+//						}
+					
+						colorARGB = (255 << 24) | (((int) (col.getRed()*255.))  << 16) | (((int) (col.getGreen()*255.)) << 8) | (int) (col.getBlue()*255.);
+
+ 
+						pixels[(i % nXPoints) + (j * nXPoints)] =  colorARGB;
+												
+//						writableRaster.setColor(i, y, datagramColours.getColour(iCol));
 						//						datagramImage.setRGB(i, y, 0x0000FF);
+						
 					}
 				}
 			}
-			/*
-			 * Now finally paint that into the full window ...
-			 * 
-			 */
-			double imageWidth = getWidth();
-		
+			
+			// tell the buffer that the entire area needs redrawing
+			pixelBuffer.updateBuffer(b -> null);
+			
+//			long time3 = System.currentTimeMillis();		
 
 			//javafx version using a writable image (remember reversed compared to swing)
 			g.drawImage(datagramImage, 0, 0, nXPoints, nYPoints,
 					x1, 0,  x2-x1, getHeight());
 			
+//			long time4 = System.currentTimeMillis();
+			//System.out.println("Datagram Image data size: " + nXPoints +  "  " + nYPoints + " total time: " + (time4-time1) + " time pixel writer: " + (time3-time2) );
+
 			//swing version for ref
 			//g.drawImage(datagramImage, x1, 0, x2, getHeight(), 0, 0, nXPoints, nYPoints, null);
 
@@ -651,6 +742,65 @@ public class DataStreamPaneFX extends PamBorderPane {
 			}
 
 		}
+		
+		private void generateLogImageTable(int N) {
+			logimagetable=new double[N];
+			double min = 0.001;
+			double max = MAX_LOG_LOOKUP;
+			generateLogImageTable( min,  max,  N);
+		}
+		
+		private void generateLogImageTable(double min, double max, int N) {
+			logimagetable=new double[N];
+			double bin = (max-min)/N; 
+		    for (int i = 0; i < N; i++) {
+		        logimagetable[i] = Math.log10(min + i*bin);
+		    }
+		}
+	
+
+		private double approximateLogLookup(double x) {
+//		    int index = (int) (x * 10000);
+			if (x>MAX_LOG_LOOKUP) {
+				//System.out.println("X>LOG: " + x); 
+				return Math.log10(x);
+			}
+			
+			double bin = (MAX_LOG_LOOKUP-0.001)/logimagetable.length; 
+
+		    //int index  = PamArrayUtils.findClosest(logimagetable, x);
+			
+			int index = (int) Math.round((x -  0.001)/bin);
+			
+			index = index < 0 ? 0 : index;
+			index = index >=logimagetable.length ? (logimagetable.length-1): index; 
+			
+		    //System.out.println("Index: " + index + " x: "  + x + " " + minMaxVal[0] + "  " + minMaxVal[1]);
+		    return logimagetable[index];
+		}
+
+		
+		
+//		public double approximateLog(double x) {
+//		    if (x <= 0) {
+//		        return 0;
+//		    }
+//
+//		    double result = 0;
+//		    double term = x;
+//		    double denominator = 1;
+//
+//		    int count=0;
+//		    while (Math.abs(term) > 1e-3 && count<10000) {
+//		        result += term;
+//		        term *= -x;
+//		        denominator++;
+//		        term /= denominator;
+//		        count++;
+//		    }
+//
+//		    return result;
+//		}
 		
 		public void drawDataRate(GraphicsContext g,
 				OfflineDataMap offlineDataMap, Color dataColour) {
@@ -707,8 +857,8 @@ public class DataStreamPaneFX extends PamBorderPane {
 		 */
 		public double getYCoord(double count, long itemDuration) {
 			double plotHeight = getHeight();
-			boolean logScale = dataMapControl.dataMapParameters.vLogScale;
-			int scaleType = dataMapControl.dataMapParameters.vScaleChoice;
+			boolean logScale = scrollingDataPanel.getDataMapParams().vLogScale;
+			int scaleType = scrollingDataPanel.getDataMapParams().vScaleChoice;
 			double value = OfflineDataMap.scaleData(count, itemDuration, scaleType);
 			if (logScale) {
 				if (value <= 0) {
@@ -818,7 +968,7 @@ public class DataStreamPaneFX extends PamBorderPane {
 
 
 			yScaleMin = 0;
-			yScaleMax = highestMap.getHighestPoint(dataMapControl.dataMapParameters.vScaleChoice);
+			yScaleMax = highestMap.getHighestPoint(scrollingDataPanel.getDataMapParams().vScaleChoice);
 			if (dataMapControl.dataMapParameters.vLogScale) {
 				yScaleMin = highestMap.getLowestNonZeroPoint(dataMapControl.dataMapParameters.vScaleChoice);
 				//			if (yScaleMin > 0) {
@@ -948,9 +1098,6 @@ public class DataStreamPaneFX extends PamBorderPane {
 		return (long) (xPos / pixelsPerMilli) + scrollingDataPanel.getScreenStartMillis();
 	}
 	
-	public class DataName {
-		
-	}
 	
 	/**
 	 * @return the yScaleMin
@@ -1008,7 +1155,7 @@ public class DataStreamPaneFX extends PamBorderPane {
 	 * @return
 	 */
 	private DatagramScaleInformation findDatagramScaleInfo() {
-		if (hasDatagram == false) {
+		if (isHasDatagram() == false) {
 			return null;
 		}
 		DatagramProvider dp = dataBlock.getDatagramProvider();
@@ -1056,6 +1203,16 @@ public class DataStreamPaneFX extends PamBorderPane {
 	 */
 	public void setCollapsed(boolean collapsed) {
 		this.collapsed=collapsed;
+		if (collapsed) {
+			this.setCenter(null);
+			this.setMaxHeight(PREF_HEADER_HEIGHT);
+
+		}
+		else {
+			this.setCenter(dataGraph);
+			this.setMaxHeight(-1);
+
+		}
 	}
 
 	/**
@@ -1065,6 +1222,54 @@ public class DataStreamPaneFX extends PamBorderPane {
 	public boolean isCollapsed() {
 		return collapsed;
 	}
+
+	
+	/**
+	 * Set the colour array for the data stream panel. 
+	 * @param colourArrayType
+	 */
+	public void setColourArrayType(ColourArrayType colourArrayType) {
+		dataGraph.plotColours2D.setColourMap(colourArrayType);
+		this.repaint(0);
+	}
+
+	/**
+	 * Get the colour map for the datagram.
+	 * @return the colour map for the datagram.
+	 */
+	public ColourArrayType getColourMapArray() {
+		return dataGraph.plotColours2D.getColourMap();
+	}
+
+	/**
+	 * Set the minimum and maximum colour limits for the datagram
+	 * @param lowValue - the low colour limit in dB
+	 * @param highValue - the high colour limit in dB
+	 */
+	public void setMinMaxColourLimits(double lowValue, double highValue) {
+		dataGraph.plotColours2D .getAmplitudeLimits()[0].set(lowValue);
+		dataGraph.plotColours2D .getAmplitudeLimits()[1].set(highValue);
+		this.repaint(50);
+	}
+	
+	
+	/**
+	 * Get the minimum dB for the colour array
+	 * @return - the minimum dB for the colour array. 
+	 */
+	public double getMinColourLimit() {
+		return dataGraph.plotColours2D.getAmplitudeLimits()[0].get();
+	}
+	
+	
+	public double getMaxColourLimit() {
+		return dataGraph.plotColours2D .getAmplitudeLimits()[1].get();
+	}
+
+	public boolean isHasDatagram() {
+		return hasDatagram;
+	}
+
 
 
 }

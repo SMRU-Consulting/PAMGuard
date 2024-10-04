@@ -6,19 +6,21 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
+<<<<<<< HEAD
 import PamController.PamController;
 import PamController.PamGUIManager;
 import dataGram.Datagram;
 import warnings.RepeatWarning;
+=======
+>>>>>>> branch 'main' of https://github.com/PAMGuard/PAMGuard.git
 import PamUtils.PamCalendar;
 import PamguardMVC.DataUnitBaseData;
 import PamguardMVC.PamDataBlock;
-import PamguardMVC.debug.Debug;
 import PamguardMVC.uid.DataBlockUIDHandler;
-import binaryFileStorage.BinaryStore.BinaryDataMapMaker;
+import dataGram.Datagram;
+import warnings.RepeatWarning;
 
 /**
  * Handles writing of an actual binary data file. 
@@ -591,7 +593,7 @@ public class BinaryOutputStream {
 
 		int newLength = outputStream.size() + lengthInFile + BinaryFooter.getStandardLength();
 
-		if (binaryStore.binaryStoreSettings.limitFileSize && binaryStore.isViewer() == false &&
+		if (binaryStore.binaryStoreSettings.limitFileSize && !binaryStore.isViewer() &&
 				newLength > binaryStore.binaryStoreSettings.getMaxSizeMegas()) {
 			reOpen(PamCalendar.getTimeInMillis(), System.currentTimeMillis(), BinaryFooter.END_FILETOOBIG);
 		}
@@ -608,7 +610,7 @@ public class BinaryOutputStream {
 //				dataOutputStream.writeInt(baseData.getChannelBitmap());
 //			}
 //			else {
-			baseData.writeBaseData(outputStream, binaryStore.getCurrentFileFormat());
+			baseData.writeBaseData(outputStream, BinaryStore.getCurrentFileFormat());
 //			}
 			outputStream.writeInt(dataLength);
 			outputStream.write(data, 0, objectLength);
@@ -658,8 +660,7 @@ public class BinaryOutputStream {
 			opStream = new DataOutputStream(new BufferedOutputStream(new 
 					FileOutputStream(indexFile)));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error creating index file: " + e.getMessage());
 			return false;
 		}
 
@@ -673,7 +674,7 @@ public class BinaryOutputStream {
 		}
 
 		writeModuleFooter(opStream, moduleFooterData);
-		footer.writeFooter(opStream, binaryStore.getCurrentFileFormat());
+		footer.writeFooter(opStream, BinaryStore.getCurrentFileFormat());
 
 		try {
 			opStream.close();
@@ -706,7 +707,7 @@ public class BinaryOutputStream {
 		if (dataOutputStream == null || footer == null) {
 			return false;
 		}
-		return footer.writeFooter(dataOutputStream, binaryStore.getCurrentFileFormat());
+		return footer.writeFooter(dataOutputStream, BinaryStore.getCurrentFileFormat());
 	}
 
 	/**

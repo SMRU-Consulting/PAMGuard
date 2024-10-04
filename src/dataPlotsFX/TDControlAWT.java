@@ -1,6 +1,12 @@
 package dataPlotsFX;
 
 import java.awt.Component;
+
+import PamController.PAMStartupEnabler;
+import PamController.PamController;
+import PamguardMVC.PamObservable;
+import PamguardMVC.PamObserverAdapter;
+import PamguardMVC.PamRawDataBlock;
 import dataPlotsFX.layout.TDDisplayFX;
 import dataPlotsFX.scroller.TDAcousticScroller;
 import javafx.application.Platform;
@@ -286,6 +292,7 @@ public class TDControlAWT  extends TDControl implements UserDisplayComponent {
 	 * In real time mode check if PAMGUARD is paused. 
 	 * @return true if paused. 
 	 */
+	@Override
 	public boolean isPaused(){
 		if (PamController.getInstance().getPamStatus()==PamController.PAM_RUNNING) return false; 
 		else return true; 

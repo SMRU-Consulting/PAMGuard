@@ -195,6 +195,41 @@ public class PamArrayUtils {
 		
 		return minByTime;
 	}
+	
+	
+	   /**
+     * Finds the closest number to the given target in a sorted array.
+     *
+     * @param arr the sorted array of doubles
+     * @param target the target number
+     * @return the index of the closest number in the array
+     */
+    public static int findClosest(double[] arr, double target) {        
+    	
+    	   if(target < arr[0]) {
+               return 0;
+           }
+           if(target > arr[arr.length-1]) {
+               return arr.length-1;
+           }
+
+           int lo = 0;
+           int hi = arr.length - 1;
+
+           while (lo <= hi) {
+               int mid = (hi + lo) / 2;
+
+               if (target < arr[mid]) {
+                   hi = mid - 1;
+               } else if (target > arr[mid]) {
+                   lo = mid + 1;
+               } else {
+                   return mid;
+               }
+           }
+           // lo == hi + 1
+           return (arr[lo] - target) < (target - arr[hi]) ? lo : hi;
+    }
 
 	/**
 	 * Calculate the median value of an array 
@@ -600,7 +635,7 @@ public class PamArrayUtils {
 		//		int count = 0; 
 		float cur;
 		for(int i=0; i<arr.length; i++) {
-			for(int j=0; j<arr.length; j++) {
+			for(int j=0; j<arr[i].length; j++) {
 				cur = arr[i][j];
 				if (cur>max) {
 					index[0]=i;
@@ -712,6 +747,34 @@ public class PamArrayUtils {
 		//				return normArr;		
 
 	}
+	
+
+	/**
+	 * Normalise an array
+	 * @param arr  - the array to normalise
+	 * @param scaleFactor - multiply the resulting array by a scale factor. 
+	 * @return normalised copy of the array
+	 */
+	public static float[] normalise(float[] arr, double scaleFactor) {
+		//		//first find the sum of the square of the wave
+		if (arr != null) { 
+			int n = arr.length; 
+			double sum = 0.0; 
+
+			for (int i = 0; i < n; i++) { 
+				sum += arr[i] * arr[i]; 
+			} 
+			sum = Math.pow(sum, 0.5); 
+
+			float[] normArr=new float[arr.length]; 
+			for (int i=0; i<normArr.length; i++) {
+				normArr[i]=(float) (scaleFactor*arr[i]/sum); 
+			}
+			return normArr; 
+		}
+		else return null; 
+	}
+
 
 	/**
 	 * Flip a double array so that it is in the reverse order. Note the array is 
@@ -1253,6 +1316,7 @@ public class PamArrayUtils {
 		}
 		return arrayOut;
 	}
+
 
 
 

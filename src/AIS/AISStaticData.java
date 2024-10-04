@@ -207,7 +207,7 @@ public class AISStaticData extends AISReport implements Serializable, ManagedPar
 		}
 		switch(stationType) {
 		case BASESTATION:
-			return stationType.BASESTATION.toString();
+			return StationType.BASESTATION.toString();
 		case A:
 		case B:
 			return getVesselTypeAndCargo(type);

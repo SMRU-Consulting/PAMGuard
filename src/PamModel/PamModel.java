@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -37,22 +36,7 @@ import javax.swing.JFrame;
 
 import Acquisition.DaqSystemInterface;
 import Array.ArraySidePanelControl;
-import clickDetector.ClickDetection;
-import dataMap.DataMapControl;
-import detectiongrouplocaliser.DetectionGroupControl;
-import effortmonitor.EffortControl;
-import whistlesAndMoans.AbstractWhistleDataUnit;
-import fftManager.FFTDataUnit;
-import fftManager.PamFFTControl;
-import group3dlocaliser.Group3DLocaliserControl;
-import meygenturbine.MeygenTurbine;
-import printscreen.PrintScreenControl;
-import rockBlock.RockBlockControl;
-import tethys.TethysControl;
-import turbineops.TurbineOperationControl;
 import GPS.GpsDataUnit;
-import Map.MapController;
-import Map.gridbaselayer.GridbaseControl;
 import NMEA.NMEADataUnit;
 import PamController.PamControlledUnitSettings;
 import PamController.PamController;
@@ -61,16 +45,29 @@ import PamController.PamGUIManager;
 import PamController.PamSettingManager;
 import PamController.PamSettings;
 import PamDetection.RawDataUnit;
+import PamUtils.FileFinder;
 import PamView.dialog.warn.WarnOnce;
 import PamguardMVC.PamDataBlock;
 import analogarraysensor.ArraySensorControl;
 import backupmanager.BackupManager;
 import beamformer.continuous.BeamFormerControl;
-import beamformer.localiser.BeamFormLocaliserControl;
 import bearinglocaliser.BearingLocaliserControl;
 import binaryFileStorage.SecondaryBinaryStore;
 import cepstrum.CepstrumControl;
-import PamUtils.FileFinder;
+import clickDetector.ClickDetection;
+import dataMap.DataMapControl;
+import detectiongrouplocaliser.DetectionGroupControl;
+import effortmonitor.EffortControl;
+import fftManager.FFTDataUnit;
+import fftManager.PamFFTControl;
+import group3dlocaliser.Group3DLocaliserControl;
+import meygenturbine.MeygenTurbine;
+import printscreen.PrintScreenControl;
+import ravendata.RavenControl;
+import rockBlock.RockBlockControl;
+import tethys.TethysControl;
+import turbineops.TurbineOperationControl;
+import whistlesAndMoans.AbstractWhistleDataUnit;
 
 /**
  * @author Doug Gillespie
@@ -230,7 +227,7 @@ final public class PamModel implements PamSettings {
 		mi.setModulesMenuGroup(mapsGroup);
 		mi.setToolTipText("Interprets NMEA data to extract GPS data");
 		mi.setMinNumber(0);
-		if (isViewer == false) {
+		if (!isViewer) {
 			mi.addDependency(new PamDependency(NMEADataUnit.class, "NMEA.NMEAControl"));	
 			mi.setMaxNumber(1);		
 		}
@@ -322,14 +319,14 @@ final public class PamModel implements PamSettings {
 		mi = PamModuleInfo.registerControlledUnit(SecondaryBinaryStore.class.getName(), SecondaryBinaryStore.unitType);
 		mi.setModulesMenuGroup(utilitiesGroup);
 		mi.setToolTipText("Additional binary data from 2nd, 3rd, etc. moorings.");
-		mi.setHidden(isViewer == false || SMRUEnable.isEnable() == false);
+		mi.setHidden(!isViewer || !SMRUEnable.isEnable());
 
 
 		//		if (isSMRU) {
 		mi = PamModuleInfo.registerControlledUnit("networkTransfer.send.NetworkSender", "Network Sender");
 		mi.setModulesMenuGroup(utilitiesGroup);
 		mi.setToolTipText("Sends PAMGuard data over a network to other computers");
-		mi.setHidden(SMRUEnable.isEnable() == false);
+		mi.setHidden(!SMRUEnable.isEnable());
 		
 
 //		mi = PamModuleInfo.registerControlledUnit("serialPortLogger.SerialLogger", "Serial Port Logger");
@@ -345,7 +342,7 @@ final public class PamModel implements PamSettings {
 			mi.setToolTipText("Receives PAMGuard data sent over the network from the Network Sender module");
 			mi.setMaxNumber(1);
 			mi.setMinNumber(pamController.getRunMode() == PamController.RUN_NETWORKRECEIVER ? 1 : 0);
-			mi.setHidden(SMRUEnable.isEnable() == false);
+			mi.setHidden(!SMRUEnable.isEnable());
 		}
 
 //		mi = PamModuleInfo.registerControlledUnit("decimus.summarystring.DStrControl", "Decimus Summary Strings");
@@ -401,7 +398,7 @@ final public class PamModel implements PamSettings {
 
 			mi = PamModuleInfo.registerControlledUnit(TurbineOperationControl.class.getName(), TurbineOperationControl.unitType);
 			mi.setModulesMenuGroup(utilitiesGroup);
-			mi.setHidden(SMRUEnable.isEnable() == false);
+			mi.setHidden(!SMRUEnable.isEnable());
 		}
 
 		mi = PamModuleInfo.registerControlledUnit("alarm.AlarmControl", "Alarm");
@@ -416,7 +413,7 @@ final public class PamModel implements PamSettings {
 		mi = PamModuleInfo.registerControlledUnit("quickAnnotation.QuickAnnotationModule", "Quick Spectrogram Annotation");
 		mi.setToolTipText("Manual marking on the spectrogram display using user-defined 'quick' annotations");
 		mi.setModulesMenuGroup(utilitiesGroup);
-		mi.setHidden(SMRUEnable.isEnable() == false);
+		mi.setHidden(!SMRUEnable.isEnable());
 
 		// now releagate to a plugin module. 
 //		mi = PamModuleInfo.registerControlledUnit(ALFAControl.class.getName(), "Master Controller");
@@ -438,13 +435,13 @@ final public class PamModel implements PamSettings {
 		mi = PamModuleInfo.registerControlledUnit(RockBlockControl.class.getName(), "Short Burst Data Service Communication");
 		mi.setToolTipText("Communication with the Iridium SBD service via a RockBlock+ unit");
 		mi.setModulesMenuGroup(utilitiesGroup);
-		mi.setHidden(SMRUEnable.isEnable() == false);
+		mi.setHidden(!SMRUEnable.isEnable());
 		
 
 		mi = PamModuleInfo.registerControlledUnit(MeygenTurbine.class.getName(), MeygenTurbine.unitType);
 		mi.setToolTipText("Show turbine location on map");
 		mi.setModulesMenuGroup(utilitiesGroup);
-		mi.setHidden(SMRUEnable.isEnable() == false);
+		mi.setHidden(!SMRUEnable.isEnable());
 		mi.setMaxNumber(1);
 		
 
@@ -472,7 +469,13 @@ final public class PamModel implements PamSettings {
 			mi.setModulesMenuGroup(utilitiesGroup);
 			mi.setMaxNumber(1);
 			//mi.addGUICompatabilityFlag(PamGUIManager.FX); //has FX enabled GUI.
-			mi.setHidden(SMRUEnable.isEnable() == false);
+			mi.setHidden(!SMRUEnable.isEnable());
+			
+			mi = PamModuleInfo.registerControlledUnit(RavenControl.class.getName(), RavenControl.defaultName);
+			mi.setToolTipText("Import data from Raven selection tables");
+			mi.setModulesMenuGroup(utilitiesGroup);
+			mi.setHidden(!SMRUEnable.isEnable());			
+			
 		}		
 		
 		/*
@@ -504,24 +507,24 @@ final public class PamModel implements PamSettings {
 		mi = PamModuleInfo.registerControlledUnit("IMU.IMUControl", "IMU Measurement");
 		mi.setModulesMenuGroup(sensorsGroup);
 		mi.setToolTipText("Reads IMU data (heading, pitch and roll) from file or instrument");
-		mi.setHidden(SMRUEnable.isEnable() == false);
+		mi.setHidden(!SMRUEnable.isEnable());
 //		mi.setHidden(SMRUEnable.isEnable() == false);
 
 		mi = PamModuleInfo.registerControlledUnit("d3.D3Control", "D3 Sensor Data");
 		mi.setModulesMenuGroup(sensorsGroup);
 		mi.setToolTipText("Display sensor data from D3 recorders / DTags, etc");
-		mi.setHidden(SMRUEnable.isEnable() == false);
+		mi.setHidden(!SMRUEnable.isEnable());
 
 		mi = PamModuleInfo.registerControlledUnit("soundtrap.STToolsControl", "SoundTrap Detector Import");
 		mi.setModulesMenuGroup(sensorsGroup);
 		mi.setToolTipText("Tools for import of SoundTrap detector data");
-		mi.setHidden(isViewer == false);
+		mi.setHidden(!isViewer);
 		mi.setMaxNumber(1);
 		
 		mi = PamModuleInfo.registerControlledUnit("cpod.CPODControl2", "CPOD Detector Import");
 		mi.setModulesMenuGroup(sensorsGroup);
 		mi.setToolTipText("Imports CPOD data");
-		mi.setHidden(SMRUEnable.isEnable() == false);
+		//mi.setHidden(SMRUEnable.isEnable() == false);
 		mi.addGUICompatabilityFlag(PamGUIManager.FX); //has FX enabled GUI.
 
 		/*
@@ -647,7 +650,7 @@ final public class PamModel implements PamSettings {
 		mi.addDependency(new PamDependency(RawDataUnit.class, "Acquisition.AcquisitionControl"));
 		mi.setToolTipText("Measure noise relative to animal hearing threshold");		
 		mi.setModulesMenuGroup(processingGroup);
-		mi.setHidden(SMRUEnable.isEnable() == false);
+		mi.setHidden(!SMRUEnable.isEnable());
 
 		mi = PamModuleInfo.registerControlledUnit("noiseOneBand.OneBandControl", "Filtered Noise Measurement");
 		mi.addDependency(new PamDependency(RawDataUnit.class, "Acquisition.AcquisitionControl"));
@@ -1235,18 +1238,16 @@ final public class PamModel implements PamSettings {
 									}
 
 									// only add the plugin to the list if this is a valid run mode
-									if (pf.allowedModes()==PamPluginInterface.ALLMODES ||
-											(pf.allowedModes()==PamPluginInterface.VIEWERONLY && isViewer ) ||
-											(pf.allowedModes()==PamPluginInterface.NOTINVIEWER && !isViewer)) {
+//									if (isAllowedMode(pf)) {
 										pf.setJarFile(jarName);	// save the name of the jar, so that javahelp can find the helpset
 										if (getPluginBeingLoaded()==null) {
 											continue;
 										}
 
 										pluginList.add(pf); // add it to the list
-									} else {
-										System.out.println("     Error: " + pf.getDefaultName()+" cannot run in this mode.  Skipping module.");									
-									}
+//									} else {
+//										System.out.println("     Warning: " + pf.getDefaultName()+" cannot run in this mode.  Skipping module.");									
+//									}
 									if (getPluginBeingLoaded()==null) {
 										continue;
 									}
@@ -1334,6 +1335,10 @@ final public class PamModel implements PamSettings {
 							//URLClassLoader cl = new URLClassLoader(new URL[]{classFile.toURI().toURL()});
 //							mi = PamModuleInfo.registerControlledUnit(pf.getClassName(), pf.getDescription(),cl);
 							mi = PamModuleInfo.registerControlledUnit(pf.getClassName(), pf.getDescription(),classLoader);
+							if (!isAllowedMode(pf)) {
+								mi.setHidden(true);
+								System.out.println("     Warning: " + pf.getDefaultName()+" cannot run in this mode.  hiding module.");	
+							}
 						} catch (Exception e) {
 							System.err.println("   Error accessing " + pf.getJarFile());
 							e.printStackTrace();
@@ -1418,6 +1423,17 @@ final public class PamModel implements PamSettings {
 	}
 
 	/**
+	 * Can this plugin run in this mode ? 
+	 * Even if it can't, leave it in the model, but don't allow any to be created. 
+	 * @param plugin
+	 * @return
+	 */
+	private boolean isAllowedMode(PamPluginInterface pf) {
+		return (pf.allowedModes()==PamPluginInterface.ALLMODES ||
+				(pf.allowedModes()==PamPluginInterface.VIEWERONLY && isViewer ) ||
+				(pf.allowedModes()==PamPluginInterface.NOTINVIEWER && !isViewer));
+	}
+	/**
 	 * Return a list of the plugins found in the plugin folder
 	 * @return
 	 */
@@ -1453,7 +1469,8 @@ final public class PamModel implements PamSettings {
 	        super(urls, parent);
 	    }
 
-	    public void addURL(URL url) {
+	    @Override
+		public void addURL(URL url) {
 	        super.addURL(url);
 	    }
 	}

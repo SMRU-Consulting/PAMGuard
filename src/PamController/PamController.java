@@ -28,46 +28,23 @@ import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Locale;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.ToolTipManager;
-
-import com.jcraft.jsch.ConfigRepository.Config;
-import com.sun.xml.bind.v2.TODO;
 
 import Acquisition.AcquisitionControl;
 import Acquisition.AcquisitionProcess;
-
-//import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
-//import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-//import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
-
-import pamScrollSystem.AbstractScrollManager;
-import pamViewFX.PamGuiManagerFX;
-import pamViewFX.pamTask.PamTaskUpdate;
-import pamguard.GlobalArguments;
-import pamguard.Pamguard;
-import soundPlayback.PlaybackControl;
-import warnings.PamWarning;
-import warnings.WarningSystem;
-import zipUnpacker.ZipUnpacker;
-import fftManager.FFTDataBlock;
-import fftManager.FFTDataUnit;
-import generalDatabase.DBControlUnit;
-import javafx.application.Platform;
-import javafx.stage.Stage;
-import metadata.MetaDataContol;
 import Array.ArrayManager;
 import PamController.command.MulticastController;
 import PamController.command.NetworkController;
 import PamController.command.TerminalController;
 import PamController.command.WatchdogComms;
 import PamController.fileprocessing.ReprocessManager;
+import PamController.fileprocessing.ReprocessManagerMonitor;
 import PamController.masterReference.MasterReferencePoint;
 import PamController.settings.BatchViewSettingsImport;
-import PamController.settings.output.xml.PamguardXMLWriter;
 import PamController.settings.output.xml.XMLWriterDialog;
 import PamController.soundMedium.GlobalMediumManager;
 import PamDetection.PamDetection;
@@ -83,17 +60,13 @@ import PamView.GuiFrameManager;
 import PamView.PamColors;
 import PamView.PamView;
 import PamView.PamViewInterface;
-import PamView.PanelOverlayDraw;
 import PamView.TopToolBar;
 import PamView.dialog.warn.WarnOnce;
 import PamView.paneloverlay.overlaymark.MarkRelationships;
 import PamView.symbol.PamSymbolManager;
 import PamguardMVC.PamDataBlock;
-import PamguardMVC.PamDataUnit;
-import PamguardMVC.PamObserver;
 import PamguardMVC.PamProcess;
 import PamguardMVC.PamRawDataBlock;
-import PamguardMVC.ThreadedObserver;
 import PamguardMVC.dataSelector.DataSelectorCreator;
 import PamguardMVC.datakeeper.DataKeeper;
 import PamguardMVC.uid.UIDManager;
@@ -101,7 +74,25 @@ import PamguardMVC.uid.UIDOnlineManager;
 import PamguardMVC.uid.UIDViewerManager;
 import binaryFileStorage.BinaryStore;
 import export.ExportOptions;
-import PamguardMVC.debug.Debug;
+import fftManager.FFTDataUnit;
+import generalDatabase.DBControlUnit;
+import javafx.application.Platform;
+import javafx.stage.Stage;
+import metadata.MetaDataContol;
+
+//import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
+//import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+//import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+
+import pamScrollSystem.AbstractScrollManager;
+import pamViewFX.PamGuiManagerFX;
+import pamViewFX.pamTask.PamTaskUpdate;
+import pamguard.GlobalArguments;
+import pamguard.Pamguard;
+import soundPlayback.PlaybackControl;
+import warnings.PamWarning;
+import warnings.WarningSystem;
+import zipUnpacker.ZipUnpacker;
 
 /**
  * @author Doug Gillespie
@@ -511,7 +502,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 		/*
 		 * We are running as a remote application, start process straight away!
 		 */
-		if (PamSettingManager.RUN_REMOTE == false) {
+		if (!PamSettingManager.RUN_REMOTE) {
 			addView(guiFrameManager.initPrimaryView(this, pamModelInterface));
 		}
 
@@ -546,7 +537,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 		 */
 		if (getRunMode() == RUN_NOTHING) {
 
-		} else if (PamSettingManager.RUN_REMOTE == true) {
+		} else if (PamSettingManager.RUN_REMOTE) {
 			// Initialisation is complete.
 			initializationComplete = true;
 			notifyModelChanged(PamControllerInterface.INITIALIZATION_COMPLETE);
@@ -851,9 +842,9 @@ public class PamController implements PamControllerInterface, PamSettings {
 			String help = null;
 			int ans = WarnOnce.showWarning(title, msg, WarnOnce.WARNING_MESSAGE, help, e);
 			System.err.println("Exception while loading " + moduleName);
-			this.removeControlledUnt(unitBeingLoaded);
+			//this.removeControlledUnt(unitBeingLoaded);
 			this.clearLoadedUnit();
-			;
+			
 		}
 		if (unitBeingLoaded == null) {
 			return null;
@@ -1076,6 +1067,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 		return uniqueController;
 	}
 
+	@Override
 	public PamModel getModelInterface() {
 		return pamModelInterface;
 	}
@@ -1272,13 +1264,12 @@ public class PamController implements PamControllerInterface, PamSettings {
 				if (getRunMode() != RUN_NETWORKRECEIVER) {
 					pamControlledUnits.get(iU).getPamProcess(iP).clearOldData();
 				}
-				if (pamControlledUnits.get(iU).getPamProcess(iP).prepareProcessOK() == false) {
+				if (!pamControlledUnits.get(iU).getPamProcess(iP).prepareProcessOK()) {
 					setPamStatus(PAM_IDLE);
 					System.out.println("Can't start since unable to prepare process "
 							+ pamControlledUnits.get(iU).getPamProcess(iP).getProcessName());
 					prepErrors++;
 				}
-				;
 			}
 			// long t2 = System.currentTimeMillis();
 			// System.out.printf("***********************************Time taken to prepare
@@ -1297,17 +1288,68 @@ public class PamController implements PamControllerInterface, PamSettings {
 		 * off, etc.
 		 */
 		if (saveSettings && getRunMode() == RUN_NORMAL) { // only true on a button press or network start.
-			ReprocessManager reprocessManager = new ReprocessManager();
-			boolean goonthen = reprocessManager.checkOutputDataStatus();
-			if (goonthen == false) {
-				System.out.println(
-						"Data processing will not start since you've chosen not to overwrite existing output data");
-				pamStop();
-				setPamStatus(PAM_IDLE);
-				return false;
-			}
+			checkReprocessManager(saveSettings, startTime);
 		}
+		else {
+			return continueStart(saveSettings, startTime);
+		}
+		return true;
+	}
+	
+	/**
+	 * Check the reprocess manager in a swing worker thread. 
+	 * @param saveSettings
+	 * @param startTime
+	 */
+	private void checkReprocessManager(boolean saveSettings, long startTime) {
+		ReprocessMon mon = new ReprocessMon(saveSettings, startTime);
+		ReprocessManager reprocessManager = new ReprocessManager();
+//		boolean goonthen = reprocessManager.checkOutputDataStatus();
+//		if (!goonthen) {
+//			System.out.println(
+//					"Data processing will not start since you've chosen not to overwrite existing output data");
+//			pamStop();
+//			setPamStatus(PAM_IDLE);
+//			return false;
+//		}
+		reprocessManager.startCheckingThread(getMainFrame(), mon);
+	}
+	
+	private class ReprocessMon implements ReprocessManagerMonitor {
+		private boolean saveSettings;
+		private long startTime;
+		public ReprocessMon(boolean saveSettings, long startTime) {
+			super();
+			this.saveSettings = saveSettings;
+			this.startTime = startTime;
+		}
+		@Override
+		public void done(boolean continueStart) {
+			reprocessManagerDone(continueStart, continueStart, startTime);
+		}
+	}
+	
+	private void reprocessManagerDone(boolean goonthen, boolean saveSettings, long startTime) {
+		if (!goonthen) {
+			System.out.println(
+					"Data processing will not start since you've chosen not to overwrite existing output data");
+			pamStop();
+			setPamStatus(PAM_IDLE);
+		}
+		else {
+			continueStart(saveSettings, startTime);
+		}
+	}
 
+	/**
+	 * Second half of the start process. This was originally in pamStart, but had
+	 * to be split out, so that the reprocessManager checks can run in a separate
+	 * thread in order to display a progress bar as files are catalogued. 
+	 * @param saveSettings
+	 * @param startTime
+	 * @return
+	 */
+	public boolean continueStart(boolean saveSettings, long startTime) {
 		if (saveSettings) {
 			startTime = PamCalendar.getSessionStartTime();
 //			System.out.printf("Saving settings for start time %s\n", PamCalendar.formatDBDateTime(startTime));
@@ -1323,7 +1365,8 @@ public class PamController implements PamControllerInterface, PamSettings {
 
 		StorageOptions.getInstance().setBlockOptions();
 
-		t1 = System.currentTimeMillis();
+		long t1 = System.currentTimeMillis();
+		ArrayList<PamControlledUnit> pamControlledUnits = pamConfiguration.getPamControlledUnits();
 		for (int iU = 0; iU < pamControlledUnits.size(); iU++) {
 			pamControlledUnits.get(iU).pamToStart();
 			// long t2 = System.currentTimeMillis();
@@ -1334,7 +1377,13 @@ public class PamController implements PamControllerInterface, PamSettings {
 		}
 		for (int iU = 0; iU < pamControlledUnits.size(); iU++) {
 			for (int iP = 0; iP < pamControlledUnits.get(iU).getNumPamProcesses(); iP++) {
-				pamControlledUnits.get(iU).getPamProcess(iP).pamStart();
+				PamProcess pamProcess = pamControlledUnits.get(iU).getPamProcess(iP);
+				pamProcess.pamStart();
+				int nOut = pamProcess.getNumOutputDataBlocks();
+				for (int iB = 0; iB < nOut; iB++) {
+					PamDataBlock outBlock = pamProcess.getOutputDataBlock(iB);
+					outBlock.pamStart(startTime);
+				}
 			}
 			// long t2 = System.currentTimeMillis();
 			// System.out.printf("==================================Time taken to call
@@ -1346,10 +1395,10 @@ public class PamController implements PamControllerInterface, PamSettings {
 		// starting the DAQ may take a little while, so recheck and reset the
 		// start time.
 		long startDelay = PamCalendar.getTimeInMillis() - PamCalendar.getSessionStartTime();
-		if (PamCalendar.isSoundFile() == false) {
+		if (!PamCalendar.isSoundFile()) {
 			PamCalendar.setSessionStartTime(PamCalendar.getTimeInMillis());
 		}
-		if (PamCalendar.isSoundFile() == false) {
+		if (!PamCalendar.isSoundFile()) {
 			System.out.printf("PAMGUARD Startup took %d milliseconds at time %s\n", startDelay,
 					PamCalendar.formatDateTime(PamCalendar.getSessionStartTime()));
 		}
@@ -1378,11 +1427,19 @@ public class PamController implements PamControllerInterface, PamSettings {
 //		statusCheckThread = new Thread(new StatusTimer());
 //		statusCheckThread.start();
 		ArrayList<PamControlledUnit> pamControlledUnits = pamConfiguration.getPamControlledUnits();
+		
+		long stopTime = PamCalendar.getTimeInMillis();
 
 		// tell all controlled units to stop
 		for (int iU = 0; iU < pamControlledUnits.size(); iU++) {
 			for (int iP = 0; iP < pamControlledUnits.get(iU).getNumPamProcesses(); iP++) {
-				pamControlledUnits.get(iU).getPamProcess(iP).pamStop();
+				PamProcess pamProcess = pamControlledUnits.get(iU).getPamProcess(iP);
+				pamProcess.pamStop();
+				int nOut = pamProcess.getNumOutputDataBlocks();
+				for (int iB = 0; iB < nOut; iB++) {
+					PamDataBlock outBlock = pamProcess.getOutputDataBlock(iB);
+					outBlock.pamStop(stopTime);
+				}	
 			}
 		}
 
@@ -1444,7 +1501,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 	 *                   that have stuff still)
 	 */
 	public void dumpBufferStatus(String message, boolean sayEmpties) {
-		if (debugDumpBufferAtRestart == false)
+		if (!debugDumpBufferAtRestart)
 			return;
 
 		System.out.println("**** Dumping process buffer status: " + message);
@@ -1484,7 +1541,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 		 * If it's running in multithreading mode, then at this point it is necessary to
 		 * make sure that all internal datablock buffers have had time to empty.
 		 */
-		System.out.println("Arrived in PamStopped() in thread " + Thread.currentThread().toString());
+//		System.out.println("Arrived in PamStopped() in thread " + Thread.currentThread().toString());
 
 		ArrayList<PamControlledUnit> pamControlledUnits = pamConfiguration.getPamControlledUnits();
 
@@ -1999,7 +2056,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 	 * @return true if modules added or removed after initialisation complete
 	 */
 	public boolean moduleChange(int changeType) {
-		if (isInitializationComplete() == false) {
+		if (!isInitializationComplete()) {
 			return false;
 		}
 		switch (changeType) {
@@ -2037,7 +2094,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 
 	public void setupGarbageCollector() {
 		PamModelSettings ms = pamModelInterface.getPamModelSettings();
-		if (ms.enableGC == false) {
+		if (!ms.enableGC) {
 			if (garbageTimer != null) {
 				garbageTimer.stop();
 			}
@@ -2153,7 +2210,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 	 */
 	public int getRealStatus() {
 		PamController pamController = PamController.getInstance();
-		if (pamController.isInitializationComplete() == false) {
+		if (!pamController.isInitializationComplete()) {
 			return PamController.PAM_INITIALISING;
 		}
 		int runMode = PamController.getInstance().getRunMode();
@@ -2188,7 +2245,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 		 * of any of them.
 		 */
 		if (getRunMode() == RUN_PAMVIEW) {
-			if (firstDataLoadComplete == false) {
+			if (!firstDataLoadComplete) {
 				status = PAM_INITIALISING;
 			}
 			try {
@@ -2502,7 +2559,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 	private boolean loadOtherSettings(String psfxName) {
 
 		File psfxFile = new File(psfxName);
-		if (psfxFile.exists() == false) {
+		if (!psfxFile.exists()) {
 			return false;
 		}
 
@@ -2579,7 +2636,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 			System.out.println(String.format("%d existing modules are not needed", toRemove.size()));
 			for (int i = 0; i < toRemove.size(); i++) {
 				mi = PamModuleInfo.findModuleInfo(toRemove.get(i).getClass().getName());
-				if (mi != null && mi.canRemove() == false) {
+				if (mi != null && !mi.canRemove()) {
 					continue;
 				}
 				System.out.println("Remove module " + toRemove.get(i).toString());
@@ -2598,7 +2655,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 				aModuleInfo = toAdd.get(i);
 				System.out.println("   Add module " + aModuleInfo.toString());
 				mi = PamModuleInfo.findModuleInfo(aModuleInfo.className);
-				if (mi == null || mi.canCreate() == false) {
+				if (mi == null || !mi.canCreate()) {
 					continue;
 				}
 				addModule(mi, aModuleInfo.unitName);
@@ -2857,7 +2914,6 @@ public class PamController implements PamControllerInterface, PamSettings {
 			} else {
 				break;
 			}
-			;
 		}
 
 //		int pos = version.indexOf('.');		// get the index of the first decimal

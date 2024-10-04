@@ -1,9 +1,10 @@
 package dataMap.layoutFX;
 
-import java.awt.Dimension;
+import java.io.Serializable;
 
-import PamController.PamController;
+import PamController.PamControlledUnitSettings;
 import PamController.PamControllerInterface;
+import PamController.PamSettings;
 import dataMap.DataMapControl;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -33,29 +34,27 @@ import userDisplayFX.UserDisplayNodeParams;
  * @author Jamie Macaulay
  *
  */
-public class DataMapPaneFX extends PamBorderPane implements UserDisplayNodeFX {
-	
+public class DataMapPaneFX extends PamBorderPane implements UserDisplayNodeFX, PamSettings {
+
 	private static final double HIDE_PANE_WIDTH = 400;
 
 	/**
 	 * Reference to the data map control. 
 	 */
 	private DataMapControl dataMapControl;
-	
+
 	/**
 	 * Reference to the scrolling pane
 	 */
 	public ScrollingDataPaneFX scrollingDataPanel;
 
-	
-	private Dimension graphDimension;
 
 	private SummaryPaneFX summaryPane;
 
 	/**
 	 * The hiding pane which holds the summary pane. 
 	 */
-	private HidingPane hidingSummaryPane;
+	private HidingPane hidingSettingsPane;
 
 	/**
 	 * The buttons which shows the top hiding pane. 
@@ -65,7 +64,7 @@ public class DataMapPaneFX extends PamBorderPane implements UserDisplayNodeFX {
 	/**
 	 * Pane which allows users to change scale on datamap. 
 	 */
-	private ScalePaneFX scalePane;
+	private DataMapSettingsPane dataMapSettingsPane;
 
 	private PamVBox settingsPane;
 
@@ -74,65 +73,79 @@ public class DataMapPaneFX extends PamBorderPane implements UserDisplayNodeFX {
 	 */
 	private PamDateAxis dateAxis;
 
+	/**
+	 * The parameters for the data map 
+	 */
+	private DataMapParametersFX dataMapParamsFX = new DataMapParametersFX();
+
 	public DataMapPaneFX(DataMapControl dataMapControl){
 		this.dataMapControl=dataMapControl; 
 		createDataMapPaneFX();
 	}
-	
+
 	/**
 	 * Create the pane.
 	 */
 	private void createDataMapPaneFX(){
-		
+
 		//create all the different panes, 
 		summaryPane = new SummaryPaneFX(dataMapControl, this);
-		
-		scalePane=new ScalePaneFX(dataMapControl,this);
 
 		scrollingDataPanel= new ScrollingDataPaneFX(dataMapControl, this); 
-		
+
+		dataMapSettingsPane=new DataMapSettingsPane(dataMapControl,this);
+		dataMapSettingsPane.addSettingsListener(()->{
+			//make sure paramters updates whenever user changes a setting. 
+			dataMapParamsFX = dataMapSettingsPane.getParams(dataMapParamsFX);
+			
+			if (scrollingDataPanel !=null) {
+				//forces things like the date axis to change. 
+				scrollingDataPanel.notifyScrollChange();
+			}
+		});
+
 		//create the setting spane
 		settingsPane=new PamVBox(); 
-//		settingsPane.getChildren().add(summaryPane);
-		settingsPane.getChildren().add(scalePane); 
+		//		settingsPane.getChildren().add(summaryPane);
+		settingsPane.getChildren().add(dataMapSettingsPane.getContentNode()); 
 		settingsPane.setPadding(new Insets(40,10,10,10));
 		settingsPane.setPrefWidth(HIDE_PANE_WIDTH);
 
-//		//have a horizontal scroll pane 
-//		PamScrollPane topScrollHolder=new PamScrollPane(topHolder); 
-//		topScrollHolder.setPrefHeight(180);
-//		topScrollHolder.setVbarPolicy(ScrollBarPolicy.NEVER)
+		//		//have a horizontal scroll pane 
+		//		PamScrollPane topScrollHolder=new PamScrollPane(topHolder); 
+		//		topScrollHolder.setPrefHeight(180);
+		//		topScrollHolder.setVbarPolicy(ScrollBarPolicy.NEVER)
 		//topHolder.prefHeightProperty().bind(summaryPane.prefHeightProperty());
-		
+
 		//hiding summary pane
-		hidingSummaryPane=new HidingPane(Side.RIGHT, settingsPane, this, true);
-		hidingSummaryPane.setVisibleImmediatly(false); 
-		hidingSummaryPane.showHidePane(true);
-		hidingSummaryPane.getStyleClass().add("pane-trans");
-		hidingSummaryPane.getStylesheets().addAll(PamStylesManagerFX.getPamStylesManagerFX().getCurStyle().getSlidingDialogCSS());
-		StackPane.setAlignment(hidingSummaryPane, Pos.TOP_RIGHT);
-		hidingSummaryPane.setPrefWidth(HIDE_PANE_WIDTH);
+		hidingSettingsPane=new HidingPane(Side.RIGHT, settingsPane, scrollingDataPanel, true);
+		hidingSettingsPane.setVisibleImmediatly(false); 
+		hidingSettingsPane.showHidePane(true);
+		hidingSettingsPane.getStyleClass().add("pane-trans");
+		hidingSettingsPane.getStylesheets().addAll(PamStylesManagerFX.getPamStylesManagerFX().getCurStyle().getSlidingDialogCSS());
+		StackPane.setAlignment(hidingSettingsPane, Pos.TOP_RIGHT);
+		hidingSettingsPane.setPrefWidth(HIDE_PANE_WIDTH);
 
 		//style the show button. 
-		showButton=hidingSummaryPane.getShowButton();
+		showButton=hidingSettingsPane.getShowButton();
 		showButton.getStyleClass().add("close-button-left");
 		showButton.getStylesheets().addAll(PamStylesManagerFX.getPamStylesManagerFX().getCurStyle().getSlidingDialogCSS());
 
 
-//		showButton.setGraphic(PamGlyphDude.createPamGlyph(FontAwesomeIcon.CHEVRON_DOWN, PamGuiManagerFX.iconColor, PamGuiManagerFX.iconSize));\
+		//		showButton.setGraphic(PamGlyphDude.createPamGlyph(FontAwesomeIcon.CHEVRON_DOWN, PamGuiManagerFX.iconColor, PamGuiManagerFX.iconSize));\
 		showButton.setGraphic( PamGlyphDude.createPamIcon("mdi2c-cog", Color.WHITE, PamGuiManagerFX.iconSize));
 		showButton.setPrefHeight(60);
 		scrollingDataPanel.setRight(showButton);
-		
+
 		StackPane.setAlignment(showButton, Pos.CENTER_RIGHT);
-		
+
 		StackPane stackPane = new StackPane();
-		stackPane.getChildren().addAll(scrollingDataPanel, hidingSummaryPane, showButton);
-		
+		stackPane.getChildren().addAll(scrollingDataPanel, hidingSettingsPane, showButton);
+
 		dateAxis = new PamDateAxis();
 		dateAxis.setMinHeight(50);
 		dateAxis.prefWidthProperty().bind(scrollingDataPanel.widthProperty());
-		 
+
 		this.setTop(dateAxis);
 		this.setCenter(stackPane);
 	}
@@ -142,25 +155,24 @@ public class DataMapPaneFX extends PamBorderPane implements UserDisplayNodeFX {
 	}
 
 	public void createDataGraphs() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-        		/**
-        		 * First check the limits of the database and binary stores. 
-        		 */
-        		setGraphDimensions();
-        		scrollingDataPanel.createDataGraphs();
-            }
-       });
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				/**
+				 * First check the limits of the database and binary stores. 
+				 */
+				setGraphDimensions();
+				scrollingDataPanel.createDataGraphs();
+			}
+		});
 	}
-	
+
 	/**
 	 * Based on the scale and on the total length of data
 	 * work out how big the little panels need to be 
 	 */
 	private void setGraphDimensions() {
 		long totalLength = dataMapControl.getLastTime() - dataMapControl.getFirstTime();
-		graphDimension = new Dimension(2000, 100);
 	}
 
 	public void repaintAll() {
@@ -173,18 +185,18 @@ public class DataMapPaneFX extends PamBorderPane implements UserDisplayNodeFX {
 		summaryPane.newDataSources();		
 		//hidingSummaryPane.resetHideAnimation();
 	}
-	
-	/**
-	 * Called from ScalePanel when anything 
-	 * to do with scaling changes. 
-	 */
-	public void scaleChanged() {
-		if (scalePane == null || scrollingDataPanel == null) {
-			return;
-		}
-		scalePane.getParams(dataMapControl.dataMapParameters);
-		scrollingDataPanel.scaleChange();
-	}
+
+//	/**
+//	 * Called from ScalePanel when anything 
+//	 * to do with scaling changes. 
+//	 */
+//	public void scaleChanged() {
+//		if (dataMapSettingsPane == null || scrollingDataPanel == null) {
+//			return;
+//		}
+//		dataMapSettingsPane.getParams(dataMapParamsFX);
+//		scrollingDataPanel.scaleChange();
+//	}
 
 	@Override
 	public Region getNode() {
@@ -194,7 +206,7 @@ public class DataMapPaneFX extends PamBorderPane implements UserDisplayNodeFX {
 	@Override
 	public void openNode() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -206,7 +218,7 @@ public class DataMapPaneFX extends PamBorderPane implements UserDisplayNodeFX {
 	@Override
 	public boolean isResizeableDisplay() {
 		//Cannot resize the display
-		return true;
+		return false;
 	}
 
 	@Override
@@ -218,33 +230,39 @@ public class DataMapPaneFX extends PamBorderPane implements UserDisplayNodeFX {
 	@Override
 	public void closeNode() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void notifyModelChanged(int changeType) {
-//		System.out.println("DataMapPane: Notify model changed!!!: " + changeType);
+		//		System.out.println("DataMapPane: Notify model changed!!!: " + changeType);
 		switch (changeType) {
 		case PamControllerInterface.INITIALIZATION_COMPLETE:
 			scrollingDataPanel.updateScrollBar();
-			scalePane.checkDataGramPane();
+			dataMapSettingsPane.setParams(dataMapParamsFX);
 			this.repaintAll();
+			break;
 		case PamControllerInterface.CHANGED_OFFLINE_DATASTORE:
 			scrollingDataPanel.updateScrollBar();
-			scalePane.checkDataGramPane();
+			dataMapSettingsPane.checkDataGramPane();
+			dataMapSettingsPane.setParams(dataMapParamsFX);
+			break;
 		case PamControllerInterface.ADD_CONTROLLEDUNIT:
-			scalePane.checkDataGramPane();
 		case PamControllerInterface.REMOVE_CONTROLLEDUNIT:
-			scalePane.checkDataGramPane();
+			dataMapSettingsPane.checkDataGramPane();
+			dataMapSettingsPane.setParams(dataMapParamsFX);
+			break;
 		case PamControllerInterface.INITIALIZE_LOADDATA:
 		case PamControllerInterface.EXTERNAL_DATA_IMPORTED:
 			scrollingDataPanel.updateScrollBar();
-			scalePane.checkDataGramPane();
+			dataMapSettingsPane.checkDataGramPane();
+			dataMapSettingsPane.setParams(dataMapParamsFX);
 			this.repaintAll();
 			break;
 		case PamControllerInterface.OFFLINE_DATA_LOADED:
 			scrollingDataPanel.updateScrollBar();
-			scalePane.checkDataGramPane();
+			dataMapSettingsPane.checkDataGramPane();
+			dataMapSettingsPane.setParams(dataMapParamsFX);
 			this.repaintAll();
 			break;
 		case PamControllerInterface.DATA_LOAD_COMPLETE:
@@ -258,7 +276,7 @@ public class DataMapPaneFX extends PamBorderPane implements UserDisplayNodeFX {
 	public String getName() {
 		return "Data Map";
 	}
-	
+
 	/**
 	 * Called when mouse moves over a data graph to set time
 	 * on scale Panel. Set null to clear cursor info on panel.
@@ -267,7 +285,7 @@ public class DataMapPaneFX extends PamBorderPane implements UserDisplayNodeFX {
 	public void dataGraphMouseTime(Long timeMillis) {
 		summaryPane.setCursorTime(timeMillis);
 	}
-	
+
 	/**
 	 * Called when the mouse moves into a new data stream pane. Shows the start and end 
 	 * time of the data currently loaded into memory.
@@ -287,20 +305,88 @@ public class DataMapPaneFX extends PamBorderPane implements UserDisplayNodeFX {
 
 	@Override
 	public UserDisplayNodeParams getDisplayParams() {
-		// TODO Auto-generated method stub
+		// the datamap is a display which cannot be moved or changed so this is not needed. 
 		return null;
 	}
 
 	@Override
 	public void setFrameHolder(PamInternalPane internalFrame) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public UserDisplayControlFX getUserDisplayControl() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/**
+	 * Get the current number of data stream panes
+	 * @return the number of data stream panes
+	 */
+	public int getNumDataStreamPanes() {
+		return this.scrollingDataPanel.getNumDataStreamPanes();
+	}
+
+	/**
+	 * Get a data stream pane. 
+	 * @param n - the index of the data stream pane
+	 * @return the data stream pane or null if the index is out of bounds. 
+	 */
+	public DataStreamPaneFX getDataStreamPane(int n) {
+		return this.scrollingDataPanel.getDataStreamPane( n);
+
+	}
+
+	public DataStreamPaneFX getDataStreamPane(DataMapInfo selectedItem) {
+		return scrollingDataPanel.getDataStreamPane(selectedItem);
+	}
+	
+	/**
+	 * Set the data map parameters. 
+	 * @param dataMapParamsFX
+	 */
+	public void setDataMapParams(DataMapParametersFX dataMapParamsFX) {
+		 this.dataMapParamsFX = dataMapParamsFX;
+	}
+
+	/**
+	 * Get the data map parameters associated with the FX GUI. Note these are
+	 * separate from the parameters in the DataMapControls which are for the default
+	 * swing display (not great)
+	 * 
+	 * @return the current data map parameters.
+	 */
+	public DataMapParametersFX getDataMapParams() {
+		return this.dataMapParamsFX;
+	}
+
+	@Override
+	public String getUnitName() {
+		return this.dataMapControl.getUnitName();
+	}
+
+	@Override
+	public String getUnitType() {
+		return "data_map_paneFX";
+	}
+
+	@Override
+	public Serializable getSettingsReference() {
+		return this.dataMapParamsFX;
+	}
+
+	@Override
+	public long getSettingsVersion() {
+		return  DataMapParametersFX.serialVersionUID;
+
+	}
+
+	@Override
+	public boolean restoreSettings(PamControlledUnitSettings pamControlledUnitSettings) {
+		dataMapParamsFX = ((DataMapParametersFX) pamControlledUnitSettings.getSettings()).clone();
+		return (dataMapParamsFX != null);
 	}
 
 }

@@ -6,7 +6,6 @@ import NMEA.NMEADataBlock;
 import NMEA.NMEADataUnit;
 import NMEA.NMEAParameters;
 import PamController.PamController;
-import PamDetection.AbstractLocalisation;
 import PamDetection.LocContents;
 import PamUtils.PamCalendar;
 import PamView.symbol.StandardSymbolManager;
@@ -14,7 +13,6 @@ import PamguardMVC.PamDataBlock;
 import PamguardMVC.PamDataUnit;
 import PamguardMVC.PamObservable;
 import PamguardMVC.PamProcess;
-import autecPhones.AutecGraphics;
 
 /**
  * Process NMEA data to extract AIS information
