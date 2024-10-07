@@ -11,13 +11,10 @@ import java.util.Arrays;
 
 import javax.swing.JFrame;
 
-<<<<<<< HEAD
 import pamMaths.PamQuaternion;
 import pamMaths.PamVector;
 import pamguard.GlobalArguments;
 import userDisplay.UserDisplayControl;
-=======
->>>>>>> refs/heads/SMRUCMainMerge
 import Array.importHydrophoneData.HydrophoneImport;
 import Array.importHydrophoneData.StreamerImport;
 import Array.layoutFX.ArrayGUIFX;

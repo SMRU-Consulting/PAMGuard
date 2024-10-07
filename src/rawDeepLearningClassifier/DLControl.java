@@ -394,10 +394,6 @@ public class DLControl extends PamControlledUnit implements PamSettings {
 	@Override
 	public boolean restoreSettings(PamControlledUnitSettings pamControlledUnitSettings) {
 		RawDLParams newParameters = (RawDLParams) pamControlledUnitSettings.getSettings();
-<<<<<<< HEAD
-=======
-		
->>>>>>> branch 'main' of https://github.com/PAMGuard/PAMGuard.git
 		rawDLParmas = newParameters.clone();
 		if(GlobalArguments.getParam(MODELPATH)!=null) {
 			rawDLParmas.modelURI = new File(GlobalArguments.getParam(MODELPATH)).toURI();

@@ -8,13 +8,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileLock;
 
-<<<<<<< HEAD
 import PamController.PamController;
 import PamController.PamGUIManager;
 import dataGram.Datagram;
 import warnings.RepeatWarning;
-=======
->>>>>>> branch 'main' of https://github.com/PAMGuard/PAMGuard.git
 import PamUtils.PamCalendar;
 import PamguardMVC.DataUnitBaseData;
 import PamguardMVC.PamDataBlock;

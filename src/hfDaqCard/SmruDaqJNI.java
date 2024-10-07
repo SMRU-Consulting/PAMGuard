@@ -826,14 +826,9 @@ public class SmruDaqJNI {
 		 */
 		int hardId = getBoardOrder(board);
 		boolean wasOpen = isboardOpen(hardId);
-<<<<<<< HEAD
 		if (wasOpen == false) {
 			//smruDaqSystem.terminalPrint("Opening card to flash board " + board, 2);
 			terminalPrint("Opening card to flash board " + board, 2);
-=======
-		if (!wasOpen) {
-			smruDaqSystem.terminalPrint("Opening card to flash board " + board, 2);
->>>>>>> branch 'main' of https://github.com/PAMGuard/PAMGuard.git
 			boolean isOpen = prepareDevice(hardId, false) == 0;
 			if (!isOpen) {
 				return false;
@@ -850,14 +845,9 @@ public class SmruDaqJNI {
 		}
 		setLED(board, 0, 0);
 		setLED(board, 0, 0);
-<<<<<<< HEAD
 		if (wasOpen == false) {
 			//smruDaqSystem.terminalPrint("Closing card after flash board " + board, 2);
 			terminalPrint("Closing card after flash board " + board, 2);
-=======
-		if (!wasOpen) {
-			smruDaqSystem.terminalPrint("Closing card after flash board " + board, 2);
->>>>>>> branch 'main' of https://github.com/PAMGuard/PAMGuard.git
 			closeCard(board);
 		}
 		return true;

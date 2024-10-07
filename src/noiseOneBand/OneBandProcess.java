@@ -1,11 +1,8 @@
 package noiseOneBand;
 
-<<<<<<< HEAD
+
 import networkTransfer.receive.BuoyStatusDataUnit;
 import noiseOneBand.offline.OneBandDatagramProvider;
-import whistlesAndMoans.WhistleJSONDataSource;
-=======
->>>>>>> refs/heads/SMRUCMainMerge
 import Acquisition.AcquisitionProcess;
 import Filters.Filter;
 import Filters.FilterMethod;
