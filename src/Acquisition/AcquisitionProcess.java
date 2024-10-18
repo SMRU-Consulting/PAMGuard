@@ -668,6 +668,7 @@ public class AcquisitionProcess extends PamProcess implements DataInputStore {
 			return false;
 		}
 		RawDataUnit newDataUnit, threadDataUnit;
+
 		int readCount = 0;
 		while (newDataQueue.hasData()) {
 //			System.out.println("size:"+newDataUnits.size());

@@ -371,15 +371,8 @@ public class SmruDaqSystem extends DaqSystem implements PamSettings {
 		boolean first = true;
 		boolean needRestart = false;
 		int iChan;
-		int nRotations = 0;
 		while (keepRunning) {
 			iChan = 0;
-			if(nRotations++==10) {
-				smruDaqJNI.setLED(0, 1, 1);
-			}else if(nRotations==20) {
-				smruDaqJNI.setLED(0, 1, 0);
-				nRotations = 0;
-			}
 			dataMillis = daqControl.getAcquisitionProcess().absSamplesToMilliseconds(totalSamples);
 			for (int iBoard = 0; iBoard < nDaqCards && keepRunning; iBoard++) {
 				for (int i = 0; i < boardChannels[iBoard] && keepRunning; i++) {
@@ -393,7 +386,6 @@ public class SmruDaqSystem extends DaqSystem implements PamSettings {
 						break;
 					}
 					readSamples = newData.length;
-
 					if (readSamples < wantedSamples) {
 						System.out.println(String.format("Error reading board %d channel %d got %d samples of %d requested",
 								iBoard, i, readSamples, wantedSamples));
