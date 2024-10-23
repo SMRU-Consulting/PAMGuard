@@ -237,8 +237,15 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 			networkSendParams.keyStorePassword = keyPassString;
 		}
 		
+		boolean isSetJson = false;
 		if(useJson!=null) {
+			isSetJson = Boolean.valueOf(useJson);
+		}
+		
+		if(isSetJson) {
 			networkSendParams.sendingFormat = NetworkSendParams.NETWORKSEND_JSON;
+		}else {
+			networkSendParams.sendingFormat = NetworkSendParams.NETWORKSEND_BYTEARRAY;
 		}
 		
 		return (networkSendParams != null);
