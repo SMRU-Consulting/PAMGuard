@@ -2,8 +2,8 @@ package simulatedAcquisition.sounds;
 
 public class BottlenoseLike extends RandomPolynomials{
 	
-	public BottlenoseLike() {
-		super(false);
+	public BottlenoseLike(float sampleRate) {
+		super(false,sampleRate);
 	}
 
 	@Override

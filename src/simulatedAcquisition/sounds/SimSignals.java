@@ -39,7 +39,7 @@ public class SimSignals  {
 		simSignalList.add(new BlueWhaleD());
 		simSignalList.add(new WhiteNoise());
 		simSignalList.add(new PinkNoise());
-		simSignalList.add(new BottlenoseLike());
+		simSignalList.add(new BottlenoseLike(simProcess.getSampleRate()));
 		simSignalList.add(new BottlenoseLikeHarmonics());
 
 //		simSignalList.add(new BranchedChirp(simProcess.getSampleRate(), 3000, 8000, 12000, .3));
