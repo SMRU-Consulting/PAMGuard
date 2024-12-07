@@ -261,9 +261,21 @@ public abstract class DataBlockTableView<T extends PamDataUnit> {
 			if (dataUnitCopy == null) {
 				return null;
 			}
-			return dataUnitCopy.get(tableRow);
+			return dataUnitCopy.get(rowIndex);
 //			return pamDataBlock.getDataUnit(rowIndex, PamDataBlock.REFERENCE_CURRENT);
 		}
+	}
+	
+	/**
+	 * Get the data unit for the selected data row
+	 * @return
+	 */
+	public T getSelectedDataUnit() {
+		int row = testTable.getSelectedRow();
+		if (row < 0) {
+			return null;
+		}
+		return getDataUnit(row);
 	}
 	
 	/**
@@ -291,6 +303,9 @@ public abstract class DataBlockTableView<T extends PamDataUnit> {
 	 * @return
 	 */
 	public int getDataIndexForRow(int tableRow) {
+		if (tableRow == -1) {
+			return -1;
+		}
 		if (dataUnitCopy == null) {
 			return tableRow;
 		}
@@ -361,7 +376,7 @@ public abstract class DataBlockTableView<T extends PamDataUnit> {
 	}
 	
 	public void popupMenuAction(MouseEvent e, T dataUnit, String colName) {
-		
+//		System.out.println("Pop");
 	}
 
 	private void showPopupMenu(MouseEvent e) {
