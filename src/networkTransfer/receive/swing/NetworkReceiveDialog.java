@@ -148,7 +148,7 @@ public class NetworkReceiveDialog extends PamDialog {
 			singleInstance = new NetworkReceiveDialog(parentFrame, networkReceiver);
 		}
 		singleInstance.networkReceiveParams = networkReceiver.getNetworkReceiveParams().clone();
-		singleInstance.networkReceiveParams.stationName = "base";
+		//singleInstance.networkReceiveParams.stationName = "base";
 		singleInstance.setParams();
 		singleInstance.setVisible(true);
 		singleInstance.runSwap();

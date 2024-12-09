@@ -59,10 +59,13 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	
 	public NetworkSender(String unitName) {
 		super("Network Sender", unitName);
-		commandProcess = new NetworkSendProcess(this, null,NetworkSendParams.NETWORKSEND_BYTEARRAY);
-		commandProcess.setCommandProcess(true);
-		addPamProcess(commandProcess);
 		PamSettingManager.getInstance().registerSettings(this);
+		if(this.networkSendParams.sendingFormat==NetworkSendParams.NETWORKSEND_BYTEARRAY) {
+			commandProcess = new NetworkSendProcess(this, null,NetworkSendParams.NETWORKSEND_BYTEARRAY);
+			commandProcess.setCommandProcess(true);
+			addPamProcess(commandProcess);
+		}
+		System.out.println("!!!!MQTT is on "+this.networkSendParams.mqtt);
 		if(this.networkSendParams.mqtt) {
 			client = new PamMqttClient(this.networkSendParams);
 		}else {
@@ -237,8 +240,17 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 			networkSendParams.keyStorePassword = keyPassString;
 		}
 		
+		boolean isSetJson = false;
 		if(useJson!=null) {
+			isSetJson = Boolean.valueOf(useJson);
+		}else {
+			isSetJson = networkSendParams.sendingFormat  == NetworkSendParams.NETWORKSEND_JSON;
+		}
+		
+		if(isSetJson) {
 			networkSendParams.sendingFormat = NetworkSendParams.NETWORKSEND_JSON;
+		}else {
+			networkSendParams.sendingFormat = NetworkSendParams.NETWORKSEND_BYTEARRAY;
 		}
 		
 		return (networkSendParams != null);
@@ -288,7 +300,9 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		}
 		
 		// set the command process to use the same format as all of the new processes
-		commandProcess.setOutputFormat(networkSendParams.sendingFormat);
+		if(this.commandProcess!=null) {
+			commandProcess.setOutputFormat(networkSendParams.sendingFormat);
+		}
 	}
 
 	public ArrayList<PamDataBlock> listWantedDataSources() {

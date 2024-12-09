@@ -33,6 +33,8 @@ public class NetworkParams implements Cloneable, Serializable, ManagedParameters
 	public boolean savePassword = true;
 	
 	public String baseTopic;
+	
+	public String stationId;
 
 	@Override
 	public NetworkParams clone() {

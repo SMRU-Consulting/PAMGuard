@@ -63,7 +63,7 @@ public abstract class NetworkClient {
 
 	public abstract boolean testClient() throws ClientConnectFailedException;
 	
-	public SSLSocketFactory getSSLSocketFactory() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException {
+	public SocketFactory getSSLSocketFactory() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException {
 		
 		
 		if(this.networkParams.useSystemTrustStore) {
@@ -71,7 +71,7 @@ public abstract class NetworkClient {
 				System.setProperty("javax.net.ssl.trustStore","/etc/ssl/certs/aps_store.jks");
 			    System.setProperty("javax.net.ssl.trustStorePassword", "APSKEYSTORE001");
 			}
-			return sslContext.getSocketFactory();
+			return SSLSocketFactory.getDefault();
 		}
 		
 		SSLContext context = SSLContext.getInstance("TLSv1.3");

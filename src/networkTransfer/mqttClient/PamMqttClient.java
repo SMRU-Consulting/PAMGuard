@@ -20,6 +20,7 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import PamController.PamGUIManager;
 import networkTransfer.NetworkClient;
 import networkTransfer.NetworkParams;
 import networkTransfer.receive.NetworkReceiveParams;
@@ -45,16 +46,32 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		super(networkParams);
 		if(networkParams instanceof NetworkSendParams) {
 			this.networkSendParams = (NetworkSendParams) networkParams;
-			stationId = "pb"+networkSendParams.stationId1;
-			mqttConnectionId = this.stationId+"PAM";
+			this.networkReceiveParams = null;
 		}else {
 			this.networkReceiveParams = (NetworkReceiveParams) networkParams;
-			stationId = networkReceiveParams.stationName;
-			mqttConnectionId = this.stationId;
+			this.networkSendParams = null;
 		}
+		this.stationId = this.getStationId();
+		this.mqttConnectionId = getConnectionId();
 		configureClient();
 	}
 	
+	private String getStationId() {
+		if(PamGUIManager.getGUIType()==PamGUIManager.NOGUI) {
+			return "pb"+networkSendParams.stationId1;
+		}else {
+			return this.networkParams.stationId;
+		}
+	}
+	
+	private String getConnectionId() {
+		if(this.networkSendParams!=null) {
+			return this.stationId+"PAM";
+		}else {
+			return this.stationId;
+		}
+	}
+		
 	@Override
 	public void configureClient() {
 		mqttConfigureError = null;
@@ -205,7 +222,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 			}
 			String type = qo.streamName;
 			//mqttClient.publish("APS/"+stationId+"/"+type, message);
-			mqttClient.publish("APS/"+stationId+"/"+type,message.getPayload(),1,false);
+			mqttClient.publish(this.networkParams.baseTopic+"/"+stationId+"/"+type,message.getPayload(),1,false);
 		} catch (MqttException e) {
 			throw new NetTransmitException(e);
 		} 

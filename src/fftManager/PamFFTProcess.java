@@ -119,8 +119,8 @@ public class PamFFTProcess extends PamProcess {
 //		addOutputDataBlock(outputData = new RecyclingDataBlock<FFTDataUnit>(FFTDataUnit.class, "Raw FFT Data", 
 //				this, fftControl.fftParameters.channelMap));
 		outputData = new FFTDataBlock(fftControl.getUnitName(), this, 
-				fftParameters.channelMap, fftParameters.fftHop,
-				fftParameters.fftLength);
+				fftControl.fftParameters.channelMap, fftControl.fftParameters.fftHop,
+				fftControl.fftParameters.fftLength);
 		outputData.setRecycle(true);
 		addOutputDataBlock(outputData);
 	
@@ -148,6 +148,7 @@ public class PamFFTProcess extends PamProcess {
 		// then find the new one and subscribe to that instead. 
 		channelCounts = new int[PamConstants.MAX_CHANNELS];
 		// since it's used so much, make a local reference
+		FFTParameters fftParameters = fftControl.fftParameters;
 		
 		int[] chanList = PamUtils.getChannelArray(fftParameters.channelMap);
 		
@@ -156,18 +157,17 @@ public class PamFFTProcess extends PamProcess {
 			tempStores[chanList[i]] = new TempOutputStore(chanList[i]);
 		}
 		
-		//if (fftControl == null) return;
+		if (fftControl == null) return;
 		
 		/*
 		 * Data block used to be by number, now it's by name, but need to handle situations where
 		 * name has not been set, so if there isn't a name, use the number !
 		 */
 		if (fftParameters.dataSourceName != null) {
-			//rawDataBlock = (PamRawDataBlock) fftControl.getPamConfiguration().getDataBlock(RawDataUnit.class, fftParameters.dataSourceName);
-			rawDataBlock = (PamRawDataBlock) PamController.getInstance().getDataBlock(RawDataUnit.class, fftParameters.dataSourceName);
+			rawDataBlock = (PamRawDataBlock) fftControl.getPamConfiguration().getDataBlock(RawDataUnit.class, fftParameters.dataSourceName);
 		}
 		else {
-			rawDataBlock = PamController.getInstance().getRawDataBlock(fftParameters.dataSource);
+			rawDataBlock = fftControl.getPamConfiguration().getRawDataBlock(fftParameters.dataSource);
 			if (rawDataBlock != null) {
 				fftParameters.dataSourceName = rawDataBlock.getDataName();
 			}
@@ -184,13 +184,13 @@ public class PamFFTProcess extends PamProcess {
 		outputData.sortOutputMaps(
 				rawDataBlock.getChannelMap(),
 				rawDataBlock.getSequenceMapObject(), 
-				fftParameters.channelMap);
-		outputData.setFftHop(fftParameters.fftHop);
-		outputData.setFftLength(fftParameters.fftLength);
+				fftControl.fftParameters.channelMap);
+		outputData.setFftHop(fftControl.fftParameters.fftHop);
+		outputData.setFftLength(fftControl.fftParameters.fftLength);
 
 		
 
-		setProcessName("FFT - " + fftParameters.fftLength + " point, "
+		setProcessName("FFT - " + fftControl.fftParameters.fftLength + " point, "
 				+ getSampleRate() + " Hz");
 
 		//outputData.
@@ -213,7 +213,7 @@ public class PamFFTProcess extends PamProcess {
 		// and for each channel, make a double array
 		// and set the pointer to zero
 		for (int i = 0; i < PamConstants.MAX_CHANNELS; i++) {
-			if (((1 << i) & fftParameters.channelMap) != 0) {
+			if (((1 << i) & fftControl.fftParameters.channelMap) != 0) {
 				windowedData[i] = new double[fftParameters.fftLength];
 				channelPointer[i] = 0;
 			}
@@ -231,15 +231,15 @@ public class PamFFTProcess extends PamProcess {
 	}
 
 	public int getFftLength() {
-		return fftParameters.fftLength;
+		return fftControl.fftParameters.fftLength;
 	}
 
 	public int getFftHop() {
-		return fftParameters.fftHop;
+		return fftControl.fftParameters.fftHop;
 	}
 
 	public int getChannelMap() {
-		return fftParameters.channelMap;
+		return fftControl.fftParameters.channelMap;
 	}
 
 	/*
@@ -268,7 +268,7 @@ public class PamFFTProcess extends PamProcess {
 		int iChan = PamUtils.getSingleChannel(rawDataUnit.getChannelBitmap());
 		rawBlocks[iChan] ++;
 		// see if the channel is one we want before doing anything.
-		if ((rawDataUnit.getChannelBitmap() & fftParameters.channelMap) == 0){
+		if ((rawDataUnit.getChannelBitmap() & fftControl.fftParameters.channelMap) == 0){
 			return;
 		}
 		int copyFrom;
@@ -285,7 +285,7 @@ public class PamFFTProcess extends PamProcess {
 		int dataPointer = channelPointer[iChan];
 		
 		//local copy
-		//FFTParameters fftParameters = fftParameters;
+		FFTParameters fftParameters = fftControl.fftParameters;
 		
 		/**
 		 * Work out how many milliseconds per typical
@@ -494,7 +494,7 @@ public class PamFFTProcess extends PamProcess {
 		else {
 			fftAnnotations.clear();
 		}
-		if (fftParameters.clickRemoval) {
+		if (fftControl.fftParameters.clickRemoval) {
 			fftAnnotations.add(new ProcessAnnotation(this, clickRemoval, fftControl.getUnitType(), "Click Removal"));
 		}
 		fftAnnotations.add(super.getAnnotation(outputData, 0));
