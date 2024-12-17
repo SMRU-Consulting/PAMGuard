@@ -494,20 +494,14 @@
 		  	<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
 		  	<version>1.2.5</version>
 		</dependency>
-
-		<!--jpam project - utilities -->
+		
 		<dependency>
-			<groupId>io.github.macster110</groupId>
-			<artifactId>jpamutils</artifactId>
-			<version>0.0.59e</version>
+		    <groupId>net.sourceforge.lame</groupId>
+		    <artifactId>lame</artifactId>
+		    <version>3.98.4</version>
 		</dependency>
 
-		<!--jpam project - Deep learning java library -->
-		<dependency>
-			<groupId>io.github.macster110</groupId>
-			<artifactId>jdl4pam</artifactId>
-			<version>0.0.99e</version>
-		</dependency>
+		
 
 		<!-- https://mvnrepository.com/artifact/gov.nist.math/jama -->
 		<dependency>

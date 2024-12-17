@@ -60,7 +60,7 @@ public class ClipDisplayPanel extends UserDisplayComponentAdapter implements Pam
 
 	private JPanel displayPanel;
 
-	private JPanel unitsPanel;
+	protected JPanel unitsPanel;
 
 	protected ClipDisplayParameters clipDisplayParameters = new ClipDisplayParameters();
 	
