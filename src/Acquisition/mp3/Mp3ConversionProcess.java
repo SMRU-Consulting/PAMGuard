@@ -44,7 +44,7 @@ public class Mp3ConversionProcess  extends PamProcess {
 			this.params.channelMap &= getParentDataBlock().getChannelMap();
 			outputDataBlock.setChannelMap(this.params.channelMap);
 			this.setSampleRate(sourceSampleRate, true);
-			setupDecimator();
+			//setupDecimator();
 		}
 	}
 	
@@ -55,6 +55,19 @@ public class Mp3ConversionProcess  extends PamProcess {
 		public void run() {
 			
 		}
+		
+	}
+
+
+	@Override
+	public void pamStart() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void pamStop() {
+		// TODO Auto-generated method stub
 		
 	}
 
