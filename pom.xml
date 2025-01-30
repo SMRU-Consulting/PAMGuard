@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.pamguard</groupId>
   <artifactId>Pamguard</artifactId>
-  <version>2.02.15_SMRUC</version>
+  <version>2.02.15a_SMRUC</version>
   <name>Pamguard</name>
   <description>Pamguard using Maven to control dependencies</description>
 	<url>www.pamguard.org</url>
@@ -449,6 +449,11 @@
 			<name>Unidata netCDF</name>
 			<url>https://artifacts.unidata.ucar.edu/repository/unidata-all/</url>
 		</repository>
+		
+		<repository>
+	        <id>jitpack.io</id>
+	        <url>https://jitpack.io</url>
+	    </repository>
 
 		<!--  
 	    <repository>
@@ -488,6 +493,26 @@
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>
+		
+		<dependency>
+		    <groupId>xyz.froud</groupId>
+		    <artifactId>JVisa</artifactId>
+		    <version>2.0.0</version>
+		</dependency>
+		
+		<!--jpam project - utilities -->
+		<dependency>
+			<groupId>io.github.macster110</groupId>
+			<artifactId>jpamutils</artifactId>
+			<version>0.0.59e</version>
+		</dependency>
+
+		<!--jpam project - Deep learning java library -->
+		<dependency>
+			<groupId>io.github.macster110</groupId>
+			<artifactId>jdl4pam</artifactId>
+			<version>0.0.99e</version>
+		</dependency>
 	
 		<dependency>
 		  	<groupId>org.eclipse.paho</groupId>
@@ -1196,6 +1221,39 @@
 			<artifactId>powermock-api-mockito</artifactId>
 			<version>${powermock.version}</version>
 		</dependency>
+		
+		<dependency>
+	    <groupId>com.itextpdf</groupId>
+	    <artifactId>itextpdf</artifactId>
+	    <version>5.5.13.3</version>
+	</dependency>
+	
+	<!-- https://mvnrepository.com/artifact/com.itextpdf/io -->
+	<dependency>
+	    <groupId>com.itextpdf</groupId>
+	    <artifactId>io</artifactId>
+	    <version>8.0.4</version>
+	</dependency>
+	
+	<!-- https://mvnrepository.com/artifact/com.itextpdf/kernel -->
+	<dependency>
+	    <groupId>com.itextpdf</groupId>
+	    <artifactId>kernel</artifactId>
+	    <version>8.0.4</version>
+	</dependency>
+	
+	<!-- https://mvnrepository.com/artifact/com.itextpdf/layout -->
+	<dependency>
+	    <groupId>com.itextpdf</groupId>
+	    <artifactId>layout</artifactId>
+	    <version>8.0.4</version>
+	</dependency>
+
+	<dependency>
+	    <groupId>org.apache.pdfbox</groupId>
+	    <artifactId>pdfbox</artifactId>
+	    <version>3.0.0</version>
+	</dependency>
 
 
 

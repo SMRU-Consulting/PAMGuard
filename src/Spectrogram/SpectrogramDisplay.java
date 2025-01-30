@@ -2287,7 +2287,7 @@ InternalFrameListener, DisplayPanelContainer, SpectrogramParametersUser, PamSett
 			 */ 
 			double[] cellValues = dataUnit.getSpectrogramData();
 			double[] dBlevel = dataUnit.getMagnitudeData();
-			System.out.println(cellValues[10]+" "+dBlevel[10]);
+			//System.out.println(cellValues[10]+" "+dBlevel[10]);
 
 
 			// int xStart = imagePos;
