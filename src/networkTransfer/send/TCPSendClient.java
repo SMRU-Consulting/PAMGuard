@@ -525,7 +525,7 @@ public class TCPSendClient extends NetworkClient{
 	}
 
 	@Override
-	public void sendMessage(NetworkQueuedObject qo) {
+	public void sendNetworkQueuedObject(NetworkQueuedObject qo) {
 		this.queueDataObject(qo);
 		
 	}

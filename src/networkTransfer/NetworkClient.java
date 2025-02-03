@@ -35,6 +35,8 @@ public abstract class NetworkClient {
 	
 	PamWarning sendWarning;
 	
+	public boolean requireReconnect;
+	
 	public NetworkClient(NetworkParams netParams) {
 		this.networkParams = netParams;
 		sendWarning = new PamWarning("Network Send Error","Warn!",0);
@@ -48,10 +50,10 @@ public abstract class NetworkClient {
 	
 	public abstract boolean isConnected();
 	
-	public abstract void sendMessage(NetworkQueuedObject qo) throws NetTransmitException;
+	public abstract void sendNetworkQueuedObject(NetworkQueuedObject qo) throws NetTransmitException;
 	
 	public void close() {
-		//disconnect();
+		disconnect();
 		additionalClose();
 	}
 	

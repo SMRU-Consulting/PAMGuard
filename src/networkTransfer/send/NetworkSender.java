@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.Timer;
 
 import PamController.PamControlledUnit;
 import PamController.PamControlledUnitSettings;
@@ -33,7 +34,7 @@ import warnings.WarningSystem;
  */
 public class NetworkSender extends PamControlledUnit implements PamSettings {
 	
-	public static final String ADDRESS = "-netSend.address";
+	/*public static final String ADDRESS = "-netSend.address";
 	public static final String PORT = "-netSend.port";
 	public static final String ID1 = "-netSend.id1";
 	public static final String ID2 = "-netSend.id2";
@@ -47,6 +48,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	public static final String KEYPATH = "-netSend.keyPath";
 	public static final String KEYPASS = "-netSend.keyPass";
 	public static final String SENDJSON = "-netSend.json";
+	public static final String PERSISTANCE_DIRECTORY = "-netSend.percistanceDir";*/
 
 
 	protected NetworkSendParams networkSendParams = new NetworkSendParams();
@@ -63,12 +65,16 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		commandProcess.setCommandProcess(true);
 		addPamProcess(commandProcess);
 		PamSettingManager.getInstance().registerSettings(this);
+		initializeClient();
+		sidePanel = new NetworkSendSidePanel(this);
+	}
+	
+	private void initializeClient() {
 		if(this.networkSendParams.mqtt) {
 			client = new PamMqttClient(this.networkSendParams);
 		}else {
 			client = new TCPSendClient(this.networkSendParams);
 		}
-		sidePanel = new NetworkSendSidePanel(this);
 	}
 
 	/* (non-Javadoc)
@@ -174,19 +180,20 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 			PamControlledUnitSettings pamControlledUnitSettings) {
 		networkSendParams = (NetworkSendParams) ((NetworkParams) pamControlledUnitSettings.getSettings()).clone();
 		
-		String address = GlobalArguments.getParam(ADDRESS);
-		String portString = GlobalArguments.getParam(PORT);
-		String id1String = GlobalArguments.getParam(ID1);
-		String id2String = GlobalArguments.getParam(ID2);
-		String usesslString = GlobalArguments.getParam(USESSL);
-		String usemqttString = GlobalArguments.getParam(USEMQTT);
-		String trustStorePathString = GlobalArguments.getParam(TRUSTPATH);
-		String trustStorePassString = GlobalArguments.getParam(TRUSTPASS);
-		String keyPathString = GlobalArguments.getParam(KEYPATH);
-		String keyPassString = GlobalArguments.getParam(KEYPASS);
-		String user = GlobalArguments.getParam(USER);
-		String password = GlobalArguments.getParam(PASSWORD);
-		String useJson = GlobalArguments.getParam(SENDJSON);
+		String address = GlobalArguments.getParam(NetSendCommandParam.ADDRESS.arg);
+		String portString = GlobalArguments.getParam(NetSendCommandParam.PORT.arg);
+		String id1String = GlobalArguments.getParam(NetSendCommandParam.ID1.arg);
+		String id2String = GlobalArguments.getParam(NetSendCommandParam.ID2.arg);
+		String usesslString = GlobalArguments.getParam(NetSendCommandParam.USESSL.arg);
+		String usemqttString = GlobalArguments.getParam(NetSendCommandParam.USEMQTT.arg);
+		String trustStorePathString = GlobalArguments.getParam(NetSendCommandParam.TRUSTPATH.arg);
+		String trustStorePassString = GlobalArguments.getParam(NetSendCommandParam.TRUSTPASS.arg);
+		String keyPathString = GlobalArguments.getParam(NetSendCommandParam.KEYPATH.arg);
+		String keyPassString = GlobalArguments.getParam(NetSendCommandParam.KEYPASS.arg);
+		String user = GlobalArguments.getParam(NetSendCommandParam.USER.arg);
+		String password = GlobalArguments.getParam(NetSendCommandParam.PASSWORD.arg);
+		String useJson = GlobalArguments.getParam(NetSendCommandParam.SENDJSON.arg);
+		String persistenceDir = GlobalArguments.getParam(NetSendCommandParam.PERSISTANCE_DIRECTORY.arg);
 
 
 		if(user!=null) {
@@ -237,6 +244,10 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 			networkSendParams.keyStorePassword = keyPassString;
 		}
 		
+		if(persistenceDir!=null) {
+			networkSendParams.persistenceDir = persistenceDir;
+		}
+		
 		boolean isSetJson = false;
 		if(useJson!=null) {
 			isSetJson = Boolean.valueOf(useJson);
@@ -265,7 +276,9 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		switch (changeType) {
 		case PamController.INITIALIZATION_COMPLETE:
 			sortDataSources();
-			client.notifyModelChanged(changeType);
+			if(client!=null) {
+				client.notifyModelChanged(changeType);
+			}
 			initialisationComplete  = true;
 			break;
 		case PamController.REMOVE_CONTROLLEDUNIT:
@@ -337,7 +350,9 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	@Override
 	public void pamClose() {
 		super.pamClose();
-		client.close();
+		if(client!=null) {
+			client.close();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -345,7 +360,9 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	 */
 	@Override
 	public void pamHasStopped() {
-		client.disconnect();
+		if(client!=null) {
+			client.disconnect();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -357,20 +374,47 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		
 	}
 	
-	
-	
-	
-	/**/
+	public long lastTransmitErrorPrint = 0;
 
 	public void transmitData(NetworkQueuedObject qo) {
-		try {
-			client.sendMessage(qo);
-		} catch (NetTransmitException e) {
-			e.printStackTrace();
-			if(client!=null) {
-				client.setWarning("Error transmitting data. "+e.getMessage());
-			}
+		if(client==null) {
+			System.out.println("Client is null. Likely due to restarting client");
+			return;
 		}
+		try {
+			client.sendNetworkQueuedObject(qo);
+		} catch (NetTransmitException e) {
+			if(System.currentTimeMillis()-this.lastTransmitErrorPrint>1000*60) {
+				System.out.println("Could not transmit message. Error: "+e.getMessage());
+				lastTransmitErrorPrint = System.currentTimeMillis();
+			}
+			/*if(client!=null) {
+				client.setWarning("Error transmitting data. "+e.getMessage());
+			}*/
+		}
+	}
+	
+	private class ConnectionResetTimer implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			timerCall();
+		}
+	}
+
+	public void timerCall() {
+		if(client.requireReconnect) {
+			System.out.println("Attempting to reinitialize client");
+			client.removeWarning();
+			client.disconnect();
+			client.additionalClose();
+			initializeClient();
+			runClient();
+		}
+	}
+	
+	public void runClientCheckTimer() {
+		Timer t = new Timer(20000, new ConnectionResetTimer());
+		t.start();
 	}
 
 	public String getStatus() {
@@ -384,10 +428,8 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		try {
 			client.connect();
 		} catch (ClientConnectFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Could not connect client to server. Data will exist in buffer until connection is obtained");
 		}
-		
 	}
 
 	public String executeExternalCommand(String command) {

@@ -13,12 +13,16 @@ import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.MqttPersistable;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
+import org.eclipse.paho.client.mqttv3.internal.wire.MqttPublish;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 import networkTransfer.NetworkClient;
 import networkTransfer.NetworkParams;
@@ -39,7 +43,11 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 	public NetworkSendParams networkSendParams;
 	public NetworkReceiveParams networkReceiveParams;
 	private IMqttToken connectToken;
+	private MqttClientPersistence persistence;
+	private String serverURI;
 	
+	private int preconnectCounter = 0;
+
 
 	public PamMqttClient(NetworkParams networkParams){
 		super(networkParams);
@@ -52,6 +60,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 			stationId = networkReceiveParams.stationName;
 			mqttConnectionId = this.stationId;
 		}
+		requireReconnect = false;
 		configureClient();
 	}
 	
@@ -61,7 +70,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		this.setWarning("Attempting initial configure...",1);
 		if(this.mqttClient!=null) {
 			if(connectToken!=null && !connectToken.isComplete()) {
-				System.out.println("Must wait for previous instance to finish connecting");
+				System.out.println("Must wait for previous instance to finish connecting before connecting again.");
 				return;
 			}
 			try {
@@ -71,15 +80,21 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 				this.setWarning("Couldn't override existing client: "+e.getMessage());
 			}
 		}
+		
+		if(this.networkParams.useSSL) {
+			serverURI = "ssl://"+this.networkParams.ipAddress+":"+this.networkParams.portNumber;
+		}else {
+			serverURI = "tcp://"+this.networkParams.ipAddress+":"+this.networkParams.portNumber;
+		}
+        if(this.networkParams.persistenceDirectory!=null) {
+        	persistence = new MqttDefaultFilePersistence(this.networkParams.persistenceDirectory);
+        }else {
+        	persistence = new MemoryPersistence();
+        }
 		try {
-			if(this.networkParams.useSSL) {
-				mqttClient = new MqttAsyncClient("ssl://"+this.networkParams.ipAddress+":"+this.networkParams.portNumber,mqttConnectionId,new MemoryPersistence());
-			}else {
-				mqttClient = new MqttAsyncClient("tcp://"+this.networkParams.ipAddress+":"+this.networkParams.portNumber,mqttConnectionId,new MemoryPersistence());
-
-			}
+			mqttClient = new MqttAsyncClient(serverURI,mqttConnectionId,persistence);
 		} catch (MqttException e) {
-			e.printStackTrace();
+			System.out.println("Caught MQTT Exception attempting to initialize client. Error message: "+e.getMessage());
 			mqttConfigureError = e.getMessage();
 		}
 		mqttOptions = new MqttConnectOptions();
@@ -123,10 +138,9 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 				return false;
 			}
 		}
-				
-		
 		
 		try {
+			persistence.open(mqttConnectionId, serverURI);
 			connectToken = mqttClient.connect(mqttOptions);
 		} catch (MqttSecurityException e1) {
 			e1.printStackTrace();
@@ -134,33 +148,6 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		} catch (MqttException e1) {
 			e1.printStackTrace();
 			throw new ClientConnectFailedException(e1);
-		}
-		
-		try {
-			connectToken.waitForCompletion(10000);
-		} catch (MqttException e) {
-			e.printStackTrace();
-			String readableReason = "";
-			if(e.getCause()==null) {
-				throw new ClientConnectFailedException(e.getMessage(),e);
-			}
-			if(e.getCause().getMessage().equals("readHandshakeRecord")) {
-				readableReason = "Broker requires certificate. Include keystore in parameters";
-			}else if(e.getCause().getMessage().contains("unable to find valid certification path to requested target")) {
-				readableReason = "Designated trust store does not include the required CA certificate for connection";
-			}else {
-				readableReason = e.getMessage();
-			}
-			throw new ClientConnectFailedException(readableReason,e);
-		}
-		
-		if(!mqttClient.isConnected()) {
-			Exception reason = connectToken.getException();
-			if(reason!=null) {
-				String message = reason.getMessage();
-				throw new ClientConnectFailedException(message);
-			}
-			throw new ClientConnectFailedException("Unknown reason for connection failure");
 		}
 
 		return true;
@@ -171,14 +158,27 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		if(mqttClient==null) {
 			return;
 		}
+		if(!this.mqttClient.isConnected()) {
+			return;
+		}
 		try {
 			IMqttToken disconnectToken = mqttClient.disconnect();
-			//disconnectToken.wait();
-			//mqttClient.close();
+			disconnectToken.waitForCompletion(1000L);
 		} catch (MqttException e) {
-			e.printStackTrace();
+			try {
+				if(this.mqttClient.isConnected()) {
+					System.out.println("Timeout disconnecting client from broker, 1 second. Going to attempt forceful disconnection. Error: "+e.getMessage());
+					mqttClient.disconnectForcibly();
+				}
+			} catch (MqttException e1) {
+				System.out.println("Error disconnecting client forcibly. Going to proceed to closing. Error: "+e1.getMessage());
+			}
 		}
-
+		try {
+			mqttClient.close(true);
+		} catch (MqttException e) {
+			System.out.println("Mqtt client could not close. Pamguard will not function properly. Error: "+e.getMessage());
+		}
 	}
 
 	@Override
@@ -190,31 +190,26 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 	}
 
 	@Override
-	public void sendMessage(NetworkQueuedObject qo) throws NetTransmitException{
-		if(this.mqttClient==null) {
-			throw new NetTransmitException("Mqtt client is not initialized",new NullPointerException());
+	public void sendNetworkQueuedObject(NetworkQueuedObject qo) throws NetTransmitException{
+		
+		MqttMessage message;
+		if(qo.data!=null) {
+			message = new MqttMessage(qo.data);
+			message.setQos(1);
+		}else {
+			message = new MqttMessage(qo.jsonString.getBytes());
+			message.setQos(1);
 		}
-
-		try {
-			MqttMessage message;
-			if(qo.data!=null) {
-				message = new MqttMessage(qo.data);
-				message.setQos(1);
-			}else {
-				message = new MqttMessage(qo.jsonString.getBytes());
-			}
-			String type = qo.streamName;
-			//mqttClient.publish("APS/"+stationId+"/"+type, message);
-			mqttClient.publish("APS/"+stationId+"/"+type,message.getPayload(),1,false);
-		} catch (MqttException e) {
-			throw new NetTransmitException(e);
-		} 
+		String type = qo.streamName;
+		
+		this.sendMqttMessage(type, message);
 
 	}
 
 	@Override
 	public void additionalClose() {
 		try {
+			//persistence.close();
 			this.mqttClient.close(true);
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
@@ -236,7 +231,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 
 	@Override
 	public void connectionLost(Throwable cause) {
-		status = "Mqtt lost connection. Cause: "+cause.getMessage();
+		status = "Disconnected";
 		
 	}
 
@@ -256,30 +251,94 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		mqttClient.subscribe(topic, 0, listener);
 	}
 
-	public void sendMessage(String topicExtension, String string) {
+	public void sendStringMessage(String topicExtension, String string) throws NetTransmitException {
 		MqttMessage message = new MqttMessage(string.getBytes());
 		
-		sendMessage(topicExtension,message);
+		sendMqttMessage(topicExtension,message);
 	}
 	
-	public void sendMessage(String topicExtension, MqttMessage message) {
-		try {
-			mqttClient.publish("APS/"+stationId+"/"+topicExtension, message);
-		} catch (MqttPersistenceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			this.setWarning("Mqtt Message Error: "+e.getMessage(),2);
-		} catch (MqttException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			this.setWarning("Mqtt Message Error: "+e.getMessage(),2);
+	public void sendMqttMessage(String topicExtension, MqttMessage message) throws NetTransmitException {
+		
+		boolean persistenceOpened = true;;
+		
+		if(this.mqttClient==null) {
+			throw new NetTransmitException("Mqtt client is not initialized",new NullPointerException());
 		}
+		
+		if(this.mqttClient.isConnected()) {
+			status = "Connected";
+			this.removeWarning();
+		}else if(this.connectToken==null) {
+			status = "Disconnected";
+			this.setWarning("Mqtt client is not connected with unknown cause. Messages will buffer until connection is obtained.", 1);
+		}else {
+			if(this.connectToken.getException()!=null) {
+				status = "Disconnected";
+				Exception connectException = this.connectToken.getException();
+				requireReconnect = true;
+				try {
+					this.persistence.open(this.mqttConnectionId, this.serverURI);
+					this.setWarning(connectException.getCause().getMessage()+". Messages will buffer.", 1);
+				} catch (MqttPersistenceException e) {
+					persistenceOpened = false;
+					this.setWarning(connectException.getCause().getMessage()+". Messages will not buffer.", 2);
+				}
+				
+			}else {
+				status = "Disconnected";
+				this.setWarning("Client is not connected to broker. Messages will buffer until it is.", 1);
+			}
+		}
+		
+		String topic = "APS/"+stationId+"/"+topicExtension;
+		
+		/*if(requireReconnect && persistenceOpened) {
+			int keyIdx = 0;
+				try {
+				while(this.persistence.keys().hasMoreElements()) {
+					String key = (String) this.persistence.keys().nextElement();
+					keyIdx = Integer.valueOf(key.split("-")[1]);
+				}
+				String key = "s-"+(keyIdx+1);
+				MqttPublish persistableMessage =  new MqttPublish(topic, message);
+				this.persistence.put(key, persistableMessage);
+				mqttClient.com
+			} catch (MqttPersistenceException e) {
+				System.out.println("Attempted to commit message to persistence directory, but failed. Error: "+e.getMessage());
+			}
+		}else {*/
+			try {
+				mqttClient.publish(topic,message.getPayload(),1,false);
+			} catch (MqttException e) {
+				throw new NetTransmitException(e);
+			} 
+		//}
 	}
 	
 	@Override
 	public boolean testClient() throws ClientConnectFailedException {
-		sendMessage("test","Pamguard client test at "+Instant.now().toString());
-		return true;
+		if(this.mqttClient==null) {
+			throw new ClientConnectFailedException("Could not establish client, client is null");
+		}
+		if(this.connectToken!=null) {
+			try {
+				this.setWarning("Waiting for client connection. Timeout after 10 seconds",1);
+				this.connectToken.waitForCompletion(10000L);
+			} catch (MqttException e) {
+				this.setWarning("Client test failed. "+e.getMessage(),2);
+				throw new ClientConnectFailedException("Could not connect to server after 10 seconds. Error: "+e.getMessage());
+			}
+		}
+		if(this.mqttClient.isConnected()) {
+			this.removeWarning();
+			try {
+				sendStringMessage("test","Pamguard client test at "+Instant.now().toString());
+			} catch (NetTransmitException e) {
+				throw new ClientConnectFailedException(e.getMessage());
+			}
+			return true;
+		}
+		throw new ClientConnectFailedException("Could not connect to server. Check your server parameters and your network connection.");
 	}
 
 	public static void test(NetworkParams networkParams) throws ClientConnectFailedException {
