@@ -25,6 +25,7 @@ import PamView.GeneralProjector.ParameterType;
 import PamView.GeneralProjector.ParameterUnits;
 import PamView.symbol.SymbolData;
 import PamguardMVC.PamDataUnit;
+import networkTransfer.receive.status.BuoyStatusDataUnit;
 
 /**
  * Class for drawing buoy positions on the map. 

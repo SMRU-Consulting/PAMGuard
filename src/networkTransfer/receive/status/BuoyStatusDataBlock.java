@@ -1,4 +1,4 @@
-package networkTransfer.receive;
+package networkTransfer.receive.status;
 
 import java.net.InetAddress;
 import java.util.Arrays;

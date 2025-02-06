@@ -1,7 +1,6 @@
 package noiseOneBand;
 
 
-import networkTransfer.receive.BuoyStatusDataUnit;
 import noiseOneBand.offline.OneBandDatagramProvider;
 import Acquisition.AcquisitionProcess;
 import Filters.Filter;
@@ -18,7 +17,7 @@ import PamguardMVC.PamObserver;
 import PamguardMVC.PamObserverAdapter;
 import PamguardMVC.PamProcess;
 import PamguardMVC.PamRawDataBlock;
-import networkTransfer.receive.BuoyStatusDataUnit;
+import networkTransfer.receive.status.BuoyStatusDataUnit;
 import noiseOneBand.offline.OneBandDatagramProvider;
 
 public class OneBandProcess extends PamProcess {

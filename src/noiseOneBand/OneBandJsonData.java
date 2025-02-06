@@ -9,6 +9,7 @@ public class OneBandJsonData extends JSONObjectData{
 	double zeropeak;
 	double sel;
 	long millis;
+	String buoyId;
 
 	public OneBandJsonData() {
 		super();

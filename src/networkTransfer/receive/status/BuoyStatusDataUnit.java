@@ -1,4 +1,4 @@
-package networkTransfer.receive;
+package networkTransfer.receive.status;
 
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -18,6 +18,7 @@ import PamUtils.PamUtils;
 import PamguardMVC.LastDataUnitStore;
 import PamguardMVC.PamDataBlock;
 import PamguardMVC.PamDataUnit;
+import networkTransfer.receive.NetworkReceiver;
 
 /**
  * Class for collecting data to do with individual buoys receiving data

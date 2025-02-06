@@ -14,14 +14,13 @@ import PamController.PamController;
 import PamUtils.PamCalendar;
 import PamView.component.DataBlockTableView;
 import PamguardMVC.PamDataBlock;
-//import control.RXTableMouseListener;
-import networkTransfer.receive.BuoyStatusDataUnit;
-import networkTransfer.receive.BuoyStatusValue;
 import networkTransfer.receive.MqttNetReceiver;
 import networkTransfer.receive.MqttReceiveThread;
 import networkTransfer.receive.NetworkReceiveParams;
 import networkTransfer.receive.NetworkReceiver;
 import networkTransfer.receive.PairedValueInfo;
+import networkTransfer.receive.status.BuoyStatusDataUnit;
+import networkTransfer.receive.status.BuoyStatusValue;
 
 public class RXTablePanel2 extends DataBlockTableView<BuoyStatusDataUnit>{
 

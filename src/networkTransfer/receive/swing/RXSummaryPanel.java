@@ -17,10 +17,10 @@ import PamView.dialog.PamGridBagContraints;
 import PamView.dialog.PamLabel;
 import PamView.dialog.PamTextDisplay;
 import PamView.panel.PamPanel;
-import networkTransfer.receive.BuoyStatusDataBlock;
-import networkTransfer.receive.BuoyStatusDataUnit;
 import networkTransfer.receive.NetworkReceiveParams;
 import networkTransfer.receive.NetworkReceiver;
+import networkTransfer.receive.status.BuoyStatusDataBlock;
+import networkTransfer.receive.status.BuoyStatusDataUnit;
 
 public class RXSummaryPanel {
 
