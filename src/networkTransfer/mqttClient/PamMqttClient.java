@@ -270,7 +270,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 	}
 	
 	public void subscribeListener(String topic, IMqttMessageListener listener) throws MqttException {
-		mqttClient.subscribe(topic, 0, listener);
+		mqttClient.subscribe(topic, 2, listener);
 	}
 
 	public void sendMessage(String topicExtension, String string) {

@@ -78,7 +78,7 @@ public class RXTablePanel2 extends DataBlockTableView<BuoyStatusDataUnit>{
 	
 	public Object getMqttColumnData(BuoyStatusDataUnit b, int cols1index) {
 		switch(cols1index) {
-		case 3:
+		case 5:
 			MqttNetReceiver mqttThread =  (MqttNetReceiver) networkReceiver.connectionThread;
 			if(mqttThread == null) {
 				return "Disconnected";
@@ -101,7 +101,7 @@ public class RXTablePanel2 extends DataBlockTableView<BuoyStatusDataUnit>{
 		}
 	}
 
-	private static String[] colNames1 = {"Station Id","IP Addr", "Channel", "Status"};
+	private static String[] colNames1 = {"Station Id","IP Addr", "Last Comms Ping","Last Comms Ping Strength","Channel", "Status"};
 	private static String[] colNames2 = {"Last Data", "Position", "Tot' Packets"};
 
 	@Override
@@ -119,8 +119,18 @@ public class RXTablePanel2 extends DataBlockTableView<BuoyStatusDataUnit>{
 			case 1:
 				return b.getIPAddr();
 			case 2:
-				return b.getLowestChannel();
+				if(b.getLastCommsPing()==0) {
+					return "No Data";
+				}
+				return PamCalendar.formatDateTime2(b.getLastCommsPing());
 			case 3:
+				if(b.getCommunicationsStrength()==0) {
+					return "Disconnected";
+				}
+				return Double.toString(b.getCommunicationsStrength())+" dB";
+			case 4:
+				return b.getLowestChannel();
+			case 5:
 				if(isMqtt) {
 					return getMqttColumnData(b,col);
 				}

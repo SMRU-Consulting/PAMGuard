@@ -1,5 +1,7 @@
 package networkTransfer.receive;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
@@ -21,6 +23,7 @@ public class MqttNetReceiver extends PamMqttClient implements NetworkReceiverInt
 	private NetworkAudioInterpreter networkAudioInterpreter;
 	private BuoyStatusDataBlock buoyStatusDataBlock;
 	private BaseListener baseListener;
+	private StatusListener statusListener;
 	
 	
 	public MqttNetReceiver(NetworkReceiveParams netRxParams, NetworkReceiver netReceiver) {
@@ -62,9 +65,69 @@ public class MqttNetReceiver extends PamMqttClient implements NetworkReceiverInt
 		
 		try {
 			baseListener = new BaseListener(this);
-			this.subscribeListener(netParams.baseTopic+"/#", baseListener);
+			statusListener = new StatusListener();
+			this.subscribeListener(netParams.baseTopic+"/+/pamData/#", baseListener);
+			this.subscribeListener(netParams.baseTopic+"/+/status", statusListener);
+			this.subscribeListener(netParams.baseTopic+"/+/router/#", statusListener);
 		} catch (MqttException e) {
 			e.printStackTrace();
+		}
+		
+	}
+	
+	private class StatusListener implements IMqttMessageListener{
+		
+		private int getId(String topic) {
+			for(String item:topic.split("/")) {
+				if(item.contains("pb")) {
+					try {
+						return Integer.valueOf(item.split("b")[1]);
+					}catch(NumberFormatException e) {
+						return 0;
+					}
+				}
+			}
+			return 0;
+		}
+
+		@Override
+		public void messageArrived(String topic, MqttMessage message) throws Exception {
+			String[] topicLevels = topic.split("/");
+			boolean hasRouterMessage = false;
+			for(String topiclevel:topicLevels) {
+				if(!topiclevel.equals("router")) {
+					hasRouterMessage = true;
+				}
+			}
+			if(!hasRouterMessage) {
+				return;
+			}
+			String routerVar = topicLevels[topicLevels.length-1];
+			if(!routerVar.equals("signal") && !routerVar.equals("wan")) {
+				return;
+			}
+			
+			BuoyStatusDataUnit buoyStatusDataUnit = netReceiver.findBuoyStatusDataUnit(getId(topic), getId(topic), true);
+			buoyStatusDataUnit.setLastCommsPing(System.currentTimeMillis());
+			if(routerVar.equals("signal")) {
+				try {
+					double commStrength = Double.valueOf(message.toString());
+					buoyStatusDataUnit.receivedCommsPing(System.currentTimeMillis(), commStrength);
+				}catch(NumberFormatException e) {
+					System.out.println("Could not interpret communication strength "+message.toString()+" as double.");
+				}
+				
+			}
+			if(routerVar.equals("wan")){
+				try {
+					InetAddress buoyWan = InetAddress.getByName(message.toString());
+					buoyStatusDataUnit.setIpAddr(buoyWan);
+				}catch(UnknownHostException | SecurityException e) {
+					System.out.println("Could not interpret WAN Ip Address "+message.toString());
+				}
+				
+			}
+			buoyStatusDataBlock.updatePamData(buoyStatusDataUnit, PamCalendar.getTimeInMillis());
 		}
 		
 	}

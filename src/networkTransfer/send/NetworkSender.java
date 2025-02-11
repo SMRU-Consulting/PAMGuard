@@ -372,6 +372,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	public void transmitData(NetworkQueuedObject qo) {
 		try {
 			client.sendMessage(qo);
+			client.removeWarning();
 		} catch (NetTransmitException e) {
 			e.printStackTrace();
 			if(client!=null) {
