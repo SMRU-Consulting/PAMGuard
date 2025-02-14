@@ -36,7 +36,8 @@ public class HumpbackWhaleGoogle implements DLModel {
 	@Override
 	public URI getModelURI() {
 		try {
-			return new URI("https://github.com/PAMGuard/deeplearningmodels/raw/master/humpback_whale_1/humpback_whale_1.zip");
+//			return new URI("https://github.com/PAMGuard/deeplearningmodels/raw/master/humpback_whale_1/humpback_whale_1.zip");
+			return new URI("https://github.com/PAMGuard/deeplearningmodels/releases/download/1.0/humpback_whale_1.zip");
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
@@ -74,7 +75,7 @@ public class HumpbackWhaleGoogle implements DLModel {
 		
 		genericModelParams.defaultSegmentLen =  3.92*1000;
 		genericModelParams.binaryClassification = new boolean[] {true};
-		genericModelParams.classNames= new DLClassName[] {new DLClassName("Humpback whale", (short) 1)};
+		genericModelParams.classNames= new DLClassName[] {new DLClassName("Humpback whale", (short) 1, 180529)};
 		genericModelParams.numClasses = 1; 
 		
 		genericModelParams.defaultShape= new Long[] {-1L,-1L,-1L,1L};

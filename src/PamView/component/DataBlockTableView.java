@@ -385,9 +385,10 @@ public abstract class DataBlockTableView<T extends PamDataUnit> {
 		int selColumn = testTable.columnAtPoint(e.getPoint());
 		String colName = null;
 		String[] colNames = getColumnNames();
-		if (selColumn >= 0 && selColumn < colNames.length) {
-			colName = getColumnNames()[selColumn];
-		}
+//		if (selColumn >= 0 && selColumn < colNames.length) {
+//			colName = getColumnNames()[selColumn];
+//		}
+		colName = blockTableModel.getColumnName(selColumn);
 		popupMenuAction(e, dataUnit, colName);
 	}
 	

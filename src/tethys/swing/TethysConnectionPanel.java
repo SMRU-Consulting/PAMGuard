@@ -26,12 +26,14 @@ import PamView.panel.WestAlignedPanel;
 import metadata.MetaDataContol;
 import metadata.PamguardMetaData;
 import nilus.Deployment;
+import nilus.Helper;
 import pamViewFX.fxNodes.PamComboBox;
 import tethys.TethysControl;
 import tethys.TethysState;
 import tethys.TethysState.StateType;
 import tethys.TethysTimeFuncs;
 import tethys.dbxml.ServerStatus;
+import tethys.dbxml.ServerVersion;
 import tethys.deployment.PInstrument;
 import tethys.niluswraps.PDeployment;
 import tethys.output.TethysExportParams;
@@ -44,7 +46,7 @@ import tethys.output.TethysExportParams;
 public class TethysConnectionPanel extends TethysGUIPanel {
 	
 	private static final int SERVERNAMELENGTH = 30;
-	private static final int SERVERSTATUSLENGTH = 20;
+	private static final int SERVERSTATUSLENGTH = 60;
 	
 	private JPanel mainPanel;
 
@@ -191,7 +193,7 @@ public class TethysConnectionPanel extends TethysGUIPanel {
 	}
 
 	protected void createNewInstrument() {
-		PamArray updatedArray = ArrayDialog.showDialog(getTethysControl().getGuiFrame(), ArrayManager.getArrayManager());
+		PamArray updatedArray = ArrayDialog.showDialog(getTethysControl().getGuiFrame(), ArrayManager.getArrayManager(), null);
 		if (updatedArray != null) {
 			updateInstrumentsList();
 		}
@@ -263,7 +265,14 @@ public class TethysConnectionPanel extends TethysGUIPanel {
 		TethysExportParams exportParams = getTethysControl().getTethysExportParams();
 		serverName.setText(exportParams.getFullServerName());
 		ServerStatus status = getTethysControl().getDbxmlConnect().pingServer();
-		serverStatus.setText(status.toString());
+		String text = " " + status.toString();
+		if (status.ok) {
+			ServerVersion version = getTethysControl().getDbxmlConnect().getServerVersion();
+			text += ": Version " + version;
+		}
+		String nilusVer = Helper.getVersion();
+		text += "; nilus " + nilusVer;
+		serverStatus.setText(text);
 
 		colourBackground(status.ok ? 0 : 1);
 	}
