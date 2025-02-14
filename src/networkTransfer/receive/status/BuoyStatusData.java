@@ -28,6 +28,10 @@ public class BuoyStatusData implements Serializable, ManagedParameters {
 	private long lastDataTime;
 	
 	private String ipAddr;
+	
+	private long lastCommsTime;
+	
+	private double lastCommsStrength;
 
 	private Hashtable<String, BuoyStatusValue> genericStringPairs = new Hashtable<String, BuoyStatusValue>();
 
@@ -139,6 +143,22 @@ public class BuoyStatusData implements Serializable, ManagedParameters {
 		this.creationTime = creationTime;
 	}
 	
+	public long getLastCommsTime() {
+		return lastCommsTime;
+	}
+
+	public void setLastCommsTime(long lastCommsTime) {
+		this.lastCommsTime = lastCommsTime;
+	}
+
+	public double getLastCommsStrength() {
+		return lastCommsStrength;
+	}
+
+	public void setLastCommsStrength(double lastCommsStrength) {
+		this.lastCommsStrength = lastCommsStrength;
+	}
+
 	@Override
 	public PamParameterSet getParameterSet() {
 		PamParameterSet ps = PamParameterSet.autoGenerate(this, ParameterSetType.DETECTOR);

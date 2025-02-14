@@ -3,7 +3,7 @@ package networkTransfer.receive.status;
 import PamController.PamControlledUnit;
 import PamguardMVC.PamDataBlock;
 import PamguardMVC.PamProcess;
-import PamguardMVC.String;
+import networkTransfer.receive.NetworkReceiver;
 
 public class NetReceiverStatusManager extends PamProcess {
 	

@@ -142,6 +142,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		try {
 			persistence.open(mqttConnectionId, serverURI);
 			connectToken = mqttClient.connect(mqttOptions);
+			connectToken.waitForCompletion(5000L);
 		} catch (MqttSecurityException e1) {
 			e1.printStackTrace();
 			throw new ClientConnectFailedException(e1);
@@ -248,7 +249,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 	}
 	
 	public void subscribeListener(String topic, IMqttMessageListener listener) throws MqttException {
-		mqttClient.subscribe(topic, 0, listener);
+		mqttClient.subscribe(topic, 2, listener);
 	}
 
 	public void sendStringMessage(String topicExtension, String string) throws NetTransmitException {
