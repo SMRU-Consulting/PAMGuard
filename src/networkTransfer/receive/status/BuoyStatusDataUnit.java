@@ -1,4 +1,4 @@
-package networkTransfer.receive;
+package networkTransfer.receive.status;
 
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -18,7 +18,7 @@ import PamUtils.PamUtils;
 import PamguardMVC.LastDataUnitStore;
 import PamguardMVC.PamDataBlock;
 import PamguardMVC.PamDataUnit;
-import javafx.util.Pair;
+import networkTransfer.receive.NetworkReceiver;
 
 /**
  * Class for collecting data to do with individual buoys receiving data
@@ -43,7 +43,6 @@ public class BuoyStatusDataUnit extends PamDataUnit {
 	private Streamer hydrophoneStreamer;
 	private GPSDataBlock gpsDataBlock;
 	private double[] compassData;
-	private Pair<Long, Double> lastCommsPing;
 
 //	private boolean genericStringPairsChanged = true;
 	
@@ -72,12 +71,6 @@ public class BuoyStatusDataUnit extends PamDataUnit {
 		buoyStatusData.setLastDataTime(dataUnit.getTimeMilliseconds());
 		totalPackets++;
 		lastDataUnitStore.addDataUnit(dataBlock, dataUnit, receivedBytes);
-	}
-	
-	public void receivedCommsPing(long time, double commStrength) {
-		this.lastCommsPing = new Pair<Long, Double>(time,commStrength);
-		this.buoyStatusData.setLastCommsStrength(commStrength);
-		this.buoyStatusData.setLastCommsTime(time);
 	}
 	
 	/**
@@ -177,9 +170,7 @@ public class BuoyStatusDataUnit extends PamDataUnit {
 		return socket;
 	}
 	
-	public void setIpAddr(InetAddress buoyWanIp) {
-		this.buoyStatusData.setIpAddr(buoyWanIp.toString());
-	}
+	
 
 	public String getIPAddr() {
 		if (socket == null) {
@@ -193,22 +184,6 @@ public class BuoyStatusDataUnit extends PamDataUnit {
 		return inetAddr.getHostAddress();
 	}
 	
-	public long getLastCommsPing() {
-		return buoyStatusData.getLastCommsTime();
-	}
-
-	public void setLastCommsPing(long lastCommsPing) {
-		this.buoyStatusData.setLastCommsTime(lastCommsPing);
-	}
-
-	public double getCommunicationsStrength() {
-		return this.buoyStatusData.getLastCommsStrength();
-	}
-
-	public void setCommunicationsStrength(double communicationsStrength) {
-		this.buoyStatusData.setLastCommsStrength(communicationsStrength);
-	}
-
 	public String getPort() {
 		if (socket == null) {
 			return null;

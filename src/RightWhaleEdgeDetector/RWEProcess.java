@@ -25,7 +25,7 @@ import annotation.calcs.snr.SNRAnnotationType;
 import dataPlotsFX.data.TDDataProviderRegisterFX;
 import fftManager.FFTDataBlock;
 import fftManager.FFTDataUnit;
-import networkTransfer.receive.BuoyStatusDataUnit;
+import networkTransfer.receive.status.BuoyStatusDataUnit;
 import spectrogramNoiseReduction.kernelSmoothing.KernelSmoothing;
 import whistlesAndMoans.WhistleBearingInfo;
 

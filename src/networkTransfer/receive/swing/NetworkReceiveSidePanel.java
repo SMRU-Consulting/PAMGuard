@@ -18,11 +18,11 @@ import PamView.dialog.PamDialog;
 import PamView.dialog.PamGridBagContraints;
 import PamView.dialog.PamLabel;
 import PamView.panel.PamPanel;
-import networkTransfer.receive.BuoyStatusDataBlock;
-import networkTransfer.receive.BuoyStatusDataUnit;
 import networkTransfer.receive.MqttNetReceiver;
 import networkTransfer.receive.NetworkReceiveParams;
 import networkTransfer.receive.NetworkReceiver;
+import networkTransfer.receive.status.BuoyStatusDataBlock;
+import networkTransfer.receive.status.BuoyStatusDataUnit;
 
 public class NetworkReceiveSidePanel implements PamSidePanel {
 
