@@ -111,7 +111,7 @@ public class CalibrationsTable extends TethysGUIPanel {
 		JPopupMenu popMenu = new JPopupMenu();
 		JMenuItem menuItem;
 		if (n == 1) {
-			menuItem = new JMenuItem("Show document " + doc.getDocumentName());
+			menuItem = new JMenuItem("Display document " + doc.getDocumentName());
 			menuItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -269,10 +269,7 @@ public class CalibrationsTable extends TethysGUIPanel {
 	}
 
 	public Object getPhoneString(Calibration cal) {
-		Double dbV = cal.getSensitivityV();
-		if (dbV == null) {
-			dbV = cal.getSensitivityDBV();
-		}
+		Double dbV =  cal.getSensitivityDBV();
 		if (dbV == null) {
 			return null;
 		}

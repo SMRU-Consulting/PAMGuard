@@ -1015,6 +1015,66 @@ public class PamUtils {
 		}
 		return IndexM2;
 	}
+	
+	/**
+	 * Check if a string is empty (zero length after trip) OR null. 
+	 * @param string
+	 * @return true if it's null OR empty
+	 */
+	public static boolean emptyString(String string) {
+		if (string == null) {
+			return true;
+		}
+		string = string.trim();
+		if (string.length() == 0) {
+			return true;
+		}
+		// must be at least one no blank character
+		return false;
+	}
+	
+	/**
+	 * Trim a string of leading and trailing blanks AND carriage returns, checking it's not null first. 
+	 * But leave any other carriage returns within the string itself in place. 
+	 * @param string
+	 * @return
+	 */
+	public static String trimString(String string) {
+		if (string == null) {
+			return null;
+		}
+		int startSkip = 0;
+		int endSkip = 0;
+		for (int i = 0; i < string.length(); i++) {
+			char ch = string.charAt(i);
+			if (ch == '\n' || ch == ' ') {
+				startSkip ++;
+			}
+			else {
+				break;
+			}
+		}
+		/* need to do the start and end separately in case the
+		 * entire string is spaces which would lead to an overlap
+		 * of the starts and ends. 
+		 */
+		if (startSkip > 0) {
+			string = string.substring(startSkip);
+		}
+		for (int i = string.length()-1; i >= 0; i--) {
+			char ch = string.charAt(i);
+			if (ch == '\n' || ch == ' ') {
+				endSkip ++;
+			}
+			else {
+				break;
+			}
+		}
+		if (endSkip > 0) {
+			string = string.substring(0, string.length()-endSkip);
+		}
+		return string;
+	}
 
 	
 }

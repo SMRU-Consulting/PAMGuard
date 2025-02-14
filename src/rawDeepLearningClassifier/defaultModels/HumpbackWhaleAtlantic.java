@@ -1,10 +1,8 @@
 package rawDeepLearningClassifier.defaultModels;
 
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import org.jamdev.jdl4pam.transforms.DLTransformsFactory;
@@ -13,7 +11,6 @@ import org.jamdev.jdl4pam.transforms.SimpleTransformParams;
 import org.jamdev.jdl4pam.transforms.DLTransform.DLTransformType;
 
 import rawDeepLearningClassifier.dlClassification.DLClassName;
-import rawDeepLearningClassifier.dlClassification.animalSpot.StandardModelParams;
 import rawDeepLearningClassifier.dlClassification.genericModel.GenericModelParams;
 import rawDeepLearningClassifier.layoutFX.exampleSounds.ExampleSoundFactory.ExampleSoundType;
 
@@ -40,7 +37,8 @@ public class HumpbackWhaleAtlantic implements DLModel {
 	@Override
 	public URI getModelURI() {
 		try {
-			return new URI("https://github.com/PAMGuard/deeplearningmodels/raw/master/humpback_whale_2/humpback_whale_2.zip");
+//			return new URI("https://github.com/PAMGuard/deeplearningmodels/raw/master/humpback_whale_2/humpback_whale_2.zip");
+			return new URI("https://github.com/PAMGuard/deeplearningmodels/releases/download/1.0/humpback_whale_2.zip");
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -79,7 +77,7 @@ public class HumpbackWhaleAtlantic implements DLModel {
 		
 		genericModelParams.defaultSegmentLen =   3.8775*1000;
 		genericModelParams.binaryClassification = new boolean[] {true};
-		genericModelParams.classNames= new DLClassName[] {new DLClassName("Humpback whale", (short) 1)};
+		genericModelParams.classNames= new DLClassName[] {new DLClassName("Humpback whale", (short) 1, 180529)};
 		genericModelParams.numClasses = 1; 
 		
 		genericModelParams.defaultShape= new Long[] {-1L,-1L,-1L,1L};

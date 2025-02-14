@@ -230,7 +230,7 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 	}
 
 	public void showArrayDialog(Frame parentFrame) {
-		PamArray selectedArray = ArrayDialog.showDialog(parentFrame, singleInstance);
+		PamArray selectedArray = ArrayDialog.showDialog(parentFrame, this, null);
 
 		//WARNING: need to make sure that the notify model changed is at the end of this function. It must be called after all hydrophone data loading 
 		//and saving has occured, otherwise we don't clear channel iterators from the hydrophone dateblock and end up with concurrent modification exceptions in 
@@ -318,6 +318,10 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 				if (settings instanceof ArrayParameters) {
 					oldArrays = ((ArrayParameters) settings).getArrayList();
 				}
+				else if (settings instanceof PamArray) {
+					oldArrays = new ArrayList<>();
+					oldArrays.add((PamArray) settings);
+				}
 				else {
 					oldArrays =  (ArrayList<PamArray>) pamControlledUnitSettings.getSettings();
 				}
@@ -348,7 +352,7 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 		
 		return true;
 	}
-
+	
 	/**
 	 * @return Returns the currentArray.
 	 */
