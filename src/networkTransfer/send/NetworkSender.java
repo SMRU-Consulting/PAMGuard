@@ -69,12 +69,16 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		sidePanel = new NetworkSendSidePanel(this);
 	}
 	
-	private void initializeClient() {
+	public void initializeClient() {
 		if(this.networkSendParams.mqtt) {
 			client = new PamMqttClient(this.networkSendParams);
 		}else {
 			client = new TCPSendClient(this.networkSendParams);
 		}
+	}
+	
+	public void closeClient() {
+		this.client.close();
 	}
 
 	/* (non-Javadoc)

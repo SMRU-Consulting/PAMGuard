@@ -94,7 +94,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 		try {
 			mqttClient = new MqttAsyncClient(serverURI,mqttConnectionId,persistence);
 		} catch (MqttException e) {
-			System.out.println("Caught MQTT Exception attempting to initialize client. Error message: "+e.getMessage());
+			e.printStackTrace();
 			mqttConfigureError = e.getMessage();
 		}
 		mqttOptions = new MqttConnectOptions();
@@ -290,7 +290,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 			}
 		}
 		
-		String topic = "APS/"+stationId+"/"+topicExtension;
+		String topic = "APS/"+stationId+"/pamData/"+topicExtension;
 		
 		/*if(requireReconnect && persistenceOpened) {
 			int keyIdx = 0;

@@ -44,6 +44,7 @@ public class NetworkSendProcess extends PamProcess {
 	@Override
 	public void prepareProcess() {
 //		outputFormat = networkSender.networkSendParams.sendingFormat;
+		this.networkSender.initializeClient();
 		if (commandProcess && outputFormat==NetworkSendParams.NETWORKSEND_BYTEARRAY) {
 			sendPamCommand(NetworkReceiver.NET_PAM_COMMAND_PREPARE);
 		}
@@ -63,6 +64,7 @@ public class NetworkSendProcess extends PamProcess {
 		if (commandProcess && outputFormat==NetworkSendParams.NETWORKSEND_BYTEARRAY) {
 			sendPamCommand(NetworkReceiver.NET_PAM_COMMAND_STOP);
 		}
+		this.networkSender.closeClient();
 	}
 
 	private void sendPamCommand(int command) {
@@ -102,6 +104,11 @@ public class NetworkSendProcess extends PamProcess {
 	public void newData(PamObservable dataBlock, PamDataUnit dataUnit) {
 		
 		NetworkQueuedObject qo = null;
+		
+		int quickId = this.quickId;
+		if(dataBlock instanceof PamDataBlock) {
+			quickId = ((PamDataBlock) dataBlock).getQuickId2();
+		}
 
 		// pack the data into a byte array
 		if (outputFormat==NetworkSendParams.NETWORKSEND_BYTEARRAY) {
