@@ -24,6 +24,8 @@ public class NetworkParams implements Cloneable, Serializable, ManagedParameters
 	
 	public String keyStorePassword;
 	
+	public String persistenceDirectory;
+	
 	public boolean mqtt = false;
 	
 	public String ipAddress = "localhost";

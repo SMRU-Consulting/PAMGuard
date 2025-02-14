@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import javax.swing.Timer;
+
 import binaryFileStorage.BinaryDataSource;
 import binaryFileStorage.BinaryObjectData;
 import jsonStorage.JSONObjectData;
@@ -26,8 +28,7 @@ public class NetworkSendProcess extends PamProcess {
 	private boolean commandProcess;
 	private int outputFormat;
 
-	public NetworkSendProcess(NetworkSender networkSender,
-			PamDataBlock parentDataBlock, int sendingFormat) {
+	public NetworkSendProcess(NetworkSender networkSender, PamDataBlock parentDataBlock, int sendingFormat) {
 		super(networkSender, parentDataBlock);
 		this.networkSender = networkSender;
 		this.outputFormat = sendingFormat;
@@ -55,6 +56,7 @@ public class NetworkSendProcess extends PamProcess {
 		if (commandProcess && outputFormat==NetworkSendParams.NETWORKSEND_BYTEARRAY) {
 			sendPamCommand(NetworkReceiver.NET_PAM_COMMAND_START);
 		}
+		this.networkSender.runClientCheckTimer();
 	}
 
 	@Override

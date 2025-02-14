@@ -45,7 +45,7 @@ import PamguardMVC.debug.Debug;
 import binaryFileStorage.BinaryStore;
 import dataPlotsFX.JamieDev;
 import generalDatabase.DBControl;
-import networkTransfer.send.NetworkSender;
+import networkTransfer.send.NetSendCommandParam;
 import offlineProcessing.OfflineTaskManager;
 import rawDeepLearningClassifier.DLControl;
 import rocca.RoccaDev;
@@ -301,53 +301,8 @@ public class Pamguard {
 					GlobalArguments.setParam(PamController.AUTOEXIT, PamController.AUTOEXIT);
 					System.out.println("Setting autoexit ON");
 				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.ADDRESS)) {
-					GlobalArguments.setParam(NetworkSender.ADDRESS, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.ID1)) {
-					
-					GlobalArguments.setParam(NetworkSender.ID1, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.ID2)) {
-					
-					GlobalArguments.setParam(NetworkSender.ID2, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.SENDJSON)) {
-					
-					GlobalArguments.setParam(NetworkSender.SENDJSON, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.PORT)) {
-					
-					GlobalArguments.setParam(NetworkSender.PORT, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.USESSL)) {
-					
-					GlobalArguments.setParam(NetworkSender.USESSL, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.USEMQTT)) {
-					
-					GlobalArguments.setParam(NetworkSender.USEMQTT, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.TRUSTPATH)) {
-					
-					GlobalArguments.setParam(NetworkSender.TRUSTPATH, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.TRUSTPASS)) {
-					
-					GlobalArguments.setParam(NetworkSender.TRUSTPASS, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.KEYPATH)) {
-					
-					GlobalArguments.setParam(NetworkSender.KEYPATH, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.KEYPASS)) {
-					GlobalArguments.setParam(NetworkSender.KEYPASS, args[iArg++]);
-				}
-				else if(anArg.equalsIgnoreCase(NetworkSender.USER)){
-					GlobalArguments.setParam(NetworkSender.USER, args[iArg++]);
-				}
-				else if(anArg.equalsIgnoreCase(NetworkSender.PASSWORD)){
-					GlobalArguments.setParam(NetworkSender.PASSWORD, args[iArg++]);
+				else if (NetSendCommandParam.isArgRegistered(anArg)) {
+					GlobalArguments.setParam(anArg, args[iArg++]);
 				}
 				else if(anArg.equalsIgnoreCase(ArrayManager.FIRST_IDX_SENS)){
 					GlobalArguments.setParam(ArrayManager.FIRST_IDX_SENS, args[iArg++]);
