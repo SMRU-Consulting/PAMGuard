@@ -373,6 +373,7 @@ public class NetworkReceiver extends PamControlledUnit implements PamSettings {
 		/*
 		 * Still need to do some unpacking,  
 		 */
+		System.out.println("interpretting pam data with data type 2: "+receivedData.getDataType2()); 
 		int dataBlockSeqNumber = findStreamDataBlock(receivedData.getDataType2());
 		if (dataBlockSeqNumber < 0) {
 			if (++findErrors < 10) {

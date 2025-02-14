@@ -45,6 +45,7 @@ public class MqttReceiveThread {
 			}
 			
 			if(headInt!=NetworkReceiveThread.HEADID) {
+				System.out.println("Received network data without head flag");
 				return;
 			}
 			

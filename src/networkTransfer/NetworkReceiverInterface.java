@@ -43,6 +43,7 @@ public interface NetworkReceiverInterface {
 		dis.readFully(receiveBuffer, 0, bytesLeft);
 		bytesRead = bytesLeft;
 		
+		System.out.println("New data object with data id1 "+dataId1+" and data id 2 "+dataId2);
 		NetworkObject receivedObject = new NetworkObject(clientSocket, dataVersion, buoyId1, buoyId2, dataId1, dataId2, receiveBuffer, dataLen);
 		
 		return receivedObject;
