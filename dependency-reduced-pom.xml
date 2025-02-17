@@ -4,7 +4,7 @@
   <groupId>org.pamguard</groupId>
   <artifactId>Pamguard</artifactId>
   <name>Pamguard</name>
-  <version>2.02.15a_SMRUC</version>
+  <version>2.02.15c_SMRUC</version>
   <description>Pamguard using Maven to control dependencies</description>
   <url>www.pamguard.org</url>
   <organization>
@@ -62,20 +62,20 @@
                         <directory>C:\Users\Mesoplodon\git\SMRUCPamguard/target/bundle/</directory>
                       </additionalResource>
                     </additionalResources>
-                    <dmgFileName>Pamguard-2.02.15a_SMRUC</dmgFileName>
+                    <dmgFileName>Pamguard-2.02.15c_SMRUC</dmgFileName>
                     <appendVersion>false</appendVersion>
                   </dmg>
+                  <app>
+                    <includeDependencies>true</includeDependencies>
+                  </app>
                   <jdk>
-                    <include>false</include>
+                    <include>true</include>
                     <location>/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk</location>
                   </jdk>
                   <codesign>
                     <enable>false</enable>
                     <identity>3rd Party Mac Developer Application: Jamie Macaulay (7365S9DZ34)</identity>
                   </codesign>
-                  <app>
-                    <includeDependencies>false</includeDependencies>
-                  </app>
                 </configuration>
               </execution>
             </executions>
@@ -101,20 +101,20 @@
                     <directory>C:\Users\Mesoplodon\git\SMRUCPamguard/target/bundle/</directory>
                   </additionalResource>
                 </additionalResources>
-                <dmgFileName>Pamguard-2.02.15a_SMRUC</dmgFileName>
+                <dmgFileName>Pamguard-2.02.15c_SMRUC</dmgFileName>
                 <appendVersion>false</appendVersion>
               </dmg>
+              <app>
+                <includeDependencies>true</includeDependencies>
+              </app>
               <jdk>
-                <include>false</include>
+                <include>true</include>
                 <location>/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk</location>
               </jdk>
               <codesign>
                 <enable>false</enable>
                 <identity>3rd Party Mac Developer Application: Jamie Macaulay (7365S9DZ34)</identity>
               </codesign>
-              <app>
-                <includeDependencies>false</includeDependencies>
-              </app>
             </configuration>
           </plugin>
           <plugin>
@@ -132,12 +132,12 @@
                   <executable>bash</executable>
                   <arguments>
                     <argument>-c</argument>
-                    <argument>echo C:\Users\Mesoplodon\git\SMRUCPamguard/target/Pamguard-2.02.15a_SMRUC.dmg
+                    <argument>echo C:\Users\Mesoplodon\git\SMRUCPamguard/target/Pamguard-2.02.15c_SMRUC.dmg
 											xattr -cr C:\Users\Mesoplodon\git\SMRUCPamguard/target/PAMGuard.app
 											codesign --force --sign "3rd Party Mac Developer Application: Jamie Macaulay" C:\Users\Mesoplodon\git\SMRUCPamguard/target/PAMGuard.app
 											cp -r C:\Users\Mesoplodon\git\SMRUCPamguard/target/PAMGuard.app C:\Users\Mesoplodon\git\SMRUCPamguard/target/bundle/PAMGuard.app
 											cd C:\Users\Mesoplodon\git\SMRUCPamguard/target/bundle
-											hdiutil create -srcfolder C:\Users\Mesoplodon\git\SMRUCPamguard/target/bundle -volname "PAMGuard" -fs HFS+ -o "Pamguard-2.02.15a_SMRUC-signed.dmg"
+											hdiutil create -srcfolder C:\Users\Mesoplodon\git\SMRUCPamguard/target/bundle -volname "PAMGuard" -fs HFS+ -o "Pamguard-2.02.15c_SMRUC-signed.dmg"
 											rm -r C:\Users\Mesoplodon\git\SMRUCPamguard/target/bundle/PAMGuard.app</argument>
                   </arguments>
                 </configuration>
@@ -298,53 +298,6 @@
                 </configuration>
               </execution>
             </executions>
-          </plugin>
-          <plugin>
-            <groupId>de.perdian.maven.plugins</groupId>
-            <artifactId>macosappbundler-maven-plugin</artifactId>
-            <version>1.21.1</version>
-            <executions>
-              <execution>
-                <phase>deploy</phase>
-                <goals>
-                  <goal>bundle</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <plist>
-                <JVMMainClassName>pamguard.Pamguard</JVMMainClassName>
-                <CFBundleIconFile>src/Resources/PamguardIcon2.icns</CFBundleIconFile>
-                <CFBundleDisplayName>PAMGuard</CFBundleDisplayName>
-                <CFBundleDevelopmentRegion>English</CFBundleDevelopmentRegion>
-                <CFBundleURLTypes>
-                  <string>msa</string>
-                </CFBundleURLTypes>
-                <JVMVersion>21+</JVMVersion>
-                <JVMArguments>
-                  <string>-c</string>
-                </JVMArguments>
-                <NSAppSleepDisabled>true</NSAppSleepDisabled>
-              </plist>
-              <dmg>
-                <generate>true</generate>
-                <additionalResources>
-                  <additionalResource>
-                    <directory>${project.basedir}/target/bundle/</directory>
-                  </additionalResource>
-                </additionalResources>
-                <dmgFileName>${project.build.finalName}</dmgFileName>
-                <appendVersion>false</appendVersion>
-              </dmg>
-              <jdk>
-                <include>false</include>
-                <location>/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk</location>
-              </jdk>
-              <codesign>
-                <enable>false</enable>
-                <identity>3rd Party Mac Developer Application: Jamie Macaulay (7365S9DZ34)</identity>
-              </codesign>
-            </configuration>
           </plugin>
         </plugins>
       </build>

@@ -62,16 +62,23 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	public NetworkSender(String unitName) {
 		super("Network Sender", unitName);
 		PamSettingManager.getInstance().registerSettings(this);
+<<<<<<< SMRUC_Dev
 		if(this.networkSendParams.sendingFormat==NetworkSendParams.NETWORKSEND_BYTEARRAY) {
 			commandProcess = new NetworkSendProcess(this, null,NetworkSendParams.NETWORKSEND_BYTEARRAY);
 			commandProcess.setCommandProcess(true);
 			addPamProcess(commandProcess);
 		}
 		initializeClient();
+=======
+>>>>>>> 49a54b3 Clean and organize net sending routines for pre release testing.
 		sidePanel = new NetworkSendSidePanel(this);
+		initializeClient();
 	}
 	
 	public void initializeClient() {
+		if(client!=null && !client.requireReconnect) {
+			return;
+		}
 		if(this.networkSendParams.mqtt) {
 			client = new PamMqttClient(this.networkSendParams);
 		}else {
@@ -379,6 +386,8 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	@Override
 	public void pamToStart() {
 		super.pamToStart();
+		this.client.configureClient(this.networkSendParams);
+		runClient();
 		
 	}
 	
@@ -443,6 +452,14 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	public String executeExternalCommand(String command) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public int getQueueLength() {
+		return client.getQueueLength();
+	}
+
+	public int getQueueSize() {
+		return client.getQueueSize();
 	}
 
 	
