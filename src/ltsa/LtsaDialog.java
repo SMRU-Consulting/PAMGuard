@@ -12,11 +12,13 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
+import PamController.PamController;
 import fftManager.FFTDataUnit;
 import PamView.dialog.PamDialog;
 import PamView.dialog.PamGridBagContraints;
 import PamView.dialog.SourcePanel;
 import PamguardMVC.PamDataBlock;
+import PamguardMVC.PamRawDataBlock;
 
 public class LtsaDialog extends PamDialog {
 
@@ -63,7 +65,10 @@ public class LtsaDialog extends PamDialog {
 	}
 
 	private void setParams() {
-		sourcePanel.setSource(ltsaParameters.dataSource);
+		sourcePanel.excludeDataBlock(ltsaControl.ltsaProcess.getOutputDataBlock(0), true);
+		sourcePanel.setSourceList();
+		PamDataBlock currentBlock = PamController.getInstance().getFFTDataBlock(ltsaParameters.dataSource);
+		sourcePanel.setSource(currentBlock);
 		sourcePanel.setChannelList(ltsaParameters.channelMap);
 		interval.setText(String.format("%d", ltsaParameters.intervalSeconds));
 	}
@@ -72,7 +77,7 @@ public class LtsaDialog extends PamDialog {
 	public boolean getParams() {
 		PamDataBlock dataBlock = sourcePanel.getSource();
 		if (dataBlock != null) {
-			ltsaParameters.dataSource = dataBlock.getDataName();
+			ltsaParameters.dataSource = dataBlock.getLongDataName();
 		}
 		else {
 			return showWarning("No data source selected");

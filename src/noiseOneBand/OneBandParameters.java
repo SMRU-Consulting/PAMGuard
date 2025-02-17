@@ -182,6 +182,9 @@ public class OneBandParameters implements Serializable, Cloneable, ManagedParame
 //			if (hearingThreshold != null) {
 //				newP.hearingThreshold = Arrays.copyOf(hearingThreshold, hearingThreshold.length);
 //			}
+			newP.dataSource = this.dataSource;
+			newP.selIntegrationTime = this.selIntegrationTime;
+			newP.channelMap = this.channelMap;
 			if (filterParams == null) {
 				filterParams = new FilterParams();
 			}

@@ -116,6 +116,7 @@ public class DecimatorControl extends PamControlledUnit implements PamSettings, 
 			this.parentFrame = parentFrame;
 		}
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			DecimatorParams newParams = DecimatorParamsDialog.showDialog(parentFrame, DecimatorControl.this, decimatorParams);
 			if (newParams != null) {
@@ -143,6 +144,7 @@ public class DecimatorControl extends PamControlledUnit implements PamSettings, 
 	/* (non-Javadoc)
 	 * @see PamController.PamSettings#GetSettingsReference()
 	 */
+	@Override
 	public Serializable getSettingsReference() {
 		return decimatorParams;
 	}
@@ -151,6 +153,7 @@ public class DecimatorControl extends PamControlledUnit implements PamSettings, 
 	/* (non-Javadoc)
 	 * @see PamController.PamSettings#GetSettingsVersion()
 	 */
+	@Override
 	public long getSettingsVersion() {
 		return DecimatorParams.serialVersionUID;
 	}
@@ -158,6 +161,7 @@ public class DecimatorControl extends PamControlledUnit implements PamSettings, 
 	/* (non-Javadoc)
 	 * @see PamController.PamSettings#RestoreSettings(PamController.PamControlledUnitSettings)
 	 */
+	@Override
 	public boolean restoreSettings(PamControlledUnitSettings pamControlledUnitSettings) {
 		decimatorParams = ((DecimatorParams) pamControlledUnitSettings.getSettings()).clone();
 				
@@ -270,6 +274,19 @@ public class DecimatorControl extends PamControlledUnit implements PamSettings, 
 		double fsmall = Math.min(sourceFS, newSampleRate);
 		double m = fbig % fsmall;
 		return m == 0;
+	}
+	
+	public void setDecimatorParams(DecimatorParams newParams) {
+		this.decimatorParams=newParams;
+		
+	}
+
+	/**
+	 * Get the decimator process. 
+	 * @return the decimator process. 
+	 */
+	public DecimatorProcessW getDecimatorProcess() {
+		return this.decimatorProcess;
 	}
 
 	

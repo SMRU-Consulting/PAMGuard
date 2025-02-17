@@ -45,6 +45,7 @@ import Filters.FilterType;
 import Filters.IIRFilterMethod;
 import Layout.PamAxis;
 import Layout.PamAxisPanel;
+import PamController.PamController;
 import PamDetection.RawDataUnit;
 import PamView.dialog.PamDialog;
 import PamView.dialog.PamGridBagContraints;
@@ -246,7 +247,8 @@ public class NoiseBandDialog extends PamDialog {
 			filterType.setSelectedIndex(1);
 			break;
 		}
-		sourcePanel.setSource(noiseBandControl.getNoiseBandProcess().getSourceDataBlock());
+		PamDataBlock currentBlock = PamController.getInstance().getDataBlockByLongName(noiseBandControl.noiseBandSettings.rawDataSource);
+		sourcePanel.setSource(currentBlock);
 		sourcePanel.setChannelList(noiseBandSettings.channelMap);
 		filterGamma.setText(Double.toString(noiseBandSettings.firGamma));
 		
@@ -287,7 +289,7 @@ public class NoiseBandDialog extends PamDialog {
 		if (dataBlock == null) {
 			return showWarning("You must select a source of raw audio data");
 		}
-		noiseBandSettings.rawDataSource = dataBlock.getDataName();
+		noiseBandSettings.rawDataSource = dataBlock.getLongDataName();
 		noiseBandSettings.channelMap = sourcePanel.getChannelList();
 		if (noiseBandSettings.channelMap == 0) {
 			return showWarning("You must select at least one data channel");
