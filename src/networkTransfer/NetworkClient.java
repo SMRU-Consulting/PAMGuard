@@ -37,12 +37,15 @@ public abstract class NetworkClient {
 	
 	public boolean requireReconnect;
 	
+	protected boolean initializing;
+	
 	public NetworkClient(NetworkParams netParams) {
 		this.networkParams = netParams;
 		sendWarning = new PamWarning("Network Send Error","Warn!",0);
+		initializing = false;
 	}
 	
-	public abstract void configureClient();
+	public abstract void configureClient(NetworkParams networkParams);
 
 	public abstract boolean connect() throws ClientConnectFailedException;
 	
@@ -52,18 +55,39 @@ public abstract class NetworkClient {
 	
 	public abstract void sendNetworkQueuedObject(NetworkQueuedObject qo) throws NetTransmitException;
 	
+	public abstract void additionalClose();
+
+	public abstract void notifyModelChanged(int changeType);
+	
+	public abstract int getQueueLength();
+	
+	public abstract int getQueueSize();
+
+	public abstract boolean testClient() throws ClientConnectFailedException;
+	
+	public String getStatus() {
+		
+		if(initializing) {
+			return "Initializing";
+		}
+		
+		if(this.isConnected()) {
+			return "Connected";
+		}
+		if(requireReconnect) {
+			return "Connection Error";
+		}
+		return "Disconnected";
+	}
+	
 	public void close() {
 		disconnect();
 		additionalClose();
 	}
 	
-	public abstract void additionalClose();
-
-	public abstract void notifyModelChanged(int changeType);
-
-	public abstract String getStatus();
-
-	public abstract boolean testClient() throws ClientConnectFailedException;
+	public boolean isInitializing() {
+		return this.initializing;
+	}
 	
 	public SocketFactory getSSLSocketFactory() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException {
 		
@@ -107,19 +131,30 @@ public abstract class NetworkClient {
 		setWarning(message,2);
 	}
 	
-	public void setWarning(String message, int level) {
-		if(message==null) {
+	boolean initialWarningSet = false;
+	
+	public synchronized void setWarning(String message, int level) {
+		/*if(message==null) {
 			WarningSystem.getWarningSystem().removeWarning(sendWarning);
+			initialWarningSet = false;
 		}else {
 			sendWarning.setWarningMessage(message);
 			sendWarning.setWarnignLevel(level);
-			WarningSystem.getWarningSystem().addWarning(sendWarning);
-		}
+			if(!initialWarningSet) {
+				initialWarningSet = true;
+				WarningSystem.getWarningSystem().addWarning(sendWarning);
+			}else {
+				WarningSystem.getWarningSystem().updateWarning(sendWarning);
+			}
+		}*/
 	}
 	
-	public void removeWarning() {
-		WarningSystem.getWarningSystem().removeWarning(sendWarning);
-		
+	public synchronized void removeWarning() {
+		/*if(!WarningSystem.getWarningSystem().removeWarning(sendWarning)) {
+			WarningSystem.getWarningSystem().forceRemoveWarning(sendWarning);
+		}
+		initialWarningSet = false;
+		*/
 	}
 
 	public void updateParams(NetworkSendParams networkSendParams2) {

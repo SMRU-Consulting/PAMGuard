@@ -117,6 +117,15 @@ public class WarningSystem {
 		return r;
 	}
 	
+	public synchronized boolean forceRemoveWarning(PamWarning warning) {
+		for(PamWarning listWarning:warnings) {
+			if(listWarning.getWarningMessage().equals(warning.getWarningMessage())) {
+				return warnings.remove(listWarning);
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Update an existing warning 
 	 * @param warning warning to update

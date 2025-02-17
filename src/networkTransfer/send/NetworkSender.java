@@ -65,11 +65,14 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		commandProcess.setCommandProcess(true);
 		addPamProcess(commandProcess);
 		PamSettingManager.getInstance().registerSettings(this);
-		initializeClient();
 		sidePanel = new NetworkSendSidePanel(this);
+		initializeClient();
 	}
 	
 	public void initializeClient() {
+		if(client!=null && !client.requireReconnect) {
+			return;
+		}
 		if(this.networkSendParams.mqtt) {
 			client = new PamMqttClient(this.networkSendParams);
 		}else {
@@ -375,6 +378,8 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	@Override
 	public void pamToStart() {
 		super.pamToStart();
+		this.client.configureClient(this.networkSendParams);
+		runClient();
 		
 	}
 	
@@ -439,6 +444,14 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	public String executeExternalCommand(String command) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public int getQueueLength() {
+		return client.getQueueLength();
+	}
+
+	public int getQueueSize() {
+		return client.getQueueSize();
 	}
 
 	

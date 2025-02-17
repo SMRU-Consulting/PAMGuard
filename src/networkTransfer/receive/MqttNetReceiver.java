@@ -53,7 +53,7 @@ public class MqttNetReceiver extends PamMqttClient implements NetworkReceiverInt
 		if(this.isConnected()) {
 			return;
 		}
-		this.configureClient();
+		this.configureClient(this.networkParams);
 		try {
 			this.connect();
 		} catch (ClientConnectFailedException e) {
