@@ -62,15 +62,11 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	public NetworkSender(String unitName) {
 		super("Network Sender", unitName);
 		PamSettingManager.getInstance().registerSettings(this);
-<<<<<<< SMRUC_Dev
 		if(this.networkSendParams.sendingFormat==NetworkSendParams.NETWORKSEND_BYTEARRAY) {
 			commandProcess = new NetworkSendProcess(this, null,NetworkSendParams.NETWORKSEND_BYTEARRAY);
 			commandProcess.setCommandProcess(true);
 			addPamProcess(commandProcess);
 		}
-		initializeClient();
-=======
->>>>>>> 49a54b3 Clean and organize net sending routines for pre release testing.
 		sidePanel = new NetworkSendSidePanel(this);
 		initializeClient();
 	}

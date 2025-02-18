@@ -69,7 +69,7 @@ public class BuoyStatusDataUnit extends PamDataUnit {
 		gpsDataBlock = new GPSDataBlock(networkReceiver.getNetworkReceiveProcess());
 	}
 	
-	public void newDataObject(PamDataBlock dataBlock, PamDataUnit dataUnit, int blockSeq, int receivedBytes) {
+	public void newDataObject(PamDataBlock dataBlock, PamDataUnit dataUnit, int receivedBytes) {
 		buoyStatusData.setLastDataTime(dataUnit.getTimeMilliseconds());
 		totalPackets++;
 		lastDataUnitStore.addDataUnit(dataBlock, dataUnit, receivedBytes);

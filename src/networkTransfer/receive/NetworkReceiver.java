@@ -24,6 +24,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Vector;
@@ -71,6 +72,8 @@ import PamguardMVC.debug.Debug;
 public class NetworkReceiver extends PamControlledUnit implements PamSettings {
 
 	private ArrayList<PamDataBlock> rxDataBlocks;
+	
+	private HashMap<Integer,PamDataBlock> rxDataBlockMap;
 
 	//	private Vector<BuoyRXStats> buoyRXStats = new Vector<BuoyRXStats>();
 
@@ -240,6 +243,16 @@ public class NetworkReceiver extends PamControlledUnit implements PamSettings {
 		}
 		connectionThread.runReceiver();
 	}
+	
+	private void generateDataBlockMap() {
+		rxDataBlockMap = new HashMap<Integer,PamDataBlock>();
+		if(rxDataBlocks==null) {
+			return;
+		}
+		for(PamDataBlock nextBlock:this.rxDataBlocks) {
+			rxDataBlockMap.put(nextBlock.getQuickId2(), nextBlock);
+		}
+	}
 
 	/**
 	 * Find all data sources / sinks which may be about to use data from the network. 
@@ -257,6 +270,8 @@ public class NetworkReceiver extends PamControlledUnit implements PamSettings {
 			quickBlockIds[j] = rxDataBlocks.get(i).getQuickId();
 //			System.out.printf("Network stream %s has ids 0x%X and 0x%x\n", rxDataBlocks.get(i).getDataName(), quickBlockIds[i], quickBlockIds[j]);
 		}
+		
+		generateDataBlockMap();
 		//		initRXStats();
 	}
 
@@ -373,29 +388,9 @@ public class NetworkReceiver extends PamControlledUnit implements PamSettings {
 	 * @return 
 	 */
 	public  NetworkObject interpretPamData(NetworkObject receivedData, BuoyStatusDataUnit buoyStatusDataUnit) {
-		/*
-		 * Still need to do some unpacking,  
-		 */
-		System.out.println("interpretting pam data with data type 2: "+receivedData.getDataType2()); 
-		int dataBlockSeqNumber = findStreamDataBlock(receivedData.getDataType2());
-		if (dataBlockSeqNumber < 0) {
-			if (++findErrors < 10) {
-				System.out.println(String.format("Unable to find datablock for %d bytes of network data received from buoy %d(%d) with data Id %d(0x%X %d)",
-						receivedData.getDataLength(), buoyStatusDataUnit.getBuoyId1(), buoyStatusDataUnit.getBuoyId2(), 
-						receivedData.getDataType1(), receivedData.getDataType2(), receivedData.getDataType2()));
-			}
-			try {
-				String str = new String(receivedData.getData());
-				System.out.printf("Unknown data Type %d(%d)", receivedData.getDataType1(), receivedData.getDataType2(), str);
-			}
-			catch (Exception e) {
-				Debug.out.println(e.getLocalizedMessage());
-			}
-			buoyStatusDataUnit.unknownPacket();
-			return null;
-		}
 		
-		PamDataBlock dataBlock =  rxDataBlocks.get(dataBlockSeqNumber);
+		PamDataBlock dataBlock = rxDataBlockMap.get(receivedData.getDataType2());
+		
 		BinaryDataSource dataSource = dataBlock.getBinaryDataSource();
 		PamProcess parentProcess = dataBlock.getParentProcess();
 		// we'll want to see if we can find the latest acquisition status data unit. 
@@ -455,7 +450,7 @@ public class NetworkReceiver extends PamControlledUnit implements PamSettings {
 		
 		DaqStatusDataUnit previousDaqStatus = (DaqStatusDataUnit) buoyStatusDataUnit.findLastDataUnit(DaqStatusDataUnit.class);
 		
-		buoyStatusDataUnit.newDataObject(dataBlock, dataUnit, dataBlockSeqNumber, receivedData.getTransferedLength());
+		buoyStatusDataUnit.newDataObject(dataBlock, dataUnit, receivedData.getTransferedLength());
 		if (buoyStatusDataUnit.getCommandStatus() != NET_PAM_COMMAND_START) {
 			buoyStatusDataUnit.setCommandStatus(NET_PAM_COMMAND_START);
 			commandStateChanged(dataUnit.getTimeMilliseconds(), buoyStatusDataUnit);
