@@ -55,19 +55,20 @@ public class MqttNetReceiver extends PamMqttClient implements NetworkReceiverInt
 
 	@Override
 	public void runReceiver() {
-		if(this.isConnected()) {
-			return;
+		if(!this.isConnected()) {
+			this.configureClient(this.netParams);
+			try {
+				this.connect();
+			} catch (ClientConnectFailedException e) {
+				e.printStackTrace();
+			}
 		}
-		this.configureClient(this.networkParams);
-		try {
-			this.connect();
-		} catch (ClientConnectFailedException e) {
-			e.printStackTrace();
-		}
+		
 		
 		try {
 			baseListener = new BaseListener(this);
 			statusListener = new StatusListener();
+			System.out.println("Setting up receiver subscribers.");
 			this.subscribeListener(netParams.baseTopic+"/+/pamData/#", baseListener);
 			this.subscribeListener(netParams.baseTopic+"/+/status", statusListener);
 			this.subscribeListener(netParams.baseTopic+"/+/router/#", statusListener);

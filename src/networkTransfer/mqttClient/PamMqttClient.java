@@ -39,17 +39,25 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 	public NetworkReceiveParams networkReceiveParams;
 	
 	private String mqttConfigureError;
+	
+	private boolean isAlsoNetRx;
 
 	public PamMqttClient(NetworkParams networkParams){
 		super(networkParams);
+		isAlsoNetRx = PamController.PamController.getInstance().getRunMode()==PamController.PamController.RUN_NETWORKRECEIVER;
 		if(networkParams instanceof NetworkSendParams) {
 			this.networkSendParams = (NetworkSendParams) networkParams;
 			stationId = "pb"+networkSendParams.stationId1;
+			if(isAlsoNetRx) {
+				this.stationId = this.networkParams.stationId;
+			}
 			mqttConnectionId = this.stationId+"PAM";
+			System.out.println("Network send station id "+this.mqttConnectionId);
 		}else {
 			this.networkReceiveParams = (NetworkReceiveParams) networkParams;
-			stationId = networkReceiveParams.stationName;
+			stationId = networkReceiveParams.stationId;
 			mqttConnectionId = this.stationId;
+			System.out.println("Network receive station id "+this.mqttConnectionId);
 		}
 		requireReconnect = false;
 		this.configureClient(networkParams);
@@ -145,6 +153,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 			throw new ClientConnectFailedException(e1);
 		}
 
+		System.out.println("MQTT Client connected to broker.");
 		return true;
 	}
 
@@ -268,6 +277,15 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 	public void subscribeListener(String topic, IMqttMessageListener listener) throws MqttException {
 		mqttClient.subscribe(topic, 2, listener);
 	}
+	
+	private String getBaseTransmitTopic() {
+		String trueBase = this.networkParams.baseTopic+"/"+this.stationId+"/";
+		if(isAlsoNetRx) {
+			return trueBase+"baseData/";
+		}else {
+			return trueBase+"pamData/";
+		}
+	}
 
 	public void sendStringMessage(String topicExtension, String string) throws NetTransmitException {
 		MqttMessage message = new MqttMessage(string.getBytes());
@@ -299,7 +317,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 			}
 		}
 		
-		String topic = "APS/"+stationId+"/pamData/"+topicExtension;
+		String topic = getBaseTransmitTopic()+topicExtension;
 		
 		/*if(requireReconnect && persistenceOpened) {
 			int keyIdx = 0;

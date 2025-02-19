@@ -31,7 +31,7 @@ public class NetworkReceiveParams extends NetworkParams implements Cloneable, Se
 //	public boolean gpsHeading = GPS_POSITIONON
 	public double compassCorrection = 0;
 	
-	public String stationName = "base";
+	//public String stationName = "base";
 
 	@Override
 	public NetworkReceiveParams clone() {

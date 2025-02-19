@@ -389,8 +389,7 @@ public class NetworkReceiver extends PamControlledUnit implements PamSettings {
 	 */
 	public  NetworkObject interpretPamData(NetworkObject receivedData, BuoyStatusDataUnit buoyStatusDataUnit) {
 		
-		PamDataBlock dataBlock = rxDataBlockMap.get(receivedData.getDataType2());
-		
+		PamDataBlock dataBlock = rxDataBlockMap.get(receivedData.getDataType2());		
 		BinaryDataSource dataSource = dataBlock.getBinaryDataSource();
 		PamProcess parentProcess = dataBlock.getParentProcess();
 		// we'll want to see if we can find the latest acquisition status data unit. 

@@ -326,17 +326,17 @@ public class NetworkSendDialog extends PamDialog {
 				boolean byteArrayCheck = byteArray.isSelected();
 
 				if(jsonCheck && !byteArrayCheck) {
-					NetworkSendDialog.this.dataPanel.setParams(NetworkSendParams.NETWORKSEND_JSON);
+					dataPanel.setParams(NetworkSendParams.NETWORKSEND_JSON);
 				}else if(!jsonCheck && byteArrayCheck) {
-					NetworkSendDialog.this.dataPanel.setParams(NetworkSendParams.NETWORKSEND_BYTEARRAY);
+					dataPanel.setParams(NetworkSendParams.NETWORKSEND_BYTEARRAY);
 				}else if(jsonCheck && byteArrayCheck) {
-					NetworkSendDialog.this.dataPanel.setParams(NetworkSendParams.NETWORKSEND_BOTH);
+					dataPanel.setParams(NetworkSendParams.NETWORKSEND_BOTH);
 				}else {
-					NetworkSendDialog.this.dataPanel.setParams(-1);
+					dataPanel.setParams(-1);
 
 				}
-				FormatPanel.this.revalidate();
-				FormatPanel.this.repaint();
+				revalidate();
+				repaint();
 			}
 			
 			

@@ -260,13 +260,14 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		boolean isSetJson = false;
 		if(useJson!=null) {
 			isSetJson = Boolean.valueOf(useJson);
+			if(isSetJson) {
+				networkSendParams.sendingFormat = NetworkSendParams.NETWORKSEND_JSON;
+			}else {
+				networkSendParams.sendingFormat = NetworkSendParams.NETWORKSEND_BYTEARRAY;
+			}
 		}
 		
-		if(isSetJson) {
-			networkSendParams.sendingFormat = NetworkSendParams.NETWORKSEND_JSON;
-		}else {
-			networkSendParams.sendingFormat = NetworkSendParams.NETWORKSEND_BYTEARRAY;
-		}
+		
 		
 		return (networkSendParams != null);
 	}
@@ -431,6 +432,9 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	}
 
 	public String getStatus() {
+		if(client==null) {
+			return "Disconnected";
+		}
 		return client.getStatus();
 	}
 
@@ -451,10 +455,16 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	}
 
 	public int getQueueLength() {
+		if(client==null) {
+			return -1;
+		}
 		return client.getQueueLength();
 	}
 
 	public int getQueueSize() {
+		if(client==null) {
+			return -1;
+		}
 		return client.getQueueSize();
 	}
 

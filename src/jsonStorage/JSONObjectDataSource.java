@@ -55,7 +55,15 @@ public abstract class JSONObjectDataSource<DataSource extends JSONObjectData> {
 			e.printStackTrace();
 			jsonString = String.format("{\"Error cannot convert: %s\"}", this.getClass());
 		}
+		
+		jsonString = jsonString.substring(0, jsonString.length()-2);
+		jsonString = jsonString+","+getAdditionalJson(dataUnit)+"}";
+		
 		return jsonString;
+	}
+	
+	protected String getAdditionalJson(PamDataUnit dataUnit) {
+		return "\"addition\":\"null\"";
 	}
 	
 	
