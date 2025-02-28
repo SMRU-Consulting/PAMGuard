@@ -9,6 +9,7 @@ import PamView.PamColors;
 import PamView.PamColors.PamColor;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
+import ucar.ma2.Index1D;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -80,9 +81,15 @@ public class GebcoNETCDF {
 			Array varA = var.read();
 			Index index = varA.getIndex();
 			
-			range[0] = varA.getDouble(index.set(pos[0], pos[1]));
-			pos[0] = n-1;
-			range[1] = varA.getDouble(index.set(pos[0], pos[1]));
+			if(index instanceof Index1D) {
+				range[0] = varA.getDouble(index.set(pos[0]));
+				pos[0] = n-1;
+				range[1] = varA.getDouble(index.set(pos[0]));
+			}else {
+				range[0] = varA.getDouble(index.set(pos[0], pos[1]));
+				pos[0] = n-1;
+				range[1] = varA.getDouble(index.set(pos[0], pos[1]));
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
