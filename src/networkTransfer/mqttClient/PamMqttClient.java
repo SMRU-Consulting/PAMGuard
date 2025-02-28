@@ -204,7 +204,7 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 			message = new MqttMessage(qo.jsonString.getBytes());
 			message.setQos(1);
 		}
-		String type = qo.streamName;
+		String type = qo.streamName.replace(" ", "");
 		
 		this.sendMqttMessage(type, message);
 

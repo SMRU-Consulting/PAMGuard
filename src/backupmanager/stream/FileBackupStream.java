@@ -22,6 +22,7 @@ import backupmanager.action.ActionMaker;
 import backupmanager.action.BackupAction;
 import backupmanager.action.CopyActionMaker;
 import backupmanager.action.DeleteActionMaker;
+import backupmanager.action.FtpActionMaker;
 import backupmanager.action.MoveActionMaker;
 import backupmanager.database.BackupCatalog;
 import backupmanager.database.DatabaseCatalog;
@@ -171,6 +172,7 @@ public abstract class FileBackupStream extends BackupStream {
 			availableActions.add(new CopyActionMaker());
 			availableActions.add(new MoveActionMaker());
 			availableActions.add(new DeleteActionMaker());
+			availableActions.add(new FtpActionMaker());
 		}
 		return availableActions;
 	}

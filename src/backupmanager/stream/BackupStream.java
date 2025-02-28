@@ -18,8 +18,10 @@ import backupmanager.BackupProgress.STATE;
 import backupmanager.action.ActionMaker;
 import backupmanager.action.BackupAction;
 import backupmanager.action.BackupException;
+import backupmanager.action.FTPFile;
 import backupmanager.filter.BackupFilter;
 import backupmanager.filter.PassAllBackupFilter;
+import backupmanager.network.TransferLoginException;
 import backupmanager.settings.ActionSettings;
 import backupmanager.settings.BackupSettings;
 
@@ -93,6 +95,14 @@ public abstract class BackupStream implements PamSettings, BackupFunction {
 	private boolean runAction(BackupManager backupManager, List<StreamItem> sourceItems, BackupAction action) {
 		// need to find database entries that have a null or value for this action
 
+		if(action instanceof FTPFile) {
+			try {
+				backupManager.getFtpClient().connect();
+			} catch (TransferLoginException e) {
+				System.out.println("Could not connect to ftp server. Error: "+e.getMessage());
+			}
+		}
+		
 		List<StreamItem> toDoList = getToDoList(sourceItems, action);
 		
 		BackupFilter backupFilter = action.getBackupFilter();
@@ -131,6 +141,10 @@ public abstract class BackupStream implements PamSettings, BackupFunction {
 			}
 		}
 		backupManager.updateProgress(new BackupProgress(this, action, STATE.STREAMDONE));
+		
+		if(action instanceof FTPFile) {
+			backupManager.getFtpClient().disconnect();
+		}
 		
 		return ok;
 	}
