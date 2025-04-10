@@ -9,6 +9,10 @@ import java.util.Arrays;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import Array.ArrayManager;
+import Array.Streamer;
+import Array.streamerOrigin.OriginSettings;
+import Array.streamerOrigin.StaticOriginSettings;
 import GPS.GpsData;
 import PamController.PamController;
 import PamUtils.PamCalendar;
@@ -100,7 +104,17 @@ public class RXTablePanel2 extends DataBlockTableView<BuoyStatusDataUnit>{
 		}
 	}
 
-	private static String[] colNames1 = {"Station Id","IP Addr", "Last Comms Ping","Last Comms Ping Strength","Channel", "Status"};
+	private String getSiteName(int lowestChannel) {
+		int streamerId = ArrayManager.getArrayManager().getCurrentArray().getStreamerForPhone(lowestChannel);
+		Streamer streamer = ArrayManager.getArrayManager().getCurrentArray().getStreamer(streamerId);
+		OriginSettings streamerOrigin = streamer.getOriginSettings();
+		if(streamerOrigin instanceof StaticOriginSettings) {
+			return ((StaticOriginSettings) streamerOrigin).getSiteName();
+		}
+		return "Unknown";
+	}
+	
+	private static String[] colNames1 = {"Station Id","IP Addr", "Last Comms Ping","Last Comms Ping Strength","Channel", "Status","Site Name"};
 	private static String[] colNames2 = {"Last Data", "Position", "Tot' Packets"};
 
 	@Override
@@ -140,6 +154,8 @@ public class RXTablePanel2 extends DataBlockTableView<BuoyStatusDataUnit>{
 				else {
 					return "Disconnected";
 				}
+			case 6:
+				return getSiteName(b.getLowestChannel());
 			}
 		}
 		col = getCols2Index(column);
