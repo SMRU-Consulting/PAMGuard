@@ -594,7 +594,7 @@ public class PamController implements PamControllerInterface, PamSettings {
 			 * to do anything more than call the constructor and everything else will
 			 * happen...
 			 */
-			MarkRelationships.getInstance();
+			MarkRelationships.getInstance().subscribeAllMarkers();
 		}
 		if (getRunMode() == RUN_PAMVIEW) {
 			/**
