@@ -51,16 +51,23 @@ public class PamMqttClient extends NetworkClient  implements MqttCallback{
 			if(isAlsoNetRx) {
 				this.stationId = this.networkParams.stationId;
 			}
-			mqttConnectionId = this.stationId+"PAM";
+			mqttConnectionId = this.stationId+"PAM"+getRandomLongString();
 			System.out.println("Network send station id "+this.mqttConnectionId);
 		}else {
 			this.networkReceiveParams = (NetworkReceiveParams) networkParams;
 			stationId = networkReceiveParams.stationId;
-			mqttConnectionId = this.stationId;
+			mqttConnectionId = this.stationId+getRandomLongString();
 			System.out.println("Network receive station id "+this.mqttConnectionId);
 		}
 		requireReconnect = false;
 		this.configureClient(networkParams);
+	}
+	
+	private String getRandomLongString() {
+		double rand = Math.random();
+		rand = rand*100000L;
+		long longRand = Math.round(rand);
+		return "_"+String.valueOf(longRand);
 	}
 	
 	@Override
