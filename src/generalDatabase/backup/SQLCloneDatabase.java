@@ -1,6 +1,7 @@
 package generalDatabase.backup;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,6 +34,7 @@ import generalDatabase.sqlite.SqliteSystem;
 public class SQLCloneDatabase extends CopyDatabaseFile {
 
 	private CopyManager copyManager;
+	protected String lastNewDatabasePath;
 
 	public SQLCloneDatabase(ActionMaker actionMaker, BackupStream backupStream) {
 		super(actionMaker, backupStream);
@@ -41,13 +43,21 @@ public class SQLCloneDatabase extends CopyDatabaseFile {
 
 	@Override
 	public boolean doAction(BackupManager backupManager, BackupStream backupStream, StreamItem streamItem) throws BackupException {
-		DBControlUnit dbControlUnit = DBControlUnit.findDatabaseControl();
+		String destPath = getLocalDestination();
+		String newFile = getNewDatabaseName(destPath);
+		boolean success = cloneDatabase(backupManager, backupStream, newFile);
+		if(success) {
+			this.lastNewDatabasePath = newFile;
+		}
+		return success;
+	}
+	
+	protected String getLocalDestination() throws BackupException {
 		FileLocation dest = getCopySettings().destLocation;
 		if (dest == null) {
 			throw new BackupException("No destination folder set");
 		}
-		String newFile = getNewDatabaseName(dest.path);
-		return cloneDatabase(backupManager, backupStream, newFile);
+		return dest.path;
 	}
 
 	// bit of a cheat to make a new temp name every call since it's not

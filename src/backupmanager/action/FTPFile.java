@@ -55,6 +55,10 @@ public class FTPFile extends BackupAction{
 		return true;
 	}
 	
+	public boolean requiresFTPConnection() {
+		return true;
+	}
+	
 	protected boolean fileAction(File source, String destDir) throws BackupException {
 		try {
 			BackupManager.getBackupManager().getFtpClient().mkdir(destDir);
@@ -105,7 +109,7 @@ public class FTPFile extends BackupAction{
 	/**
 	 * @return the copySettings
 	 */
-	public FtpSettings getCopySettings() {
+	public FtpSettings getFtpSettings() {
 		if (getBackupFilter() != null & ftpSettings != null) {
 			ftpSettings.setBackupFilterParams(getBackupFilter().getFilterParams());
 		}

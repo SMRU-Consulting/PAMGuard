@@ -17,9 +17,11 @@ import javax.swing.JMenuItem;
 
 import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.FTPSClient;
+import org.apache.commons.net.io.CopyStreamException;
 
 import PamController.PamControlledUnit;
 import PamController.PamControlledUnitSettings;
@@ -78,7 +80,7 @@ public class PamFtpClient extends PamProcess implements PamSettings{
 		
 		this.ftp = new FTPSClient("TLSv1.2",true);
 		
-        ftp.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
+        //ftp.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
         System.out.println("Attempting FTPS connection");
         try {
         	ftp.setDefaultTimeout(5000);
@@ -152,11 +154,18 @@ public class PamFtpClient extends PamProcess implements PamSettings{
 		if(this.ftp==null) {
 			throw new TransferFailedException("FTP Client has not been initialized. Will not send data to server.");
 		}
-		ftp.makeDirectory(targetDir);
+		int lastIndex = targetDir.lastIndexOf("/");
+		String parent = targetDir.substring(0, lastIndex);
+	    String dirname = targetDir.substring(lastIndex + 1);
+	    
+	    ArrayList<String> dirNames = listFileNames(parent);
+	    if(!dirNames.contains(dirname)) {
+			ftp.makeDirectory(targetDir);
+	    }
 	}
 
 	
-	public void copyLocalToRemote(String from, String to, String fileName) throws IOException, TransferFailedException {
+	public void copyLocalToRemote(String from, String to, String fileName) throws FTPConnectionClosedException, CopyStreamException, IOException, TransferFailedException {
 		if(this.ftp==null) {
 			throw new TransferFailedException("FTP Client has not been initialized. Will not send data to server.");
 		}
