@@ -1,6 +1,8 @@
 package backupmanager.network;
 
-public class TransferFailedException extends Exception{
+import backupmanager.action.BackupException;
+
+public class TransferFailedException extends BackupException{
 	
 	public TransferFailedException(Exception e) {
 		super(e);

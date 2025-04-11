@@ -62,13 +62,13 @@ public class FTPFile extends BackupAction{
 	protected boolean fileAction(File source, String destDir) throws BackupException {
 		try {
 			BackupManager.getBackupManager().getFtpClient().mkdir(destDir);
-		}catch(IOException | TransferFailedException e) {
-			System.out.println("Directory already exists");
+		}catch(TransferFailedException e) {
+			throw e;
 		}
 		try {
 			BackupManager.getBackupManager().getFtpClient().copyLocalToRemote(source.getParent(), destDir, source.getName());
-		} catch (IOException | TransferFailedException e) {
-			throw new BackupException(e.getMessage());
+		} catch (TransferFailedException e) {
+			throw e;
 		}
 		return true;
 	}

@@ -128,7 +128,11 @@ public abstract class BackupStream implements PamSettings, BackupFunction {
 				try {
 					ok = doAction(backupManager, action, item);
 				} catch (BackupException e) {
-					System.out.println("Error in BackupStream.runAction:" + e.getMessage());
+					System.out.print("Error in BackupStream.runAction. Exception type: " +e.getClass().getName()+" error: "+ e.getMessage());
+					if(e.getCause()!=null && e.getCause().getMessage()!=null) {
+						System.out.print(" cause type: "+e.getCause().getClass()+". Cause message: "+e.getCause().getMessage());
+					}
+					System.out.println(" Failure item: "+item.getName());
 					backupManager.updateProgress(new BackupProgress(this, action, STATE.PROBLEM, toDoList.size(), 
 							iDone, "Error " + e.getMessage()));
 					ok = false; //otherwise, OK stays true! This will leave a true null entry in the database, so file will be selected next time around

@@ -33,19 +33,23 @@ public class SQLiteSafeFTPBackup extends SQLCloneDatabase{
 	
 	@Override
 	public boolean doAction(BackupManager backupManager, BackupStream backupStream, StreamItem streamItem) throws BackupException {
-		boolean actionSuccess = super.doAction(backupManager,backupStream,streamItem);
+		boolean actionSuccess = cloneDb(backupManager,backupStream,streamItem);
 		if(!actionSuccess) {
-			return false;
+			throw new BackupException("Failed to clone the database "+streamItem.getName()+" for unknown reasons");
 		}
 		if(this.lastNewDatabasePath==null) {
-			throw new BackupException("Could not find path to transfer: "+this.lastNewDatabasePath);
+			throw new BackupException("Could not find the cloned database: "+this.lastNewDatabasePath);
 		}
 		actionSuccess = ftpClonedSQLiteFile(this.lastNewDatabasePath);
 		if(!actionSuccess) {
-			return false;
+			throw new BackupException("Failed to ftp the cloned sqlite file "+this.lastNewDatabasePath+" for unknown reasons");
 		}
 		return deleteLastTmp();
 		
+	}
+	
+	private boolean cloneDb(BackupManager backupManager, BackupStream backupStream, StreamItem streamItem) throws BackupException {
+		return super.doAction(backupManager,backupStream,streamItem);
 	}
 	
 	@Override
@@ -92,8 +96,15 @@ public class SQLiteSafeFTPBackup extends SQLCloneDatabase{
 	
 	public boolean ftpClonedSQLiteFile(String clonedFileToTransfer) throws BackupException {
 		String destination = ftpSettings.destLocation.path;
-
-
+		
+		if(destination==null) {
+			throw new BackupException("The target destination has not been defined for the database backup.");
+		}
+		
+		if(clonedFileToTransfer==null) {
+			throw new BackupException("The cloned SQLite file to transfer is not defined.");
+		}
+		
 		File srcFile = new File(clonedFileToTransfer);
 		if (srcFile.exists() == false) {
 			throw new BackupException("Source file " + clonedFileToTransfer + " doesn't exist");
@@ -107,13 +118,13 @@ public class SQLiteSafeFTPBackup extends SQLCloneDatabase{
 	protected boolean fileAction(File source, String destDir) throws BackupException {
 		try {
 			BackupManager.getBackupManager().getFtpClient().mkdir(destDir);
-		}catch(IOException | TransferFailedException e) {
-			System.out.println("Directory already exists");
+		}catch(TransferFailedException e) {
+			throw e;
 		}
 		try {
 			BackupManager.getBackupManager().getFtpClient().copyLocalToRemote(source.getParent(), destDir, source.getName());
-		} catch (IOException | TransferFailedException e) {
-			throw new BackupException(e.getMessage());
+		} catch (TransferFailedException e) {
+			throw e;
 		}
 		return true;
 	}

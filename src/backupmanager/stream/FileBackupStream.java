@@ -105,7 +105,7 @@ public abstract class FileBackupStream extends BackupStream {
 			if (lastMod != null && lastMod > maximumTimeMillis) {
 				continue;
 			}
-			if(!aFile.canWrite() || aFile.toString().contains(".psfx")) {
+			if(aFile.toString().contains(".psfx")) {
 				continue;
 			}
 			newItems.add(new FileStreamItem(aFile));

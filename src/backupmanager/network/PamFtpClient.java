@@ -4,6 +4,7 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -22,6 +23,7 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.apache.commons.net.io.CopyStreamException;
+import org.apache.commons.net.ftp.FTPReply;
 
 import PamController.PamControlledUnit;
 import PamController.PamControlledUnitSettings;
@@ -35,6 +37,7 @@ import backupmanager.bespoke.BespokeSettings;
 public class PamFtpClient extends PamProcess implements PamSettings{
 	
 	private FTPSClient ftp;
+	
 	private BackupManager backupManager;
 	private FTPClientParams ftpParams = new FTPClientParams();
     private boolean badProxy;
@@ -150,7 +153,7 @@ public class PamFtpClient extends PamProcess implements PamSettings{
 	}
 
 	
-	public void mkdir(String targetDir) throws IOException, TransferFailedException {
+	public void mkdir(String targetDir) throws TransferFailedException {
 		if(this.ftp==null) {
 			throw new TransferFailedException("FTP Client has not been initialized. Will not send data to server.");
 		}
@@ -158,22 +161,56 @@ public class PamFtpClient extends PamProcess implements PamSettings{
 		String parent = targetDir.substring(0, lastIndex);
 	    String dirname = targetDir.substring(lastIndex + 1);
 	    
-	    ArrayList<String> dirNames = listFileNames(parent);
+	    ArrayList<String> dirNames;
+		try {
+			dirNames = listFileNames(parent);
+		} catch (IOException | TransferFailedException e) {
+			throw new TransferFailedException("FTP could not list file names in remote directory "+parent,e);
+		}
 	    if(!dirNames.contains(dirname)) {
-			ftp.makeDirectory(targetDir);
+			try {
+				ftp.makeDirectory(targetDir);
+			} catch (IOException e) {
+				throw new TransferFailedException("FTP could not create a new directory with path "+targetDir,e);
+			}
 	    }
 	}
 
 	
-	public void copyLocalToRemote(String from, String to, String fileName) throws FTPConnectionClosedException, CopyStreamException, IOException, TransferFailedException {
+	public void copyLocalToRemote(String from, String to, String fileName) throws TransferFailedException {
 		if(this.ftp==null) {
-			throw new TransferFailedException("FTP Client has not been initialized. Will not send data to server.");
+			throw new TransferFailedException("FTP Client has not been initialized. Will not send data to server.",new NullPointerException());
 		}
 		String fullRemote = to+"/"+fileName;
 		Path fullLocal = Paths.get(from,fileName);
-		boolean success = ftp.storeFile(fullRemote, new FileInputStream(fullLocal.toFile()));
-        if(!success) {
-        	throw new TransferFailedException("Transfer failed to server. Keeping in retry bucket.");
+		try {
+			ftp.storeFile(fullRemote, new FileInputStream(fullLocal.toFile()));
+		} catch (Exception e) {
+			throw new TransferFailedException("Could not FTP copy local to remote.",e);
+		}
+		int reply;
+		reply = ftp.getReplyCode();
+		if(FTPReply.isPositiveCompletion(reply)) {
+			return;
+		}
+    	throw new TransferFailedException(getFtpReplyCode(reply));
+        
+        
+	}
+	
+	private String getFtpReplyCode(int replyCode) {
+		if (FTPReply.isPositiveCompletion(replyCode)) {
+            return "Command completed successfully.";
+        } else if (FTPReply.isPositivePreliminary(replyCode)) {
+             return "FTP Command accepted, but waiting for further information.";
+        } else if (FTPReply.isPositiveIntermediate(replyCode)) {
+            return "FTP Command accepted, action in progress.";
+        } else if (FTPReply.isNegativeTransient(replyCode)) {
+            return "FTP Temporary error, command not completed.";
+        } else if (FTPReply.isNegativePermanent(replyCode)) {
+            return "FTP Permanent error, command not completed.";
+        } else {
+            return "Unknown FTP reply code: " + replyCode;
         }
 	}
 	
