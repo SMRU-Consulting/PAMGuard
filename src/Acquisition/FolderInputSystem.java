@@ -153,7 +153,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 			 *  jumping striaght to the next file messes it up if it thinks the files
 			 *  are continuous, so we HAVE to stop and restart.
 			 */
-//			return prepareInputFile();
+			//			return prepareInputFile();
 			PamController.getInstance().pamStop();
 			PamController.getInstance().startLater(false);
 		}
@@ -168,7 +168,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 		if (folderInputParameters == null)
 			setFolderInputParameters(new FolderInputParameters(getSystemType()));
 		//		PamSettingManager.getInstance().registerSettings(this); //calling super already registers this in the FileInputSystem constructor
-//		checkComandLine();
+		//		checkComandLine();
 		makeSelFileList();
 		newFileTimer = new Timer(1000, new RestartTimer());
 		newFileTimer.setRepeats(false);
@@ -188,10 +188,10 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 		File aFile = new File(globalFolder);
 		if (!aFile.exists()) {
 			System.err.printf("Command line wav folder \"%s\" does not exist", globalFolder);
-//			return null;
+			//			return null;
 		}
 		String[] selList = {globalFolder};
-//		folderInputParameters.setSelectedFiles(selList);
+		//		folderInputParameters.setSelectedFiles(selList);
 		// need to immediately make the allfiles list since it's about to get used by the reprocess manager
 		// need to worry about how to wait for this since it's starting in a different thread.
 		//makeSelFileList();
@@ -209,7 +209,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
-//			System.out.println("Restart later time action");
+			//			System.out.println("Restart later time action");
 			newFileTimer.stop();
 			PamController.getInstance().startLater(false); //don't save settings on restarts
 
@@ -241,6 +241,11 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.anchor = GridBagConstraints.WEST;
 		addComponent(p, subFolders = new JCheckBox("Include sub folders"), constraints);
+		subFolders.addActionListener((a)->{
+			if (folderInputParameters.getSelectedFiles()!=null) {
+				makeSelFileList(folderInputParameters.getSelectedFiles());
+			}
+		});
 		constraints.gridx = 2;
 		constraints.gridy = 1;
 		constraints.gridwidth = 1;
@@ -290,7 +295,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 		constraints.gridy++;
 		constraints.gridx = 0;
 		constraints.gridwidth = 1;
-		
+
 		//panel which allows the users to skip the first section of a file. 
 		PamPanel skipPanel = new PamPanel(new GridBagLayout()); 
 
@@ -301,7 +306,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 		constraints.gridx++;
 		addComponent(skipPanel,  new JLabel("seconds"), constraints);
 		constraints.anchor = GridBagConstraints.WEST;
-		
+
 		constraints.gridwidth = 3;
 		constraints.gridx = 0; 
 		addComponent(p,  skipPanel, constraints);	
@@ -322,14 +327,14 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 	class FileComboListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-		String fileName = (String) fileNameCombo.getSelectedItem();
-		if (fileName != null) {
-//			System.out.println(fileName);
-			String[] str = new String[1];
-			str[0] = fileName;
-			folderInputParameters.setSelectedFiles(str);
-			makeSelFileList(str);
-		}
+			String fileName = (String) fileNameCombo.getSelectedItem();
+			if (fileName != null) {
+				//			System.out.println(fileName);
+				String[] str = new String[1];
+				str[0] = fileName;
+				folderInputParameters.setSelectedFiles(str);
+				makeSelFileList(str);
+			}
 		}
 	}
 
@@ -377,6 +382,14 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 	 * @return flag to indicate...nothing?
 	 */
 	public int makeSelFileList() {
+		
+		/**
+		 * This is only for real time operation. In Viewer mode, the list is entirely
+		 * handled in the OfflinefileServer object. 
+		 */
+		if (acquisitionControl.isViewer()) {
+			return 0;
+		}
 
 		String[] selection = checkComandLineFolder();
 
@@ -389,9 +402,9 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 		if (selection == null) {
 			return 0;
 		}
-//		if (selection.length > 0) {
-//			System.out.println("FolderInputSystem.makeSelFileList(): Searching for sound files in " + selection[0]);
-//		}
+		//		if (selection.length > 0) {
+		//			System.out.println("FolderInputSystem.makeSelFileList(): Searching for sound files in " + selection[0]);
+		//		}
 		return makeSelFileList(selection);
 	}
 
@@ -403,15 +416,28 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 	public int makeSelFileList(String[] rootList) {
 		//		File[] selectedFiles = folderInputParameters.getSelectedFiles();
 		//		if (selectedFiles.length == 1 && selectedFiles[0].isDirectory()) {
-//		String folderName = fileInputParameters.recentFiles.get(0);
+		//		String folderName = fileInputParameters.recentFiles.get(0);
 
 		//Swing calls a dialog with progress bar from the wavListWorker
+		if (acquisitionControl.isViewer()) {
+			return 0;
+		}
 		wavListStart = System.currentTimeMillis();
 
 		if (folderInputPane==null) {
+
+			//need to make sure this is dynamically set - following means that the dialog will work 
+			//with whatever has been set by the user but if cancel is pressed settings will still revert.
+			boolean useSubFolders = false;
+			if (subFolders!=null) {
+				useSubFolders = subFolders.isSelected();
+			}
+			else {
+				useSubFolders = folderInputParameters.subFolders;
+			}
 			//Swing way
 			wavListWorker.startFileListProcess(PamController.getMainFrame(), rootList,
-				folderInputParameters.subFolders, true);
+					useSubFolders, true);
 		}
 		else {
 			//FX system
@@ -580,8 +606,8 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 		 */
 
 		// test the new Wav list worker ...
-//		wavListStart = System.currentTimeMillis();
-//		wavListWorker.startFileListProcess(PamController.getMainFrame(), newFile, true, true);
+		//		wavListStart = System.currentTimeMillis();
+		//		wavListWorker.startFileListProcess(PamController.getMainFrame(), newFile, true, true);
 		//		makeSelFileList(newFile);
 	}
 
@@ -591,8 +617,8 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 	 */
 	public  void newFileList(FileListData<WavFileType> fileListData) {
 
-//		System.out.printf("Wav list recieved with %d files after %d millis\n",
-//				fileListData.getFileCount(), System.currentTimeMillis() - wavListStart);
+		//		System.out.printf("Wav list recieved with %d files after %d millis\n",
+		//				fileListData.getFileCount(), System.currentTimeMillis() - wavListStart);
 		allFiles = fileListData.getListCopy();
 
 		List<WavFileType> asList = allFiles;
@@ -671,7 +697,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 			constraints.gridy = 0;
 			for (PamAudioFileLoader loader : loaders) {
 				if (loader.getSettingsPane()!=null) {
-//					System.out.println("ADD AUDIO PANEL: " +loader.getSettingsPane().getAudioLoaderPanel());
+					//					System.out.println("ADD AUDIO PANEL: " +loader.getSettingsPane().getAudioLoaderPanel());
 					//gridbag layout
 					addComponent(audioLoaderHolder, loader.getSettingsPane().getAudioLoaderPanel(), constraints);
 					loader.getSettingsPane().setParams();
@@ -714,7 +740,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 	@Override
 	public File getCurrentFile() {
 		//System.out.println("All files: " +  allFiles);
-//		System.out.printf("Folder: getCurrentfile. on %d of %d\n", currentFile, allFiles.size());
+		//		System.out.printf("Folder: getCurrentfile. on %d of %d\n", currentFile, allFiles.size());
 		if (allFiles != null && allFiles.size() > currentFile) {
 			return allFiles.get(currentFile);
 		}
@@ -754,9 +780,9 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 			currFileEnd += lastBit;
 		}
 		if (++currentFile < allFiles.size()) {
-			
+
 			calculateETA();
-			
+
 			long newStartTime = getFileStartTime(getCurrentFile());
 			long diff = newStartTime - currFileEnd;
 			if (diff > 2000 || diff < -5000 || newStartTime == 0) {
@@ -805,7 +831,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 		if (currentFile < allFiles.size()) {
 			// only restart if the file ended - not if it stopped
 			if (getStreamStatus() == STREAM_ENDED && !PamController.getInstance().isManualStop()) {
-//				System.out.println(String.format("Start new file timer (file %d/%d)",currentFile+1,allFiles.size()));
+				//				System.out.println(String.format("Start new file timer (file %d/%d)",currentFile+1,allFiles.size()));
 				newFileTimer.start();
 			}
 		}
@@ -815,7 +841,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 		if (currentFile > 0 && currentFile >= allFiles.size()) {
 			fileListComplete();
 		}
-//		System.out.println("FolderinputSytem: daqHasEnded");
+		//		System.out.println("FolderinputSytem: daqHasEnded");
 	}
 
 	private void setFolderProgress() {
@@ -942,7 +968,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 
 	@Override
 	public boolean startSystem(AcquisitionControl daqControl) {
-//		System.out.println("Start system");
+		//		System.out.println("Start system");
 		setFolderProgress();
 		return super.startSystem(daqControl);
 	}
@@ -1014,12 +1040,12 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 				aFile.getAudioInfo();
 				allFileEnds[i] = (allFileStarts[i] + (long) (aFile.getDurationInSeconds()*1000.));
 				if (allFileStarts[i] < firstFileStart) {
-//					System.out.printf("Swap first file from %s to %s\n", firstFile.getName(), allFiles.get(i).getName());
+					//					System.out.printf("Swap first file from %s to %s\n", firstFile.getName(), allFiles.get(i).getName());
 					firstFile = allFiles.get(i);
 					firstFileStart = allFileStarts[i];
 				}
 				if (allFileStarts[i] > lastFileEnd) {
-//					System.out.printf("Swap last file from %s to %s\n", lastFile.getName(), allFiles.get(i).getName());
+					//					System.out.printf("Swap last file from %s to %s\n", lastFile.getName(), allFiles.get(i).getName());
 					lastFile = allFiles.get(i);
 					lastFileEnd = allFileStarts[i] + (long) (lastFile.getDurationInSeconds()*1000.);
 				}
@@ -1035,7 +1061,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 
 	@Override
 	public boolean setAnalysisStartTime(long startTime) {
-				
+
 		if (currentAnalysisTime > 0) {
 			startTime = currentAnalysisTime;
 		}
@@ -1105,7 +1131,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 		if (currT == 0) {
 			return;
 		}
-		
+
 		JPopupMenu popMenu = new JPopupMenu();
 		JMenuItem menuItem = new JMenuItem("Start at first file");
 		menuItem.addActionListener(new ActionListener() {
@@ -1124,7 +1150,7 @@ public class FolderInputSystem extends FileInputSystem implements PamSettings, D
 		});
 		popMenu.add(menuItem);
 		Point p = new Point(component.getWidth()/2, component.getHeight()/2);
-		
+
 		popMenu.show(component, p.x, p.y);
 	}
 

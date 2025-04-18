@@ -13,7 +13,9 @@ import PamguardMVC.DataUnitBaseData;
 import PamguardMVC.PamDataUnit;
 import PamguardMVC.PamInstantProcess;
 import PamguardMVC.PamObservable;
+import PamguardMVC.PamProcess;
 import binaryFileStorage.DataUnitFileInformation;
+import clipgenerator.ClipProcess;
 import pamScrollSystem.AbstractScrollManager;
 import rawDeepLearningClassifier.DLControl;
 import rawDeepLearningClassifier.RawDLParams;
@@ -39,7 +41,7 @@ import rawDeepLearningClassifier.segmenter.SegmenterDetectionGroup;
  * @author Jamie Macaulay
  *
  */
-public class DLClassifyProcess extends PamInstantProcess {
+public class DLClassifyProcess extends PamProcess {
 
 
 	/**
@@ -95,7 +97,7 @@ public class DLClassifyProcess extends PamInstantProcess {
 	private DLGroupDataBlock dlGroupDetectionDataBlock;
 
 	public DLClassifyProcess(DLControl dlControl, SegmenterDataBlock parentDataBlock) {
-		super(dlControl);
+		super(dlControl, null);
 
 		this.setParentDataBlock(parentDataBlock);
 
@@ -208,7 +210,7 @@ public class DLClassifyProcess extends PamInstantProcess {
 	 */
 	@Override
 	public void newData(PamObservable obs, PamDataUnit pamRawData) {
-	//System.out.println("NEW SEGMENTER DATA: " +  PamCalendar.formatDateTime2(pamRawData.getTimeMilliseconds(), "dd MMM yyyy HH:mm:ss.SSS", false) + "  " + pamRawData.getUID() + "  " + pamRawData.getChannelBitmap() + " " + pamRawData);
+		//System.out.println("NEW SEGMENTER DATA: " +  PamCalendar.formatDateTime2(pamRawData.getTimeMilliseconds(), "dd MMM yyyy HH:mm:ss.SSS", false) + "  " + pamRawData.getUID() + "  " + pamRawData.getChannelBitmap() + " " + pamRawData);
 
 		//if grouped data then just run the classifier on the group - do not try and create a buffer. 
 		if (pamRawData instanceof SegmenterDetectionGroup) {
@@ -616,10 +618,11 @@ public class DLClassifyProcess extends PamInstantProcess {
 	 */
 	public void forceRunClassifier(PamDataUnit dataUnit) {
 		
-//		System.out.println("CLASSIFICATION BUFFER: " + classificationBuffer.size());
+		//System.out.println("CLASSIFICATION BUFFER: " + classificationBuffer.size());
 
 		if (this.classificationBuffer.size()>0) {
 			if (classificationBuffer.get(0) instanceof GroupedRawData) {
+				//System.out.println("Run raw model on: " + classificationBuffer.get(0)  +  "  " + classificationBuffer.get(1));
 				runRawModel(); //raw data or raw data units
 			}
 			if (classificationBuffer.get(0) instanceof SegmenterDetectionGroup) {
@@ -687,10 +690,12 @@ public class DLClassifyProcess extends PamInstantProcess {
 		DataUnitBaseData basicData  = groupDataBuffer.get(0).getBasicData().clone(); 
 		basicData.setMillisecondDuration(1000.*rawdata[0].length/this.sampleRate);
 		basicData.setSampleDuration((long) (groupDataBuffer.size()*dlControl.getDLParams().rawSampleSize));
+		
 
 		//		System.out.println("Model result: " + modelResult.size()); 
-		DLDetection dlDetection = new DLDetection(basicData, rawdata); 
+		DLDetection dlDetection = new DLDetection(basicData, rawdata, getSampleRate()); 
 		addDLAnnotation(dlDetection,modelResult); 
+		dlDetection.setFrequency(new double[] {0, this.getSampleRate()/2});
 
 		//create the data unit
 		return dlDetection; 

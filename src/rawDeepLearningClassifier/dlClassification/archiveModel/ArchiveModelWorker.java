@@ -57,6 +57,15 @@ public class ArchiveModelWorker extends GenericModelWorker {
 	public synchronized DLStatus prepModel(StandardModelParams dlParams, DLControl dlControl) {
 		//ClassLoader origCL = Thread.currentThread().getContextClassLoader();
 		try {
+			
+			if (dlParams.modelPath==null) {
+				return DLStatus.FILE_NULL;
+			}
+			
+			if (!new File(dlParams.modelPath).exists()) {
+				System.out.println("FILE DOES NOT EXISTS!! " + dlParams.modelPath);
+				return DLStatus.MODEL_FILE_EXISTS;
+			}
 
 			// get the plugin class loader and set it as the context class loader
 			// NOTE THAT THIS IS REQUIRED TO MAKE THIS MODULE RUN AS A PLUGIN WHEN THE CLASS FILES
@@ -80,7 +89,7 @@ public class ArchiveModelWorker extends GenericModelWorker {
 				//System.out.println(Paths.get(genericParams.modelPath)); 
 				this.currentPath = dlParams.modelPath; 
 				dlModel = loadModel(currentPath);
-				System.out.println("LOAD A NEW MODEL: " + currentPath); 
+				//System.out.println("LOAD A NEW MODEL: " + currentPath); 
 			}
 		}
 		catch (EngineException e) {
@@ -130,9 +139,8 @@ public class ArchiveModelWorker extends GenericModelWorker {
 			System.out.println(modelParams.dlTransforms);
 			ArrayList<DLTransform> transforms =	DLTransformsFactory.makeDLTransforms(modelParams.dlTransforms); 
 
-//			///HACK here for now to fix an issue with dB and Ketos transforms having zero length somehow...
 //			for (int i=0; i<modelParams.dlTransforms.size(); i++) {
-//				System.out.println(modelParams.dlTransforms.get(i)); 
+//				System.out.println(modelParams.dlTransforms.get(i).toString()); 
 //			}
 
 			//only load new transforms if defaults are selected

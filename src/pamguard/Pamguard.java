@@ -130,7 +130,6 @@ public class Pamguard {
 		String InputPsf = "NULL";
 		
 
-
 		// set up the system to output to both a log file and the console window.  Also
 		// set up a monitor to check for the size of the folder every hour - if it gets
 		// too big, just stop logging the messages
@@ -389,7 +388,8 @@ public class Pamguard {
 //		System.out.println("Revision " + PamguardVersionInfo.getRevision());
 		System.out.println("Build Date " + PamguardVersionInfo.date);
 		writePropertyString("user.dir");
-		writePropertyString("java.home");
+		writePropertyString("user.home"); // where launched from. 
+		writePropertyString("java.home"); // something in users, e.g. users/dg50
 		writePropertyString("java.name");
 		String javaV = writePropertyString("java.version");
 		writePropertyString("java.vendor");

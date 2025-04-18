@@ -1,5 +1,7 @@
 package annotation;
 
+import org.w3c.dom.Element;
+
 import PamView.symbol.PamSymbolChooser;
 import PamView.symbol.modifier.SymbolModifier;
 import PamguardMVC.PamDataBlock;
@@ -8,7 +10,10 @@ import PamguardMVC.dataSelector.DataSelector;
 import annotation.binary.AnnotationBinaryHandler;
 import annotation.dataselect.AnnotationDataSelCreator;
 import annotation.handler.AnnotationOptions;
+import annotation.xml.AnnotationXMLWriter;
+import annotation.xml.SQLXMLWriter;
 import generalDatabase.SQLLoggingAddon;
+import tethys.species.DataBlockSpeciesManager;
 
 /**
  * Something that can tell us a little more about 
@@ -30,6 +35,8 @@ public abstract class DataAnnotationType<TDataAnnotation extends DataAnnotation<
 	public static final int SHORTIDCODELENGTH = 4;
 	
 	private PamDataBlock targetDataBlock;
+
+	private SQLXMLWriter annotationWriter;
 
 	/**
 	 * Get the annotation as a string for use in tables, tool tips, etc. 
@@ -80,6 +87,26 @@ public abstract class DataAnnotationType<TDataAnnotation extends DataAnnotation<
 	 */
 	public SQLLoggingAddon getSQLLoggingAddon() {
 		return null;
+	}
+	
+	/**
+	 * Get something that can write an annotation as XML
+	 * @return
+	 */
+	public AnnotationXMLWriter<TDataAnnotation> getXMLWriter() {
+		/*
+		 *  can do this automatically if we've got sqllogging, otherwise 
+		 *  override and do something bespoke. 
+		 */
+		if (annotationWriter != null) {
+			return annotationWriter;
+		}
+		SQLLoggingAddon sqlLogging = getSQLLoggingAddon();
+		if (sqlLogging == null) {
+			return null; 
+		}
+		annotationWriter = new SQLXMLWriter<>(this);
+		return annotationWriter;
 	}
 	
 	/**
@@ -202,6 +229,14 @@ public abstract class DataAnnotationType<TDataAnnotation extends DataAnnotation<
 	 */
 	public void setTargetDataBlock(PamDataBlock targetDataBlock) {
 		this.targetDataBlock = targetDataBlock;
+	}
+	
+	/**
+	 * Annotations may have a species manager. Most won't. 
+	 * @return
+	 */
+	public DataBlockSpeciesManager getDataBlockSpeciesManager() {
+		return null;
 	}
 	
 

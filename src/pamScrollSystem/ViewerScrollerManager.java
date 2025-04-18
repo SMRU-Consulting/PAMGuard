@@ -32,7 +32,7 @@ public class ViewerScrollerManager extends AbstractScrollManager implements PamS
 
 	private boolean initialisationComplete;
 
-	private boolean intialiseLoadDone;
+	private volatile boolean intialiseLoadDone = false;
 
 	private StoredScrollerData oldScrollerData = new StoredScrollerData();
 
@@ -246,6 +246,8 @@ public class ViewerScrollerManager extends AbstractScrollManager implements PamS
 		for (int i = 0; i < pamScrollers.size(); i++) {
 			pamScrollers.get(i).notifyRangeChange();
 		}
+		PamController.getInstance().notifyModelChanged(PamControllerInterface.DATA_LOAD_COMPLETE);
+		PamController.getInstance().notifyTaskProgress(new LoadQueueProgressData(PamTaskUpdate.STATUS_DONE));
 		PamController.getInstance().notifyModelChanged(PamControllerInterface.OFFLINE_DATA_LOADED);
 	}
 
@@ -449,7 +451,6 @@ public class ViewerScrollerManager extends AbstractScrollManager implements PamS
 					"Data Load Complete, updating displays", 
 					dataLoadQueue.size(), dataLoadQueue.size(), 0, 0, 0, 0, 0);
 			publish(lpd);
-			PamController.getInstance().notifyModelChanged(PamControllerInterface.DATA_LOAD_COMPLETE);
 			return null;
 		}
 		
@@ -468,7 +469,6 @@ public class ViewerScrollerManager extends AbstractScrollManager implements PamS
 				}
 			}
 			loadDone();
-			PamController.getInstance().notifyTaskProgress(new LoadQueueProgressData(PamTaskUpdate.STATUS_DONE));
 
 		}
 
@@ -542,11 +542,16 @@ public class ViewerScrollerManager extends AbstractScrollManager implements PamS
 			initialisationComplete = true;
 			break;
 		case PamControllerInterface.INITIALIZE_LOADDATA:
-			intialiseLoadDone = true;
 		case PamControllerInterface.CHANGED_OFFLINE_DATASTORE:
 		case PamControllerInterface.ADD_CONTROLLEDUNIT:
 		case PamControllerInterface.REMOVE_CONTROLLEDUNIT:
-			if (initialisationComplete && intialiseLoadDone) {
+			if (initialisationComplete && intialiseLoadDone == false) {
+				/*
+				 *  changed 20240114 so that this is only called once. Stops it 
+				 *  from resetting every time the datamap is updated e.g. if the 
+				 *  acquisition file map changes when user selects correct folder.  
+				 */
+				intialiseLoadDone = true; // move earlier to avoid risk of recursion. 
 				initialiseScrollers();
 			}
 			break;

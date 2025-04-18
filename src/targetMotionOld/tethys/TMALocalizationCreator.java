@@ -146,22 +146,6 @@ public class TMALocalizationCreator implements LocalizationCreator {
 		}
 
 
-		// con only output one type. 
-		//		if (perp != null) {
-		//			AngularCoordinateType acType = new AngularCoordinateType();
-		//			acType.setAngle1(90);
-		//			acType.setDistanceM(AutoTethysProvider.roundDecimalPlaces(perp,1));
-		//			Angular angular = new Angular();
-		//			angular.setCoordinate(acType);
-		//			if (errors != null) {
-		//				AngularCoordinateType angErr = new AngularCoordinateType();
-		//				angErr.setDistanceM(errors.norm());
-		//				angular.setCoordinateError(angErr);
-		//			}
-		//			loc.setAngular(angular);
-		//		}
-
-
 
 		return loc;
 	}
@@ -183,6 +167,9 @@ public class TMALocalizationCreator implements LocalizationCreator {
 
 	private boolean makeWGS84Localization(LocalizationType loc, AbstractLocalisation pamLoc) {
 		LatLong latLong = pamLoc.getLatLong(0);
+		if (latLong == null) {
+			return false;
+		}
 		GroupLocalisation groupLoc = (GroupLocalisation) pamLoc;
 		GroupLocResult groupLocResult = groupLoc.getGroupLocaResult(0);
 		LocaliserModel tmaModel = groupLocResult.getModel();

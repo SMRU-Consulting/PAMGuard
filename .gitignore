@@ -139,3 +139,8 @@ PAMGuard.app
 dependency-reduced-pom.xml
 .classpath
 .Rproj.user
+dependency-reduced-pom.xml
+.settings/org.eclipse.jdt.core.prefs
+.settings/org.eclipse.core.resources.prefs
+.classpath
+.settings/org.eclipse.jdt.core.prefs

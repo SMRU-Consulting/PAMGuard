@@ -183,6 +183,8 @@ public class DLSettingsPane  extends SettingsPane<RawDLParams>{
 			this.dlControl.createDataSelector(getSelectedParentDataBlock()); 
 			//enable the controls to show a data selector or not. 
 			enableControls(); 
+			
+			this.setSegInfoLabel();//refresh label
 		});
 
 		//create the detection
@@ -581,10 +583,11 @@ public class DLSettingsPane  extends SettingsPane<RawDLParams>{
 
 	@Override
 	public void setParams(RawDLParams currParams) {
-
-		sourcePane.setParams(currParams.groupedSourceParams);
+		
+		
 		sourcePane.sourceChanged();
-
+		sourcePane.setSourceList();
+		sourcePane.setParams(currParams.groupedSourceParams);
 
 		dlControl.createDataSelector(sourcePane.getSource());
 

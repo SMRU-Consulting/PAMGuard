@@ -29,6 +29,11 @@ import PamguardMVC.dataSelector.DataSelector;
 import ai.djl.engine.Engine;
 import annotation.handler.AnnotationHandler;
 import clickTrainDetector.layout.ClickTrainSymbolManager;
+import clipgenerator.ClipDataUnit;
+import clipgenerator.ClipDisplayDataBlock;
+import clipgenerator.clipDisplay.ClipDisplayDecorations;
+import clipgenerator.clipDisplay.ClipDisplayParent;
+import clipgenerator.clipDisplay.ClipDisplayUnit;
 import dataPlotsFX.data.TDDataProviderRegisterFX;
 import detectionPlotFX.data.DDPlotRegister;
 import generalDatabase.SQLLoggingAddon;
@@ -45,6 +50,7 @@ import rawDeepLearningClassifier.dlClassification.DLClassNameManager;
 import rawDeepLearningClassifier.dlClassification.DLClassiferModel;
 import rawDeepLearningClassifier.dlClassification.DLClassifierChooser;
 import rawDeepLearningClassifier.dlClassification.DLClassifyProcess;
+import rawDeepLearningClassifier.dlClassification.DLDetectionDataBlock;
 import rawDeepLearningClassifier.dlClassification.animalSpot.SoundSpotClassifier;
 import rawDeepLearningClassifier.dlClassification.archiveModel.PamZipModelClassifier;
 import rawDeepLearningClassifier.dlClassification.delphinID.DelphinIDClassifier;
@@ -67,6 +73,9 @@ import rawDeepLearningClassifier.logging.DLResultBinarySource;
 import rawDeepLearningClassifier.logging.DLResultLogging;
 import rawDeepLearningClassifier.offline.DLOfflineProcess;
 import rawDeepLearningClassifier.segmenter.SegmenterProcess;
+import rawDeepLearningClassifier.swing.DLClipDecorations;
+import rawDeepLearningClassifier.swing.DLClipDisplayProvider;
+import userDisplay.UserDisplayControl;
 
 /**
  * Module which uses an external deep learning classifier to identify any data
@@ -111,7 +120,7 @@ import rawDeepLearningClassifier.segmenter.SegmenterProcess;
  * @author Jamie Macaulay
  *
  */
-public class DLControl extends PamControlledUnit implements PamSettings {
+public class DLControl extends PamControlledUnit implements PamSettings, ClipDisplayParent {
 	
 	/**
 	 * PLUGIN_BUILD boolean is set to true so that the class loader isn't changed.  When
@@ -376,6 +385,8 @@ public class DLControl extends PamControlledUnit implements PamSettings {
 		
 		//create the classiifer chooser. 
 		dlClassifierChooser = new DLClassifierChooser(this); 
+		
+		UserDisplayControl.addUserDisplayProvider(new DLClipDisplayProvider(this));
 		
 		// ensure everything is updated.
 		updateParams(rawDLParmas);
@@ -751,6 +762,34 @@ public class DLControl extends PamControlledUnit implements PamSettings {
 	 */
 	public void setGroupDetections(boolean groupDetections) {
 		this. groupDetections=groupDetections;
+	}
+
+
+	@Override
+	public ClipDisplayDataBlock<ClipDataUnit> getClipDataBlock() {
+		
+		Object dlBlock = dlClassifyProcess.getDLDetectionDatablock();
+		ClipDisplayDataBlock<ClipDataUnit> clipBlock = (ClipDisplayDataBlock<ClipDataUnit>) dlBlock;
+		return clipBlock;
+	}
+
+
+	@Override
+	public String getDisplayName() {
+		return getUnitName() + " Clips";
+	}
+
+
+	@Override
+	public ClipDisplayDecorations getClipDecorations(ClipDisplayUnit clipDisplayUnit) {
+		return new DLClipDecorations(this, clipDisplayUnit);
+	}
+
+
+	@Override
+	public void displaySettingChange() {
+		// TODO Auto-generated method stub
+		
 	}
 
 

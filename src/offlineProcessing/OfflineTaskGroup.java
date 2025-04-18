@@ -589,13 +589,15 @@ public class OfflineTaskGroup implements PamSettings {
 					}
 					aTask.newDataLoad(mapPoint.getStartTime(), mapPoint.getEndTime(), mapPoint);
 				}
-				ArrayList<PamDataBlock> dataBlocks = PamController.getInstance().getDetectorDataBlocks();
-				for (PamDataBlock dataBlock:dataBlocks) {
-					// may no longer be needed depending on how reloading data goes.  
-					if (dataBlock instanceof SuperDetDataBlock) {
-						((SuperDetDataBlock) dataBlock).reattachSubdetections(null);
-					}
-				}
+				
+				SuperDetDataBlock.reattachAllSubDetections();
+//				ArrayList<PamDataBlock> dataBlocks = PamController.getInstance().getDetectorDataBlocks();
+//				for (PamDataBlock dataBlock:dataBlocks) {
+//					// may no longer be needed depending on how reloading data goes.  
+//					if (dataBlock instanceof SuperDetDataBlock) {
+//						((SuperDetDataBlock) dataBlock).reattachSubdetections(null);
+//					}
+//				}
 				
 				if (superDetectionFilter != null) {
 					superDetectionFilter.checkSubDetectionLinks();
@@ -869,6 +871,9 @@ public class OfflineTaskGroup implements PamSettings {
 		for (int i = 0; i < requiredDataBlocks.size(); i++) {
 			RequiredDataBlockInfo blockInfo = requiredDataBlocks.get(i);
 			PamDataBlock aDataBlock = blockInfo.getPamDataBlock();
+			if (aDataBlock == null) {
+				continue;
+			}
 			long reqStart = procDataStart - blockInfo.getPreLoadTime();
 			long reqEnd = procDataEnd + blockInfo.getPostLoadTime();
 //			if (aDataBlock.getCurrentViewDataStart() > reqStart ||

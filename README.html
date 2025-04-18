@@ -383,7 +383,7 @@ PAMGuardBeta_ViewerMode.exe):</p>
 <p class=MsoNormal><em><span style='font-family:"Calibri",sans-serif'>&nbsp;</span></em></p>
 
 <h2><em><span style='font-size:12.0pt;font-family:"Cambria",serif;font-style:
-normal'><a href="#_Version_2.02.16_February">Latest Version 2.02.16 February
+normal'><a href="#_Version_2.02.16_February">Latest Version 2.02.16 March
 2025&nbsp;</a></span></em></h2>
 
 <h2><em><span style='font-size:12.0pt;font-family:"Cambria",serif;font-style:
@@ -434,23 +434,37 @@ name="_Latest_Version_2.02.07"></a><a name="_Latest_Version_2.02.08"></a><a
 name="_Version_2.02.09_June"></a><a name="_Version_2.02.10_January"></a><a
 name="_Version_2.02.11_April"></a><a name="_Version_2.02.14_October"></a><a
 name="_2.02.15_December_2014"></a><a name="_Version_2.02.16_February"></a>Version
-2.02.16 February 2025</h1>
+2.02.16 March 2025</h1>
 
 <h2>New Features</h2>
 
-<p class=MsoNormal><b>Updates to Tethys</b></p>
+<p class=MsoNormal><b>Updates to Tethys Interface</b></p>
 
-<p class=MsoNormal>Updates to compatibility with Tethys Server 3.2 and Nilus
-3.2. No longer compatible with 3.1, the pre-release version. </p>
+<p class=MsoNormal>Updates to compatibility with Tethys Server version 3.2 beta
+2 and Nilus 3.2. PAMGuard is no longer compatible with Tethys 3.1, the
+pre-release version. </p>
+
+<p class=MsoNormal>Added Tethys functionality for the following modules:
+Whistle Classifier, Detection Group Localiser, Rocca, Click Train Detector, GPL
+Detector. If the Detection Group Localiser is used with Logger Form
+annotations, species codes can be taken from the logger form. </p>
 
 <p class=MsoNormal>Made export of data (Calibrations, Deployments, Detections,
 and Localisations) available as ‘offline tasks’. This is not useful when
 running Tethys on a single dataset, since all tasks can be easily performed
 using ‘Export’ buttons on the main Tethys interface. However, this change means
-that these export tasks become available to the batch processor (Version 2.0 or
-above) which can be used to export data from multiple similar datasets without
-having to personally go into each one individually. See Tethys online help
-pages and help pages for the Batch processor for details.</p>
+that these export tasks become available to the <a
+href="https://www.pamguard.org/plugins/batchprocessor.html">batch processor</a>
+(Version 2.0 or above) which can be used to export data from multiple similar
+datasets without having to personally go into each one individually. See Tethys
+online help pages and help pages for the Batch processor for details.</p>
+
+<p class=MsoNormal><b>Deep Learning Classifier</b></p>
+
+<p class=MsoNormal>Better error dialogs to indicate when models are incorrect
+and when the libraries have not been installed correctly.</p>
+
+<p class=MsoNormal>DelphinID Whistle classifier support now implemented.</p>
 
 <p class=MsoNormal><b>Other</b></p>
 
@@ -460,6 +474,14 @@ data to Tethys. </p>
 
 <p class=MsoNormal>Multiple management changes to support batch processing of
 offline tasks. Compatible with batch processor 2.0. </p>
+
+<p class=MsoNormal>Added clip display for Deep Learning module.</p>
+
+<p class=MsoNormal>Added optional display of impulse response function to IIR
+Filter design dialog in place of the pole-zero diagram. </p>
+
+<p class=MsoNormal>Added ROCCA graphics, so ROCCA output can be displayed on
+the spectrogram display. </p>
 
 <h2>Bug Fixes</h2>
 
@@ -480,11 +502,16 @@ time, meaning you got an invalid file path. This has been fixed. </p>
 channel list from acquisition module and automatically removes channels that
 were selected in the FFT module, but are not available from the acquisition. </p>
 
-<p class=MsoNormal>Dealt with issue in Tethys module looking up IT IS species
+<p class=MsoNormal>Dealt with issue in Tethys module looking up ITIS species
 codes where the progress dialog would not close. </p>
 
 <p class=MsoNormal>Project Information abstract field was not saving /
 reloading correctly in the configuration file. Fixed.</p>
+
+<p class=MsoNormal>Small bugs in FX Time display to improve settings pane.</p>
+
+<p class=MsoNormal>Fix offline file scanning in Acquisition when sub folder
+button checked / unchecked.</p>
 
 <h1>Version 2.02.15 December 2024<span style='font-size:12.0pt;font-family:
 "Times New Roman",serif'> </span></h1>
@@ -677,8 +704,8 @@ correctly saving updated bearings to the database. Now fixed. </span></p>
 Fixed bug that threw an error if no classifier files were &nbsp;specified in
 Rocca Params dialog</span></p>
 
-<p class=MsoNormal><span lang=EN-US>Fix memory issue with
-RoccaContourDataBlocks not being released for garbage collection</span></p>
+<p class=MsoNormal><span lang=EN-US>Fix memory issue with RoccaContourDataBlocks
+not being released for garbage collection</span></p>
 
 <p class=MsoNormal><span lang=EN-US>Set RoccaContourDataBlock objects to null
 and stop PamObserver Timer to</span></p>
@@ -781,8 +808,8 @@ mode. Now fixed. </span></p>
 caused PAMGuard to crash when processing large data sets with the ROCCA
 classifier. </span></p>
 
-<p class=MsoNormal><span lang=EN-US>Ishmael Modules: Fixed bug which
-occasionally caused crashes when processing many files offline. </span></p>
+<p class=MsoNormal><span lang=EN-US>Ishmael Modules: Fixed bug which occasionally
+caused crashes when processing many files offline. </span></p>
 
 <p class=MsoNormal><span lang=EN-US>PAMDog: Fixed bug in watchdog program which
 was trying to start PAMGuard before modules were fully loaded. The watchdog now
@@ -873,8 +900,8 @@ click re-classification, bearing calculation, etc.)</span></p>
 
 <p class=MsoNormal><span lang=EN-US>Data selector for Whistle Classifier module</span></p>
 
-<p class=MsoNormal><span lang=EN-US>Variable sound output level when using
-National Instruments devices for sound playback.</span></p>
+<p class=MsoNormal><span lang=EN-US>Variable sound output level when using National
+Instruments devices for sound playback.</span></p>
 
 <p class=MsoNormal><span lang=EN-US>Speed improvement when processing flac
 audio files. </span></p>
@@ -1225,8 +1252,9 @@ lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nb
 Added ability to receive NMEA over UDP multicast in addition to UDP broadcast </p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>5. </span><span
-lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-Added logger form annotation to Spectrogram Annotation module. </p>
+lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
+lang=EN-US> </span>Added logger form annotation to Spectrogram Annotation
+module. </p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>6. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
@@ -1363,10 +1391,10 @@ lang=EN-US> </span>Add functionality for bluetooth headsets. </p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>2. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
-lang=EN-US> </span>Add user-facing option to adjust the startup delay for the
-time-correction (Global Time module). This provides a workaround to speed up
-analysis of thousands of wav files (i.e. by setting startup delay to 0 instead
-of default value of 2000 ms). </p>
+lang=EN-US> </span>Add user-facing option to adjust the startup delay for the time-correction
+(Global Time module). This provides a workaround to speed up analysis of
+thousands of wav files (i.e. by setting startup delay to 0 instead of default
+value of 2000 ms). </p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>3. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
@@ -1622,8 +1650,8 @@ lang=EN-US> </span>Bug 427. Soundtrap import not closing binary files properly
 if BCL files do not contain off-effort 'E' line</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>2. </span><span
-lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-Bug 428. Decimator crashing in viewer mode</p>
+lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
+lang=EN-US> </span>Bug 428. Decimator crashing in viewer mode</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>3. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
@@ -1740,8 +1768,9 @@ files were being analyzed.</p>
 <p class=MsoNormal><b><span lang=EN-US>Upgrades</span></b></p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>1. </span><span
-lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-Upgrades to the Group Localiser, including better error estimation.</p>
+lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
+lang=EN-US> </span>Upgrades to the Group Localiser, including better error
+estimation.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>2. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
@@ -1917,9 +1946,9 @@ lang=EN-US> </span>Added decimal degrees option to latitude/longitude dialog.</p
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>2. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
-lang=EN-US> </span>Added option in the Click Delay parameters to restrict the number
-of initial samples used in the calculation. This can be useful for cleaning up
-delays in the presence of echoes and small time delays.</p>
+lang=EN-US> </span>Added option in the Click Delay parameters to restrict the
+number of initial samples used in the calculation. This can be useful for
+cleaning up delays in the presence of echoes and small time delays.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>3. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -2032,10 +2061,10 @@ lang=EN-US> </span>Added ability to read differential GPS data.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>5. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
-lang=EN-US> </span>Added check for duplicate settings in the psf file when exiting
-PAMGuard. If duplicate settings are found, user is given the option to leave
-them in the psf or get rid of them. Duplicate settings are ignored by PAMGuard,
-but can cause the psf file to grow large over time.</p>
+lang=EN-US> </span>Added check for duplicate settings in the psf file when
+exiting PAMGuard. If duplicate settings are found, user is given the option to
+leave them in the psf or get rid of them. Duplicate settings are ignored by
+PAMGuard, but can cause the psf file to grow large over time.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>6. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -2137,11 +2166,11 @@ including expanding to work with whistles.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>3. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
-lang=EN-US> </span>Added option to export all settings and parameters as an
-XML-formatted file. Note that this required changes to the structure of the
-Array Manager, and as such any settings (psf) files created with this version
-of PAMGuard cannot be used in older versions. Older psf files can be loaded
-with this version, but will be converted.</p>
+lang=EN-US> </span>Added option to export all settings and parameters as an XML-formatted
+file. Note that this required changes to the structure of the Array Manager,
+and as such any settings (psf) files created with this version of PAMGuard
+cannot be used in older versions. Older psf files can be loaded with this
+version, but will be converted.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>4. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
@@ -2449,8 +2478,8 @@ to colour them by the colour assigned to the group. </span></p>
 
 <h3><span lang=EN-US>Using Old PAMGuard Configurations</span></h3>
 
-<p class=MsoNormal><span lang=EN-US>Old PAMGuard configurations will work with the
-new version. However please note the following:</span></p>
+<p class=MsoNormal><span lang=EN-US>Old PAMGuard configurations will work with
+the new version. However please note the following:</span></p>
 
 <p class=MsoListParagraph style='margin-left:54.0pt;text-indent:-36.0pt'><span
 lang=EN-US>1.</span><span lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -2615,8 +2644,8 @@ dependencies)</span></p>
 <p class=MsoNormal><b><span lang=EN-US>Other Changes</span></b></p>
 
 <p class=MsoNormal><span lang=EN-US>The installer has been updated to handle
-both 64 bit and 32 bit installations. PAMGuard psf files are now registered in the
-Windows Registry, so double-clicking on a psf file should run PAMGuard in
+both 64 bit and 32 bit installations. PAMGuard psf files are now registered in
+the Windows Registry, so double-clicking on a psf file should run PAMGuard in
 normal mode (as opposed to Viewer or Mixed modes). Note that the Windows
 Registry can only hold a single executable reference for psf files; therefore,
 for users with multiple installations of PAMGuard, double-clicking on a psf
@@ -2762,9 +2791,9 @@ main click detector display. </span></p>
 
 <p class=MsoNormal><b><span lang=EN-US>Target Motion Analysis</span></b></p>
 
-<p class=MsoNormal><span lang=EN-US>A major piece of work has been undertaken
-to improve the Target Motion tracking with PAMGuard. Details are available in
-the online help. Users of the Click Detector will notice the following changes:</span></p>
+<p class=MsoNormal><span lang=EN-US>A major piece of work has been undertaken to
+improve the Target Motion tracking with PAMGuard. Details are available in the
+online help. Users of the Click Detector will notice the following changes:</span></p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>1.</span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -2775,9 +2804,9 @@ the database. </span></p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>2.</span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span lang=EN-US>The number of data streams associated with the click
-detector has been tidied up so that there are a) All Click, b) Tracked Clicks
-(those which are part of an event) and c) Events. </span></p>
+</span><span lang=EN-US>The number of data streams associated with the click detector
+has been tidied up so that there are a) All Click, b) Tracked Clicks (those
+which are part of an event) and c) Events. </span></p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>3.</span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3089,13 +3118,13 @@ for details. </span></p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>3.</span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span lang=EN-US>GPS Loading into PAMGuard Viewer. This has been
-modified so that the rules governing GPS data collection and storage also apply
-when loading data from the database. For instance, if you've stored all GPS
-data, you've probably got a record every second in the database which can
-create memory overflows if you try to load a lot of data in the viewer. You can
-now tell PAMGuard to only load a data point every n seconds which will reduce
-the number of points loaded. Useful when making large scale overview maps of a
+</span><span lang=EN-US>GPS Loading into PAMGuard Viewer. This has been modified
+so that the rules governing GPS data collection and storage also apply when
+loading data from the database. For instance, if you've stored all GPS data,
+you've probably got a record every second in the database which can create
+memory overflows if you try to load a lot of data in the viewer. You can now
+tell PAMGuard to only load a data point every n seconds which will reduce the
+number of points loaded. Useful when making large scale overview maps of a
 survey. </span></p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>4.</span><span
@@ -3525,11 +3554,10 @@ different. Details are available in the online help. </p>
 <p class=MsoNormal><i>FLAC File Support</i></p>
 
 <p class=MsoNormal>Can now read raw audio data direct from FLAC files. <a
-href="http://en.wikipedia.org/wiki/FLAC">FLAC</a> is a lossless compression
-algorithm for audio data. Files, or folders of files are accessed in the same
-way as WAV and AIFF files in the Sound Acquisition module. In a future release
-we also hope to provide support for writing FLAC files from the sound recorder
-module. </p>
+href="http://en.wikipedia.org/wiki/FLAC">FLAC</a> is a lossless compression algorithm
+for audio data. Files, or folders of files are accessed in the same way as WAV
+and AIFF files in the Sound Acquisition module. In a future release we also
+hope to provide support for writing FLAC files from the sound recorder module. </p>
 
 <p class=MsoNormal><i>Sound Recorder Module</i></p>
 
@@ -3653,8 +3681,8 @@ survey software package.</p>
 
 <p class=MsoNormal style='margin-left:36.0pt'><i>Core Functionality</i></p>
 
-<p class=MsoNormal style='margin-left:36.0pt'>New storage options have been
-implemented which give the user greater control of where data are stored. </p>
+<p class=MsoNormal style='margin-left:36.0pt'>New storage options have been implemented
+which give the user greater control of where data are stored. </p>
 
 <p class=MsoNormal style='margin-left:36.0pt'>Modules have been arranged into
 different groups in the configuration menus and tool tip texts have been added
@@ -3694,9 +3722,9 @@ databases.</p>
 <p class=MsoNormal style='margin-left:36.0pt'>National Instruments cards: Added
 code in support of the new x-series devices. </p>
 
-<p class=MsoNormal style='margin-left:36.0pt'>ASIO sound cards: Added support for
-a new open source ASIO driver system (jasiohost). The old system has been left
-in place for now while we assess users response to the newer system. </p>
+<p class=MsoNormal style='margin-left:36.0pt'>ASIO sound cards: Added support
+for a new open source ASIO driver system (jasiohost). The old system has been
+left in place for now while we assess users response to the newer system. </p>
 
 <p class=MsoNormal style='margin-left:36.0pt'><i>AIS</i></p>
 
@@ -3741,8 +3769,8 @@ inter-detection interval.</p>
 margin-left:36.0pt'>&nbsp;</p>
 
 <p class=MsoNormal style='margin-top:0cm;margin-right:0cm;margin-bottom:0cm;
-margin-left:36.0pt'>Target Motion Analysis: Updated target motion analysis
-module so that it works in three (as opposed to two) dimensions.</p>
+margin-left:36.0pt'>Target Motion Analysis: Updated target motion analysis module
+so that it works in three (as opposed to two) dimensions.</p>
 
 <p class=MsoNormal style='margin-top:0cm;margin-right:0cm;margin-bottom:0cm;
 margin-left:36.0pt'>&nbsp;</p>
@@ -3771,14 +3799,14 @@ have implemented database storage for output of these modules. </p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span style='font-family:
 Symbol'>'</span><span style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Radar Display: A bug which stopped the radar display from correctly displaying
-bearings to whistles from arrays containing more than two hydrophone elements
-has been fixed. </p>
+</span>Radar Display: A bug which stopped the radar display from correctly
+displaying bearings to whistles from arrays containing more than two hydrophone
+elements has been fixed. </p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span style='font-family:
 Symbol'>'</span><span style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Database Speed: A substantial rewriting of some of the indexing methods
-in the database module has led to a significant increase in the speed at which
+</span>Database Speed: A substantial rewriting of some of the indexing methods in
+the database module has led to a significant increase in the speed at which
 data are written to the database (orders of magnitude for large databases).
 This is having a significant impact on the overall reliability of the software.
 Other changes have increased the speed (again by orders of magnitude) at which
@@ -4193,8 +4221,8 @@ existing configurations. </p>
 
 <p class=MsoNormal>Sound acquisition</p>
 
-<p class=MsoNormal>Changes made for a previous Mac build now incorporated into
-main Beta branch. This should allow for basic 2 channel sound acquisition using
+<p class=MsoNormal>Changes made for a previous Mac build now incorporated into main
+Beta branch. This should allow for basic 2 channel sound acquisition using
 Macs. </p>
 
 <p class=MsoNormal>Bug Fixes</p>
@@ -4483,11 +4511,11 @@ now been fixed. </p>
 
 <p class=MsoNormal><b>Bug Fixes</b></p>
 
-<p class=MsoNormal>Decimator was calculating incorrect filter coefficients (coefficients
-were based on the output sample rate, not the input sample rate, so it's likely
-that actual filtering of data was minimal). This is now rectified. Ishmael
-matched filter. Would crash if template file not correctly loaded. Now issues a
-warning message to the terminal and does not crash. </p>
+<p class=MsoNormal>Decimator was calculating incorrect filter coefficients
+(coefficients were based on the output sample rate, not the input sample rate,
+so it's likely that actual filtering of data was minimal). This is now
+rectified. Ishmael matched filter. Would crash if template file not correctly
+loaded. Now issues a warning message to the terminal and does not crash. </p>
 
 <p class=MsoNormal>Spelling correction on user input form (Sumbit - Submit)</p>
 
@@ -4713,9 +4741,9 @@ a serial port </p>
 
 <p class=MsoNormal>New Likelihood detector. </p>
 
-<p class=MsoNormal>The likelihood detector module is an implementation of a likelihood
-ratio test with flexible algorithms and configuration to estimate likelihood.
-It is </p>
+<p class=MsoNormal>The likelihood detector module is an implementation of a
+likelihood ratio test with flexible algorithms and configuration to estimate
+likelihood. It is </p>
 
 <p class=MsoNormal>suitable for detecting both short duration Odontocete clicks
 (Sperm, Beaked, etc.) as well as moderate duration Mysticete calls (Humpback,
@@ -4997,8 +5025,7 @@ Symbol'>'</span><span style='font-size:7.0pt;font-family:"Times New Roman",serif
 
 <h2>0.5b&nbsp;&nbsp;&nbsp; 31 August 2007 </h2>
 
-<p class=MsoNormal>Requires Java 6 Update 2
-(http://java.com/en/download/manual.jsp)</p>
+<p class=MsoNormal>Requires Java 6 Update 2 (http://java.com/en/download/manual.jsp)</p>
 
 <p class=MsoNormal>Major new features include:</p>
 
@@ -5041,8 +5068,8 @@ Symbol'>'</span><span style='font-size:7.0pt;font-family:"Times New Roman",serif
 <p class=MsoNormal>&nbsp;</p>
 
 <p class=MsoNormal><a name="_Toc312065304"></a><a name="_Toc312063949"></a><span
-class=Heading2Char><span style='font-size:13.0pt'>1.0Beta 22 Jan 2008 - PAMGuard
-starts two releases, core and beta release</span></span>, </p>
+class=Heading2Char><span style='font-size:13.0pt'>1.0Beta 22 Jan 2008 -
+PAMGuard starts two releases, core and beta release</span></span>, </p>
 
 <p class=MsoNormal>this is the beta release</p>
 

@@ -467,7 +467,7 @@ final public class PamModel implements PamSettings {
 		mi.setToolTipText("Record observer monitoring effort");
 		mi.setModulesMenuGroup(utilitiesGroup);
 //		mi.setHidden(SMRUEnable.isEnable() == false);
-		mi.setToolTipText("Enables an observer to enter their name and infomation about which displays are being monitored");
+		mi.setToolTipText("Enables an observer to enter their name and information about which displays are being monitored");
 		mi.setMaxNumber(1);
 
 		mi = PamModuleInfo.registerControlledUnit(BackupManager.class.getName(), BackupManager.defaultName);
@@ -491,14 +491,14 @@ final public class PamModel implements PamSettings {
 		mi.setHelpPoint("utilities/tethys/docs/tethys_overview.html");
 		mi.setAllowedModes(PamPluginInterface.VIEWERONLY);
 
-		if (isViewer) {
+//		if (isViewer) {
 			mi = PamModuleInfo.registerControlledUnit(RavenControl.class.getName(), RavenControl.defaultName);
 			mi.setToolTipText("Import data from Raven selection tables");
 			mi.setModulesMenuGroup(utilitiesGroup);
 			mi.setHidden(!SMRUEnable.isEnable());		
 			mi.setAllowedModes(PamPluginInterface.VIEWERONLY);	
 			
-		}		
+//		}		
 		
 		/*
 		 * ************* End Utilities  Group *******************
@@ -708,7 +708,7 @@ final public class PamModel implements PamSettings {
 
 		mi = PamModuleInfo.registerControlledUnit("envelopeTracer.EnvelopeControl", "Envelope Tracing");
 		mi.addDependency(new PamDependency(RawDataUnit.class, "Acquisition.AcquisitionControl"));	
-		mi.setToolTipText("");
+		mi.setToolTipText("Traces the envelope of audio data and outputs it as a new waveform");
 		mi.setModulesMenuGroup(processingGroup);
 		mi.setModulesMenuGroup(processingGroup);
 		mi.setHelpPoint("sound_processing/EnvelopeTrace/Docs/EnvelopeOverview.html");
