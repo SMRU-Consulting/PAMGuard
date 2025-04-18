@@ -16,6 +16,7 @@ public class SmallHoursSchedule extends BackupSchedule {
 	static long oneHour = 3600L*1000L;
 	static long oneDay = oneHour*24L;
 	static long halfDay = oneHour*12L;
+	static long threeHours = oneHour*3L;
 
 	public SmallHoursSchedule(BackupManager backupManager) {
 		super(backupManager);
@@ -76,6 +77,10 @@ public class SmallHoursSchedule extends BackupSchedule {
 		long next12 = ((minBackupTime / halfDay)+1)*halfDay;
 		long next1 = next12 + 3600L*1000L;// one hour after 12 (noon or midnight) 
 		nextBackup = next1;
+		
+		long next3 = ((minBackupTime / threeHours)+1)*threeHours;
+		long next3plusone = next3 + 3600L*1000L;// one hour after 12 (noon or midnight) 
+		nextBackup = next3plusone;
 		
 		return nextBackup;
 	}

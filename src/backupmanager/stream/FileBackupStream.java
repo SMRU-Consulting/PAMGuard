@@ -4,7 +4,10 @@ import java.awt.Window;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +111,9 @@ public abstract class FileBackupStream extends BackupStream {
 			if(aFile.toString().contains(".psfx")) {
 				continue;
 			}
+			if(isFileOpen(aFile)) {
+				continue;
+			}
 			newItems.add(new FileStreamItem(aFile));
 		}
 		long t3 = System.currentTimeMillis();
@@ -124,6 +130,24 @@ public abstract class FileBackupStream extends BackupStream {
 			return null;
 		}
 	}
+	
+	private boolean isFileOpen(File aFile) {
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(aFile, "rw");
+            return false; // File is not open by another process
+        } catch (IOException e) {
+            return true; // File is open by another process
+        } finally {
+            if (raf != null) {
+                try {
+                    raf.close();
+                } catch (IOException e) {
+                   // ignore exception on close
+                }
+            }
+        }
+    }
 	
 	/**
 	 * Get all files in the source folder system. 
