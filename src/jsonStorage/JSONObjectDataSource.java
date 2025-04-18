@@ -55,7 +55,15 @@ public abstract class JSONObjectDataSource<DataSource extends JSONObjectData> {
 			e.printStackTrace();
 			jsonString = String.format("{\"Error cannot convert: %s\"}", this.getClass());
 		}
+		
+		jsonString = jsonString.substring(0, jsonString.length()-2);
+		jsonString = jsonString+","+getAdditionalJson(dataUnit)+"}";
+		
 		return jsonString;
+	}
+	
+	protected String getAdditionalJson(PamDataUnit dataUnit) {
+		return "\"addition\":\"null\"";
 	}
 	
 	
@@ -126,12 +134,14 @@ public abstract class JSONObjectDataSource<DataSource extends JSONObjectData> {
 		objectData.dateReadable = PamCalendar.formatDateTime2(objectData.millis, "yyyy MMMM dd HH:mm:ss.SSS", false);
 		objectData.filePath = "Network Sender";
 		BinaryDataSource theBinarySource = dataUnit.getParentDataBlock().getBinaryDataSource();
-		objectData.moduleType = theBinarySource.getModuleType();
-		objectData.moduleName = theBinarySource.getModuleName();
-		objectData.streamName = theBinarySource.getStreamName();
-		objectData.moduleVersion = theBinarySource.getModuleVersion();
-		objectData.pamguardVersion = PamguardVersionInfo.version;
-		objectData.fileFormat = BinaryStore.getCurrentFileFormat();
+		if(theBinarySource!=null) {
+			objectData.moduleType = theBinarySource.getModuleType();
+			objectData.moduleName = theBinarySource.getModuleName();
+			objectData.streamName = theBinarySource.getStreamName();
+			objectData.moduleVersion = theBinarySource.getModuleVersion();
+			objectData.pamguardVersion = PamguardVersionInfo.version;
+			objectData.fileFormat = BinaryStore.getCurrentFileFormat();
+		}
 	}
 	
 	

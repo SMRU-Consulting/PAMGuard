@@ -55,7 +55,7 @@ public class NetworkParamsPanel extends PamPanel{
 	
 	public JPanel panel;
 	
-	public JTextField baseTopic;
+	public JTextField baseTopic, stationId, persistenceDir;
 	
 	public NetworkParamsPanel(PamDialog parentDialog, NetworkParams networkParams, boolean showMqttSelect) {
 		this.networkParams = networkParams;
@@ -102,6 +102,16 @@ public class NetworkParamsPanel extends PamPanel{
 		addComponent(ipPanel, baseTopic = new JTextField(20), c);
 		c.gridx = 0;
 		c.gridy++;
+		addComponent(ipPanel, new JLabel("Station ID ", SwingConstants.RIGHT), c);
+		c.gridx++;
+		addComponent(ipPanel, stationId = new JTextField(20), c);
+		c.gridx = 0;
+		c.gridy++;
+		addComponent(ipPanel, new JLabel("Persistance Directory ", SwingConstants.RIGHT), c);
+		c.gridx++;
+		addComponent(ipPanel, persistenceDir = new JTextField(60), c);
+		c.gridx = 0;
+		c.gridy++;
 		
 		if(this.showMqttSelect) {
 			addComponent(ipPanel,useMqtt = new JCheckBox("Use Mqtt Transmission"),c);
@@ -136,7 +146,9 @@ public class NetworkParamsPanel extends PamPanel{
 		password.setText(networkParams.password);
 		rememberPassword.setSelected(networkParams.savePassword);
 		baseTopic.setText(networkParams.baseTopic);
+		stationId.setText(networkParams.stationId);
 		useSSL.setSelected(networkParams.useSSL);
+		persistenceDir.setText(networkParams.persistenceDirectory);
 		if(this.useMqtt!=null) {
 			useMqtt.setSelected(networkParams.mqtt);
 		}
@@ -150,10 +162,12 @@ public class NetworkParamsPanel extends PamPanel{
 		networkParams.userId = userName.getText();
 		networkParams.password = new String(password.getPassword());
 		networkParams.useSSL = useSSL.isSelected();
+		networkParams.persistenceDirectory = persistenceDir.getText();
 		if(this.useMqtt!=null){
 			networkParams.mqtt = useMqtt.isSelected();
 		}
 		networkParams.baseTopic = baseTopic.getText();
+		networkParams.stationId = stationId.getText();
 		tlsConfigurePanel.getParams();
 		try {
 			networkParams.portNumber = Integer.valueOf(portNumber.getText());

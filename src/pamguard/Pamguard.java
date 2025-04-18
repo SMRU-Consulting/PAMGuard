@@ -20,33 +20,14 @@ package pamguard;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-//import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
-
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatLightLaf;
-
 import Acquisition.FolderInputSystem;
+import Array.ArrayManager;
+import NMEA.NMEAControl;
 import PamController.PamController;
-import PamController.PamFolders;
 import PamController.PamGUIManager;
-import PamController.PamRunModeDialog;
-import PamController.PamRunModeParams;
 import PamController.PamSettingManager;
 import PamController.PamguardVersionInfo;
 import PamController.pamBuoyGlobals;
@@ -55,8 +36,8 @@ import PamModel.SMRUEnable;
 import PamUtils.FileFunctions;
 import PamUtils.PamExceptionHandler;
 import PamUtils.PlatformInfo;
-import PamUtils.PlatformInfo.OSType;
 import PamUtils.Splash;
+import PamUtils.PlatformInfo.OSType;
 import PamView.FullScreen;
 import PamView.ScreenSize;
 import PamView.dialog.warn.WarnOnce;
@@ -64,13 +45,26 @@ import PamguardMVC.debug.Debug;
 import binaryFileStorage.BinaryStore;
 import dataPlotsFX.JamieDev;
 import generalDatabase.DBControl;
-import networkTransfer.send.NetworkSender;
+import networkTransfer.send.NetSendCommandParam;
 import offlineProcessing.OfflineTaskManager;
+import rawDeepLearningClassifier.DLControl;
 import rocca.RoccaDev;
 
-import NMEA.NMEAControl;
-import rawDeepLearningClassifier.DLControl;
-
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+//import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 
 /**
  * Pamguard main class. 
@@ -101,7 +95,7 @@ public class Pamguard {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+
 		Debug.setPrintDebug(false); // make sure the class instantiates static members. 
 		try {			
 			if (PlatformInfo.calculateOS() == OSType.WINDOWS) {
@@ -110,8 +104,8 @@ public class Pamguard {
 			else {
 				//do not use the mac version...it's awful
 				//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			    UIManager.setLookAndFeel(new FlatLightLaf() );	
 
+				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 			}
 			//		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 			//		        if ("Nimbus".equals(info.getName())) {
@@ -130,9 +124,7 @@ public class Pamguard {
 			//			  System.out.println(keys.nextElement() + ": " + ui.get(nxt));
 			//			}
 			//			PamColors.getInstance().setColors();
-		} catch (Exception e) { 
-			e.printStackTrace();
-		}
+		} catch (Exception e) { }
 
 		int runMode = PamController.RUN_NORMAL;
 		String InputPsf = "NULL";
@@ -163,7 +155,8 @@ public class Pamguard {
 		try {
 			// get the java runnable file name. 
 			//	    	http://stackoverflow.com/questions/4294522/jar-file-name-form-java-code
-			System.out.println(Pamguard.class.getProtectionDomain().getCodeSource().getLocation());
+			URL javaFile = Pamguard.class.getProtectionDomain().getCodeSource().getLocation();
+			System.out.println(javaFile);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -174,20 +167,6 @@ public class Pamguard {
 			String anArg;
 			while (iArg < nArgs) {
 				anArg = args[iArg++];
-				
-				if (anArg.equalsIgnoreCase("-c")) {
-					//the user chooses which run mode
-					PamRunModeParams runbModeParams = PamRunModeDialog.showDialog(null, true);
-					if (runbModeParams==null || runbModeParams.runMode<0) {
-						//use cancelled
-						System.exit(0);
-					}
-					else {
-						//set anArg to whatever the user chose
-						anArg = runbModeParams.getRunString();
-					}
-				}
-				
 				if (anArg.equalsIgnoreCase("-v")) {
 					runMode = PamController.RUN_PAMVIEW;
 					System.out.println("PAMGUARD Viewer");
@@ -195,6 +174,15 @@ public class Pamguard {
 				else if (anArg.equalsIgnoreCase("-m")) {
 					runMode = PamController.RUN_MIXEDMODE;
 					System.out.println("PAMGUARD Offline mixed mode");
+				}				
+				else if (anArg.equalsIgnoreCase(GlobalArguments.BATCHVIEW)) {
+					/**
+					 * Used with batch processor when it launches the configuration to make it clear that
+					 * it's really working in viewer mode, and viewer mode settings should be available, but
+					 * settings will be read and written using psfx files, not the databsae. 
+					 */
+					GlobalArguments.setParam(GlobalArguments.BATCHVIEW, "true");
+//					runMode = PamController.RUN_PAMVIEW;
 				}
 				else if (anArg.equalsIgnoreCase("-nr")) {
 					runMode = PamController.RUN_NETWORKRECEIVER;
@@ -233,10 +221,6 @@ public class Pamguard {
 				}
 				else if (anArg.equalsIgnoreCase("-jamie")) {
 					JamieDev.setEnabled(true);
-					System.out.println("Enabling Jamie Macaulay modifications.");
-				}
-				else if (anArg.equalsIgnoreCase("-smrudev")) {
-					SMRUEnable.setDevEnable(true);
 					System.out.println("Enabling Jamie Macaulay modifications.");
 				}
 				else if (anArg.equalsIgnoreCase("-rocca")) {
@@ -294,6 +278,12 @@ public class Pamguard {
 					GlobalArguments.setParam(BinaryStore.GlobalFolderArg, binFolder);
 					System.out.println("Setting output folder for binary files to " + binFolder);
 				}
+				else if (anArg.equalsIgnoreCase(NMEAControl.GlobalPortFlag)) {
+					// output folder for binary files. 
+					String serialPort = args[iArg++];
+					GlobalArguments.setParam(NMEAControl.GlobalPortFlag, serialPort);
+					System.out.println("Setting nmea serial port to " + serialPort);
+				}
 				else if (anArg.equalsIgnoreCase(DBControl.GlobalDatabaseNameArg)) {
 					// database file name
 					String dbName = args[iArg++];
@@ -306,6 +296,12 @@ public class Pamguard {
 					GlobalArguments.setParam(FolderInputSystem.GlobalWavFolderArg, wavFolder);
 					System.out.println("Setting input wav file folder to " + wavFolder);
 				}
+				else if (anArg.equalsIgnoreCase(FolderInputSystem.GlobalWavPrefixArg)) {
+					// source folder for wav files (or other supported sound files)
+					String wavPrefix = args[iArg++];
+					GlobalArguments.setParam(FolderInputSystem.GlobalWavPrefixArg, wavPrefix);
+					System.out.println("Setting recording prefix to " + wavPrefix);
+				}
 				else if (anArg.equalsIgnoreCase(PamController.AUTOSTART)) {
 					// auto start processing. 
 					GlobalArguments.setParam(PamController.AUTOSTART, PamController.AUTOSTART);
@@ -316,66 +312,16 @@ public class Pamguard {
 					GlobalArguments.setParam(PamController.AUTOEXIT, PamController.AUTOEXIT);
 					System.out.println("Setting autoexit ON");
 				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.ADDRESS)) {
-					// auto exit at end of processing. 
-					GlobalArguments.setParam(NetworkSender.ADDRESS, args[iArg++]);
+				else if (NetSendCommandParam.isArgRegistered(anArg)) {
+					GlobalArguments.setParam(anArg, args[iArg++]);
 				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.ID1)) {
-					// auto exit at end of processing. 
-					GlobalArguments.setParam(NetworkSender.ID1, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.ID2)) {
-					// auto exit at end of processing. 
-					GlobalArguments.setParam(NetworkSender.ID2, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.PORT)) {
-					// auto exit at end of processing. 
-					GlobalArguments.setParam(NetworkSender.PORT, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.USESSL)) {
-					
-					GlobalArguments.setParam(NetworkSender.USESSL, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.USEMQTT)) {
-					
-					GlobalArguments.setParam(NetworkSender.USEMQTT, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.TRUSTPATH)) {
-					
-					GlobalArguments.setParam(NetworkSender.TRUSTPATH, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.TRUSTPASS)) {
-					
-					GlobalArguments.setParam(NetworkSender.TRUSTPASS, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.KEYPATH)) {
-					
-					GlobalArguments.setParam(NetworkSender.KEYPATH, args[iArg++]);
-				}
-				else if (anArg.equalsIgnoreCase(NetworkSender.KEYPASS)) {
-					GlobalArguments.setParam(NetworkSender.KEYPASS, args[iArg++]);
-				}
-				else if(anArg.equalsIgnoreCase(NetworkSender.USER)){
-					GlobalArguments.setParam(NetworkSender.USER, args[iArg++]);
-				}
-				else if(anArg.equalsIgnoreCase(NetworkSender.PASSWORD)){
-					GlobalArguments.setParam(NetworkSender.PASSWORD, args[iArg++]);
+				else if(anArg.equalsIgnoreCase(ArrayManager.FIRST_IDX_SENS)){
+					GlobalArguments.setParam(ArrayManager.FIRST_IDX_SENS, args[iArg++]);
 				}
 				else if(anArg.equals(DLControl.MODELPATH)) {
 					GlobalArguments.setParam(DLControl.MODELPATH, args[iArg++]);
 				}
-				else if (anArg.equalsIgnoreCase(NMEAControl.GlobalPortFlag)) {
-					// output folder for binary files. 
-					String serialPort = args[iArg++];
-					GlobalArguments.setParam(NMEAControl.GlobalPortFlag, serialPort);
-					System.out.println("Setting nmea serial port to " + serialPort);
-				}
-				else if (anArg.equalsIgnoreCase(FolderInputSystem.GlobalWavPrefixArg)) {
-					// source folder for wav files (or other supported sound files)
-					String wavPrefix = args[iArg++];
-					GlobalArguments.setParam(FolderInputSystem.GlobalWavPrefixArg, wavPrefix);
-					System.out.println("Setting recording prefix to " + wavPrefix);
-				}
+				
 				
 				else if (anArg.equalsIgnoreCase(ReprocessStoreChoice.paramName)) {
 					String arg = args[iArg++];
@@ -461,9 +407,9 @@ public class Pamguard {
 		System.out.println("(Windows users right click on window title bar for edit / copy options)");
 		System.out.println("");
 
-		if (!checkJavaVersion(javaV)) {
+		if (checkJavaVersion(javaV) == false) {
 			System.exit(0);
-		}
+		};
 
 		int spashTime = 5000;
 		if (SMRUEnable.isEnable()) {
@@ -477,7 +423,6 @@ public class Pamguard {
 		}
 		//		
 		final Runnable createPamguard = new Runnable() {
-			@Override
 			public void run() {
 				PamController.create(chosenRunMode);
 			}
@@ -670,7 +615,6 @@ public class Pamguard {
 		/**
 		 * Print to both the console and the file
 		 */
-		@Override
 		public synchronized void print(final String str) {
 			if (str.contains("WARN org.docx4j") || str.contains("INFO org.docx4j")) return;	// don't bother printing these messages out
 			origPrintStream.print(str);
@@ -684,7 +628,6 @@ public class Pamguard {
 		/**
 		 * Print to both the console and the file
 		 */
-		@Override
 		public synchronized void println(final String str) {
 			if (str == null) {
 				println("null");
@@ -705,7 +648,6 @@ public class Pamguard {
 		 * the string.  Instead, compile it all into a single string first
 		 * and then call print
 		 */
-		@Override
 		public synchronized PrintStream printf(String format, Object... args) {
 			String theString = String.format(format, args);
 			print(theString);
@@ -778,12 +720,6 @@ public class Pamguard {
 	private static class FolderSizeMonitor implements Runnable {
 		@Override
 		public void run() {
-			
-			PamFolders.deleteTempFiles(".x86_64.dll");
-			PamFolders.deleteTempFiles(".dll.lck");
-			PamFolders.deleteTempFiles(".tmp");
-			PamFolders.deleteTempFiles("-sqlitejdbc.dll");
-			
 			while(true) {
 				long length = 0;
 				File dir = new File(getSettingsFolder());

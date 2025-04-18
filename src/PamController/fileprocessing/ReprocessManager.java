@@ -44,8 +44,8 @@ public class ReprocessManager {
 		checkWorker.execute();	
 		synchronized (synch) {
 			workDialog = new PamWorkDialog(mainFrame, 1, "Checking input files and existing output data");
-			workDialog.setVisible(true);
 		}
+		workDialog.setVisible(true);
 	}
 	
 	private void closeWorkDialog() {

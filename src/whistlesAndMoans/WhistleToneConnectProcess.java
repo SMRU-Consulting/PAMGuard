@@ -7,7 +7,6 @@ import java.util.ListIterator;
 
 import org.json.JSONObject;
 
-import networkTransfer.receive.BuoyStatusDataUnit;
 import spectrogramNoiseReduction.SpectrogramNoiseProcess;
 import spectrogramNoiseReduction.SpectrogramNoiseSettings;
 import whistlesAndMoans.plots.WhistleSymbolManager;
@@ -16,6 +15,7 @@ import fftManager.FFTDataBlock;
 import fftManager.FFTDataUnit;
 import generalDatabase.PamDetectionLogging;
 import generalDatabase.SQLLogging;
+import networkTransfer.receive.status.BuoyStatusDataUnit;
 import Array.ArrayManager;
 import Localiser.LocalisationAlgorithmInfo;
 import Localiser.algorithms.Correlations;
@@ -44,7 +44,6 @@ import fftManager.FFTDataBlock;
 import fftManager.FFTDataUnit;
 import generalDatabase.PamDetectionLogging;
 import generalDatabase.SQLLogging;
-import networkTransfer.receive.BuoyStatusDataUnit;
 import spectrogramNoiseReduction.SpectrogramNoiseProcess;
 import spectrogramNoiseReduction.SpectrogramNoiseSettings;
 import whistlesAndMoans.plots.WhistleSymbolManager;

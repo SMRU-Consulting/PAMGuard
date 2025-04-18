@@ -25,7 +25,9 @@ public class NetworkSendParams extends NetworkParams implements Serializable, Cl
 	
 	public int stationId2;
 		
-	public int sendingFormat = NETWORKSEND_BYTEARRAY;
+	public int sendingFormat;
+	
+	public String persistenceDir;
 	
 	
 	/**

@@ -32,8 +32,8 @@ public class MqttReceiveThread {
 		isAlive = true;
 		startHeartbeatTimer();
 		
-		boolean isStatus = topic.contains("status");
-		if(!isStatus) {
+		boolean isPamData = topic.contains("pamData");
+		if(isPamData) {
 			
 			InputStream inStream = new ByteArrayInputStream(message.getPayload());
 			DataInputStream dis = new DataInputStream(inStream);
@@ -45,6 +45,7 @@ public class MqttReceiveThread {
 			}
 			
 			if(headInt!=NetworkReceiveThread.HEADID) {
+				System.out.println("Received network data without head flag");
 				return;
 			}
 			

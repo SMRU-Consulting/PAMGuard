@@ -71,9 +71,16 @@ public class StaticOriginMethod extends HydrophoneOriginMethod {
 	}
 
 	@Override
-	public StreamerDataUnit getLastStreamerData() {
+	public StreamerDataUnit getLastStreamerData() {	
+		StreamerDataUnit sdu;
+		GpsDataUnit setPosition = staticOriginSettings.getStaticPosition();
+		if (setPosition != null) {
+			sdu = new StreamerDataUnit(setPosition.getTimeMilliseconds(), streamer);
+			sdu.setGpsData(setPosition.getGpsData());
+			return sdu;
+		}
 		StreamerDataBlock streamerDataBlock = ArrayManager.getArrayManager().getStreamerDatabBlock();
-		StreamerDataUnit sdu = streamerDataBlock.getLastUnit(1<<streamer.getStreamerIndex());		
+		sdu = streamerDataBlock.getLastUnit(1<<streamer.getStreamerIndex());		
 		if (sdu == null) {
 		 sdu = new StreamerDataUnit(PamCalendar.getTimeInMillis(), streamer);
 		//System.out.println("StaticOriginMethod: Streamer rotation: " +sdu.getGpsData().getQuaternion().toHeading());
@@ -156,6 +163,7 @@ public class StaticOriginMethod extends HydrophoneOriginMethod {
 		//		private LatLongDialogStrip latStrip;
 		//		private LatLongDialogStrip longStrip;
 		private JTextField latitude, longitude;
+		private JTextField siteName;
 		private JButton menuButton;
 
 		public StaticHydrophoneDialogComponent() {
@@ -188,6 +196,11 @@ public class StaticOriginMethod extends HydrophoneOriginMethod {
 			PamDialog.addComponent(mainPanel, longitude = new JTextField(12), c);
 			longitude.setEditable(false);
 			c.gridx+=c.gridwidth;
+			c.gridx = 0;
+			c.gridy++;
+			PamDialog.addComponent(mainPanel, new JLabel("Site Name: ", JLabel.RIGHT), c);
+			c.gridx ++;
+			PamDialog.addComponent(mainPanel, siteName = new JTextField(20), c);
 
 			outerPanel = new JPanel(new BorderLayout());
 			outerPanel.add(BorderLayout.WEST, mainPanel);
@@ -201,6 +214,11 @@ public class StaticOriginMethod extends HydrophoneOriginMethod {
 
 		@Override
 		public void setParams() {
+			if(staticOriginSettings.getSiteName()!=null) {
+				this.siteName.setText(staticOriginSettings.getSiteName());
+			}else {
+				this.siteName.setText("Unknown");
+			}
 			GpsDataUnit dataUnit = staticOriginSettings.getStaticPosition();
 			if (dataUnit == null) {
 				return;
@@ -243,6 +261,8 @@ public class StaticOriginMethod extends HydrophoneOriginMethod {
 			//				}
 			//			}
 			boolean ok =  staticOriginSettings != null && staticOriginSettings.getStaticPosition() != null;
+			
+			staticOriginSettings.setSiteName(this.siteName.getText());
 
 			return ok;
 		}
@@ -343,7 +363,7 @@ public class StaticOriginMethod extends HydrophoneOriginMethod {
 			if (statPos != null) {
 				gpsData = statPos.getGpsData();
 			}
-			LatLong newLatLong = LatLongDialog.showDialog(null, gpsData, "Hydrophone array reference position");
+			LatLong newLatLong = LatLongDialog.showDialog(PamDialog.getFrame(outerPanel), gpsData, "Hydrophone array reference position");
 			if (newLatLong != null) {
 				staticOriginSettings.setStaticPosition(streamer, new GpsData(newLatLong));
 				setLatLong(newLatLong);

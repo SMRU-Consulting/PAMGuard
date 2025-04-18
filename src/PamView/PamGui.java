@@ -172,7 +172,13 @@ public class PamGui extends PamView implements WindowListener, PamSettings {
 
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
-		String iconLoc = PamIcon.getPAMGuardIconPath(PamIcon.LARGE);
+		String iconLoc;
+		if (System.getProperty("os.name").startsWith("Mac")) {
+			iconLoc = PamIcon.getPAMGuardIconPath(PamIcon.NORMAL);
+		}
+		else {
+			iconLoc = PamIcon.getPAMGuardIconPath(PamIcon.OLD);
+		}
 //		switch (PamController.getInstance().getRunMode()){
 //		case(PamController.RUN_NETWORKRECEIVER):iconLoc=PamIcon.getPAMGuardIconPath(PamIcon.NORMAL);break;
 //		case(PamController.RUN_PAMVIEW):iconLoc=PamIcon.getPAMGuardIconPath(PamIcon.NORMAL);break;
@@ -572,11 +578,11 @@ public class PamGui extends PamView implements WindowListener, PamSettings {
 		}
 		if (isViewer) {
 			menuItem = new JMenuItem("Export Configuration  ...");
-			menuItem.setToolTipText("Export configuration to a new psf file");
+			menuItem.setToolTipText("Export configuration to a new psfx file");
 		}
 		else {
 			menuItem = new JMenuItem("Save Configuration As ...");
-			menuItem.setToolTipText("Save configuration to a new psf file");
+			menuItem.setToolTipText("Save configuration to a new psfx file");
 		}
 		menuItem.addActionListener(new menuSaveAs());
 		fileMenu.add(menuItem);

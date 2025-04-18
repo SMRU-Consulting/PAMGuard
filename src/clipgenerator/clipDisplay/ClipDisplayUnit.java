@@ -425,8 +425,7 @@ public class ClipDisplayUnit extends PamPanel {
 			// TODO Auto-generated method stub
 			if(clipDisplayPanel.clipDisplayParameters.showFullSummary) {
 				return clipDataUnit.getSummaryString();
-			}
-			else {
+			} else {
 				String shortSummary = "<html><p>Clip UID: "+String.valueOf(clipDataUnit.getUID())+"</p>";
 				shortSummary=shortSummary+"<p>Clip UTC: "+PamCalendar.formatTime(clipDataUnit.getLastUpdateTime(), 3, false)+"</p>";
 				return shortSummary;

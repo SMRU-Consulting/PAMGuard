@@ -351,8 +351,12 @@ public class TCPSendClient extends NetworkClient{
 	 * Get the current queue size in kilobytes
 	 * @return
 	 */
-	public synchronized int getQueueSize() {
+	public synchronized int getSynchQueueSize() {
 		return totalQueueSize / 1024;
+	}
+	
+	public int getQueueSize() {
+		return getSynchQueueSize();
 	}
 	
 	/**
@@ -525,7 +529,7 @@ public class TCPSendClient extends NetworkClient{
 	}
 
 	@Override
-	public void sendMessage(NetworkQueuedObject qo) {
+	public void sendNetworkQueuedObject(NetworkQueuedObject qo) {
 		this.queueDataObject(qo);
 		
 	}
@@ -538,7 +542,7 @@ public class TCPSendClient extends NetworkClient{
 	}
 
 	@Override
-	public void configureClient() {
+	public void configureClient(NetworkParams networkParams) {
 		// TODO Auto-generated method stub
 		
 	}

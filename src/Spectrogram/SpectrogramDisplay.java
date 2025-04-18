@@ -502,6 +502,8 @@ InternalFrameListener, DisplayPanelContainer, SpectrogramParametersUser, PamSett
 			for (int i = 0; i < markObservers.size(); i++) {
 				OverlayMarkObserver markObserver = markObservers.get(i);
 				for (SpectrogramPanel aPanel : spectrogramPanels) {
+				    if (aPanel == null)
+				        continue;
 					if (markLinks.getRelationship(aPanel.getMarker(), markObserver)) {
 						aPanel.getMarker().addObserver(markObserver);
 						nMarkObservers++;
@@ -2285,7 +2287,7 @@ InternalFrameListener, DisplayPanelContainer, SpectrogramParametersUser, PamSett
 			 */ 
 			double[] cellValues = dataUnit.getSpectrogramData();
 			double[] dBlevel = dataUnit.getMagnitudeData();
-			System.out.println(cellValues[10]+" "+dBlevel[10]);
+			//System.out.println(cellValues[10]+" "+dBlevel[10]);
 
 
 			// int xStart = imagePos;
@@ -2985,8 +2987,8 @@ InternalFrameListener, DisplayPanelContainer, SpectrogramParametersUser, PamSett
 				}
 			}
 			catch (Exception e) {
-				// avoid synck lock 
-				System.out.println("Exception in wsl draw: " + e.getMessage());
+				// avoid synck lock Occasional exceptions are a concurrentmodifiedexception I think. 
+//				System.out.println("Exception in wsl draw: " + e.getMessage());
 //				e.printStackTrace();
 			}
 

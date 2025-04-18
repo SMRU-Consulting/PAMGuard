@@ -37,6 +37,7 @@ import Filters.FilterMethod;
 import Filters.FilterType;
 import Layout.PamAxis;
 import Layout.PamAxisPanel;
+import PamController.PamController;
 import PamDetection.RawDataUnit;
 import PamView.dialog.PamDialog;
 import PamView.dialog.PamGridBagContraints;
@@ -240,8 +241,11 @@ public class NoiseBandDialog extends PamDialog {
 			filterType.setSelectedIndex(1);
 			break;
 		}
-		sourcePanel.setSource(noiseBandControl.getNoiseBandProcess().getSourceDataBlock());
-		sourcePanel.setChannelList(noiseBandSettings.channelMap);
+		PamDataBlock currentBlock = PamController.getInstance().getDataBlockByLongName(noiseBandControl.noiseBandSettings.rawDataSource);
+		sourcePanel.setSource(currentBlock);
+		if(sourcePanel.getSource()!=null) {
+			sourcePanel.setChannelList(noiseBandSettings.channelMap);
+		}
 		filterGamma.setText(Double.toString(noiseBandSettings.firGamma));
 		
 		outputInterval.setText(new Integer(noiseBandSettings.outputIntervalSeconds).toString());

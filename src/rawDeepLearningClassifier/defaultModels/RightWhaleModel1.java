@@ -44,7 +44,8 @@ public class RightWhaleModel1 implements DLModel {
 	@Override
 	public URI getModelURI() {
 		try {
-			return new URI("https://github.com/PAMGuard/deeplearningmodels/raw/master/right_whale_1/model_lenet_dropout_input_conv_all.zip");
+//			return new URI("https://github.com/PAMGuard/deeplearningmodels/raw/master/right_whale_1/model_lenet_dropout_input_conv_all.zip");
+			return new URI("https://github.com/PAMGuard/deeplearningmodels/releases/download/1.0/model_lenet_dropout_input_conv_all.zip");
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -84,7 +85,7 @@ public class RightWhaleModel1 implements DLModel {
 		genericModelParams.defaultShape= new Long[] {-1L,40l,401L,1L};
 		genericModelParams.shape= new Long[] {-1L,40L,40L,1L};
 
-		genericModelParams.classNames= new DLClassName[] {new DLClassName("Noise", (short) 0), new DLClassName("Right Whale", (short) 1)};
+		genericModelParams.classNames= new DLClassName[] {new DLClassName("Noise", (short) 0), new DLClassName("Right Whale", (short) 1, 180537)};
 		genericModelParams.numClasses = 2; 
 		
 		//create the transforms. 

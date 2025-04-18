@@ -11,6 +11,10 @@ import java.util.Arrays;
 
 import javax.swing.JFrame;
 
+import pamMaths.PamQuaternion;
+import pamMaths.PamVector;
+import pamguard.GlobalArguments;
+import userDisplay.UserDisplayControl;
 import Array.importHydrophoneData.HydrophoneImport;
 import Array.importHydrophoneData.StreamerImport;
 import Array.layoutFX.ArrayGUIFX;
@@ -110,6 +114,8 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 
 	public static final double DEFAULT_HYDROPHONE_SENSITIVITY = -170;
 	public static final double DEFAULT_PREAMP_GAIN = 0;
+	
+	public static final String FIRST_IDX_SENS = "-array.firstHydrophone";
 
 
 	private ArrayManager(String unitName) {
@@ -224,7 +230,7 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 	}
 
 	public void showArrayDialog(Frame parentFrame) {
-		PamArray selectedArray = ArrayDialog.showDialog(parentFrame, singleInstance);
+		PamArray selectedArray = ArrayDialog.showDialog(parentFrame, this, null);
 
 		//WARNING: need to make sure that the notify model changed is at the end of this function. It must be called after all hydrophone data loading 
 		//and saving has occured, otherwise we don't clear channel iterators from the hydrophone dateblock and end up with concurrent modification exceptions in 
@@ -312,6 +318,10 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 				if (settings instanceof ArrayParameters) {
 					oldArrays = ((ArrayParameters) settings).getArrayList();
 				}
+				else if (settings instanceof PamArray) {
+					oldArrays = new ArrayList<>();
+					oldArrays.add((PamArray) settings);
+				}
 				else {
 					oldArrays =  (ArrayList<PamArray>) pamControlledUnitSettings.getSettings();
 				}
@@ -332,9 +342,17 @@ public class ArrayManager extends PamControlledUnit implements PamSettings, PamO
 			Ex.printStackTrace();
 			return false;
 		}
+		
+		String sens = GlobalArguments.getParam(FIRST_IDX_SENS);
+		
+		if(sens!=null) {
+			double sensitivity = Double.valueOf(sens);
+			this.recentArrays.get(0).getHydrophone(0).setSensitivity(sensitivity);
+		}
+		
 		return true;
 	}
-
+	
 	/**
 	 * @return Returns the currentArray.
 	 */

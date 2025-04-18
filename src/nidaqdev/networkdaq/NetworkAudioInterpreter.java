@@ -8,8 +8,8 @@ import Acquisition.DaqSystem;
 import PamController.PamControlledUnit;
 import PamController.PamController;
 import networkTransfer.NetworkObject;
-import networkTransfer.receive.BuoyStatusDataUnit;
 import networkTransfer.receive.NetworkReceiver;
+import networkTransfer.receive.status.BuoyStatusDataUnit;
 
 /**
  * Class of functions to help interpret incoming audio data - put

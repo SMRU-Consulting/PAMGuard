@@ -20,6 +20,7 @@ import PamguardMVC.PamProcess;
 import generalDatabase.DBControlUnit;
 import generalDatabase.PamConnection;
 import group3dlocaliser.algorithm.LocaliserAlgorithm3D;
+import group3dlocaliser.algorithm.crossedbearing.CrossedBearingGroupLocaliser;
 import group3dlocaliser.grouper.DetectionGroupMonitor;
 import group3dlocaliser.grouper.DetectionGroupedSet;
 import group3dlocaliser.grouper.DetectionGrouper;

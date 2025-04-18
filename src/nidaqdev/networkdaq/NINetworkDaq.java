@@ -14,10 +14,10 @@ import org.pamguard.x3.x3.X3FrameDecode;
 import org.pamguard.x3.x3.X3FrameHeader;
 
 import networkTransfer.NetworkObject;
-import networkTransfer.receive.BuoyStatusDataUnit;
 import networkTransfer.receive.NetworkDataUser;
 import networkTransfer.receive.NetworkReceiveThread;
 import networkTransfer.receive.NetworkReceiver;
+import networkTransfer.receive.status.BuoyStatusDataUnit;
 import soundPlayback.PlaybackControl;
 import soundPlayback.PlaybackSystem;
 import warnings.PamWarning;
