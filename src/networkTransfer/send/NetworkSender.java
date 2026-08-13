@@ -18,6 +18,11 @@ import PamController.PamSettings;
 import PamModel.SMRUEnable;
 import PamView.PamSidePanel;
 import PamguardMVC.PamDataBlock;
+import PamguardMVC.PamRawDataBlock;
+import cepstrum.CepstrumDataBlock;
+import fftManager.FFTDataBlock;
+import ltsa.LtsaDataBlock;
+import mel.MelDataBlock;
 import networkTransfer.NetworkClient;
 import networkTransfer.NetworkParams;
 import networkTransfer.emulator.NetworkEmulator;
@@ -65,6 +70,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	private boolean initialisationComplete = false;
 	private NetworkSendSidePanel sidePanel;
 	private NetworkSendProcess commandProcess;
+	private boolean activatedByCommand = false;
 	//PamWarning sendWarning;
 	public NetworkClient client;
 	
@@ -75,14 +81,20 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		
 		checkCommandLineOptions();
 		
-		if(this.networkSendParams.hasSendFormat(NetworkSendParams.NETWORKSEND_BYTEARRAY)) {
+		if(this.networkSendParams.hasSendFormat(NetworkSendParams.NETWORKSEND_BYTEARRAY) && networkSendParams.isModuleActivated()) {
 			commandProcess = new NetworkSendProcess(this, null,NetworkSendParams.NETWORKSEND_BYTEARRAY);
 			commandProcess.setCommandProcess(true);
 			addPamProcess(commandProcess);
 		}
 		
 		sidePanel = new NetworkSendSidePanel(this);
-		initializeClient();
+		
+		//ST added 8/13/2026 -- allow configuration to effectively turn off the net send client. 
+		//If net sending is enabled then let this run, but otherwise just skip past it.. 
+		if(this.networkSendParams.isModuleActivated()) {
+			initializeClient();
+		}
+		
 	}
 	
 	/**
@@ -103,7 +115,26 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		String password = GlobalArguments.getParam(NetSendCommandParam.PASSWORD.arg);
 		String useJson = GlobalArguments.getParam(NetSendCommandParam.SENDJSON.arg);
 		String persistenceDir = GlobalArguments.getParam(NetSendCommandParam.PERSISTANCE_DIRECTORY.arg);
+		String senderActive = GlobalArguments.getParam(NetSendCommandParam.ACTIVE.arg);
 
+		/*
+		 * If a runtime arg is passed for activating/deactivating the network sender, then pass to the parameters.
+		 * Assume by default that if this module is present then it should be set to active.
+		 * ST Aug 13 2026
+		 */
+		if(senderActive!=null) {
+			boolean isActive = Boolean.valueOf(senderActive);
+			networkSendParams.setModuleActivated(isActive);
+			if(isActive) {
+				this.activatedByCommand = true;
+				System.out.println("Pamguard is running with network sending ENABLED");
+			}else {
+				System.out.println("Pamguard is running with network sending DISABLED");
+			}
+		}else {
+			networkSendParams.setModuleActivated(true);
+		}
+		
 		if(user!=null) {
 			networkSendParams.userId = user;
 		}
@@ -204,7 +235,11 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	}
 	
 	public void closeClient() {
-		this.client.close();
+		//ST added 8/13/2026 -- allow configuration to effectively turn off the net send client.
+		//Client may have never been initialized
+		if(client!=null) {
+			this.client.close();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -365,6 +400,47 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		}
 	}
 
+	/**
+	 * ST added 8/13/2026. 
+	 * 
+	 * The goal with these updates is to hide some of the MQTT net send/receive technical details from a user more focused on acoustics. 
+	 * From a remote device, the command flag "-netSend.active true" will force the PAM Model to add a network send module (if one doesn't already exist).
+	 * To the user this will be presented as a button that simply says "Send data: true/false". When Pamguard is deployed, the net sending will get configured automatically.
+	 * And if a net send module doesn't already exist, one will be added and default to send all blocks that are NOT raw data or (pure) FFT -- LTSA is fine.
+	 * 
+	 * In the future, buttons for selecting the sending modules would be wise, as there are likely contexts I am not considering where only a small selection of blocks should send.
+	 * 
+	 * Hopefully this won't cause trouble in the short term
+	 * 
+	 * @param ArrayList<PamDataBlock> possibles: all data blocks that have the selected send format defined
+	 * @return ArrayList<PamDataBlock> all blocks in the model that are NOT raw data or raw FFT types
+	 */
+	private ArrayList<PamDataBlock> listAndConfigureDefaultWantedDataSources(ArrayList<PamDataBlock> possibles) {
+		System.out.println("Realtime data transmission has been initialized.");
+		ArrayList<PamDataBlock> wants = new ArrayList<PamDataBlock>();
+		for(PamDataBlock aBlock:possibles) {
+			boolean blockIsRaw = (aBlock instanceof PamRawDataBlock);
+			boolean blockIsFFT = (aBlock instanceof FFTDataBlock);
+			if(blockIsFFT) {
+				boolean blockIsLTSA = (aBlock instanceof LtsaDataBlock);
+				boolean blockIsCepstrum = (aBlock instanceof CepstrumDataBlock);
+				boolean blockIsMel = (aBlock instanceof MelDataBlock);
+				if(blockIsLTSA || blockIsCepstrum || blockIsMel) {
+					blockIsFFT = false;
+				}
+			}
+			if(!blockIsRaw && !blockIsFFT) {
+				wants.add(aBlock);
+				networkSendParams.setDataBlock(aBlock, true);
+				System.out.println("	Adding realtime stream: "+aBlock.getDataName());
+			}
+		}
+		if(wants.size()==0) {
+			System.out.println("	WARNING! Could not find any data streams to transmit in realtime. Check .psfx configuration.");
+		}
+		return wants;
+	}
+	
 	public ArrayList<PamDataBlock> listWantedDataSources() {
 		ArrayList<PamDataBlock> possibles = listPossibleDataSources(networkSendParams.getSendingFormat());
 		ArrayList<PamDataBlock> wants = new ArrayList<PamDataBlock>();
@@ -372,6 +448,9 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 			if (networkSendParams.findDataBlock(aBlock) != null) {
 				wants.add(aBlock);
 			}
+		}
+		if(wants.size()==0 && this.activatedByCommand) {
+			wants = listAndConfigureDefaultWantedDataSources(possibles);
 		}
 		return wants;
 	}
@@ -433,14 +512,22 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	@Override
 	public void pamToStart() {
 		super.pamToStart();
-		this.client.configureClient(this.networkSendParams);
-		runClient();
-		
+		//ST added 8/13/2026 -- allow configuration to effectively turn off the net send client. 
+		//If net sending is enabled then let this run, but otherwise just skip past it.. 
+		if(this.networkSendParams.isModuleActivated() && this.client!=null) {
+			this.client.configureClient(this.networkSendParams);
+			runClient();
+		}
 	}
 	
 	public long lastTransmitErrorPrint = 0;
 
 	public void transmitData(NetworkQueuedObject qo) {
+		//ST added 8/13/2026 -- allow configuration to effectively turn off the net send client. 
+		//Dont do anything if the sender is disabled
+		if(this.networkSendParams.isModuleActivated() != true) {
+			return;
+		}
 		if(client==null) {
 			System.out.println("Client is null. Likely due to restarting client");
 			return;
@@ -459,13 +546,25 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	}
 
 	public String getStatus() {
+		if(this.networkSendParams.isModuleActivated() != true) {
+			return "Net Send Disabled";
+		}
 		if(client==null) {
 			return "Disconnected";
 		}
+		
 		return client.getStatus();
 	}
 
 	public void runClient() {
+		//ST added 8/13/2026 -- allow configuration to effectively turn off the net send client. 
+		//Dont do anything if the sender is disabled
+		if(this.networkSendParams.isModuleActivated() != true) {
+			return;
+		}
+		if(client==null) {
+			this.initializeClient();
+		}
 		if(client.isConnected()) {
 			return;
 		}

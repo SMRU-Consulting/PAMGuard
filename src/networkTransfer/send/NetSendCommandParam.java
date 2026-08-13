@@ -3,9 +3,15 @@ package networkTransfer.send;
 import java.util.HashMap;
 import java.util.Map;
 
+import pamguard.GlobalArguments;
+
 public enum NetSendCommandParam {
 	
-
+	/* Should the network sender connect and run? 
+	*  Handy for allowing net send/receive to exist under the hood, 
+	*  and users can enable/disable without needing to understand the tech.
+	*/
+	 ACTIVE("-netSend.active"), 
 	 ADDRESS("-netSend.address"),
 	 PORT("-netSend.port"),
 	 ID1("-netSend.id1"),
@@ -42,6 +48,18 @@ public enum NetSendCommandParam {
 	 public static boolean isArgRegistered(String arg) {
 		 if(PARAM_BY_ARG.containsKey(arg)) {
 			 return true;
+		 }
+		 return false;
+	 }
+	 
+	 public static boolean isNetSendFlagActive() {
+		 if(isArgRegistered(ACTIVE.arg)) {
+			 String senderActive = GlobalArguments.getParam(ACTIVE.arg);
+			 try {
+				 return Boolean.valueOf(senderActive);
+			 }catch(Exception e) {
+				 return false;
+			 }
 		 }
 		 return false;
 	 }

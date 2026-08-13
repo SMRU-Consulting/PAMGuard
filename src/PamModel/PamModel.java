@@ -62,6 +62,8 @@ import group3dlocaliser.Group3DLocaliserControl;
 import landMarks.LandmarkControl;
 import mel.MelControl;
 import meygenturbine.MeygenTurbine;
+import networkTransfer.send.NetSendCommandParam;
+import pamguard.GlobalArguments;
 import printscreen.PrintScreenControl;
 import ravendata.RavenControl;
 import rockBlock.RockBlockControl;
@@ -346,6 +348,11 @@ final public class PamModel implements PamSettings {
 		mi = PamModuleInfo.registerControlledUnit("networkTransfer.send.NetworkSender", "Network Sender");
 		mi.setModulesMenuGroup(utilitiesGroup);
 		mi.setToolTipText("Sends PAMGuard data over a network to other computers");
+		/*  ST Added Aug 13 2026:
+		 *  similar to the network receive pattern where min number of modules increases to 1 with -nr flag
+		 *  implement a tool to ensure a network sender exists if the -netSend.active flag is set. 
+		 */
+		mi.setMinNumber(NetSendCommandParam.isNetSendFlagActive() ? 1 : 0);
 		mi.setHidden(!SMRUEnable.isEnable());
 
 
