@@ -383,7 +383,7 @@ PAMGuardBeta_ViewerMode.exe):</p>
 <p class=MsoNormal>&nbsp;</p>
 
 <h2><a href="#_Version_2.02.19_Later"><span style='font-size:12.0pt'>Version
-2.02.19 Later in 2026</span></a></h2>
+2.02.19 August 2026</span></a></h2>
 
 <h2><em><span style='font-size:12.0pt;font-family:"Cambria",serif;font-style:
 normal'><a href="#_Version_2.02.18_????">Version 2.02.18 February 2026&nbsp;</a></span></em></h2>
@@ -443,7 +443,7 @@ name="_Version_2.02.10_January"></a><a name="_Version_2.02.11_April"></a><a
 name="_Version_2.02.14_October"></a><a name="_2.02.15_December_2014"></a><a
 name="_Version_2.02.16_February"></a><a name="_Version_2.02.17_?????"></a><a
 name="_Version_2.02.18_????"></a><a name="_Version_2.02.19_Later"></a>Version
-2.02.19 Later in 2026</h1>
+2.02.19 August 2026</h1>
 
 <p class=MsoNormal><b>New Features</b></p>
 
@@ -472,6 +472,11 @@ database.</p>
 324</a>: Database and binary stores automatically open configuration dialogs
 when added to a new configuration.&nbsp;</p>
 
+<p class=MsoNormal><a href="https://github.com/PAMGuard/PAMGuard/issues/325">Issue
+325</a>: Improved NMEA input resetting, e.g. if USB GPS becomes temporarily
+unplugged. Also updated code to support additional NMEA sources through the
+plugin system for 3<sup>rd</sup> party developers. </p>
+
 <p class=MsoNormal><b>Bug Fixes</b></p>
 
 <p class=MsoNormal><a href="https://github.com/PAMGuard/PAMGuard/issues/296">Issue
@@ -486,8 +491,8 @@ Fixed.</p>
 302</a>: Whistle export errors when using multiple whistle and moan detectors</p>
 
 <p class=MsoNormal><a href="https://github.com/PAMGuard/PAMGuard/issues/306">Issue
-306</a>: Tethys export. Options to limit number of items per Detections
-document to about 100k.</p>
+306</a>: Tethys export. Options to limit number of items per Detections document
+to about 100k.</p>
 
 <p class=MsoNormal><a href="https://github.com/PAMGuard/PAMGuard/issues/307">Issue
 307</a>: Tethys not exporting correct count of data points in Detections
@@ -511,6 +516,17 @@ server. </p>
 <p class=MsoNormal><a href="https://github.com/PAMGuard/PAMGuard/issues/322">Issue
 322</a>: Logger forms error if counter information is read when form output
 tables don�t exist.</p>
+
+<p class=MsoNormal><a href="https://github.com/PAMGuard/PAMGuard/pull/327">Issue
+327</a>: Fix to Ishmeal spectrogram correlation application of changed
+settings.</p>
+
+<p class=MsoNormal><a href="https://github.com/PAMGuard/PAMGuard/issues/328">Issue
+328</a>: Fix to Ishmeal spectrogram correlation dialog.</p>
+
+<p class=MsoNormal><a href="https://github.com/PAMGuard/PAMGuard/pull/329">Issue
+329</a>: Fix to spectrogram noise process so that not all processes have to be
+run together.</p>
 
 <h1>Version 2.02.18 February 2026</h1>
 
@@ -586,8 +602,8 @@ bearings using first n samples. </p>
 groups of marked clicks as well as single clicks. </p>
 
 <p class=MsoNormal><a href="https://github.com/PAMGuard/PAMGuard/issues/266">Issue
-266</a>: Tethys failing to export Deployment documents when missing sound recording
-data. Now fixed. </p>
+266</a>: Tethys failing to export Deployment documents when missing sound
+recording data. Now fixed. </p>
 
 <p class=MsoNormal><a href="https://github.com/PAMGuard/PAMGuard/issues/265">Issue
 265</a>: Clock setting from GPS. This has not worked for a number of years due
@@ -617,8 +633,8 @@ Position</p>
 was close to 0Hz or close to the Nyquist frequency.</p>
 
 <p class=MsoNormal><a href="https://github.com/PAMGuard/PAMGuard/issues/250">Issue
-250</a>: Ishmael energy sum and spectrogram correlation detectors not using
-correct min gap between detections. Now fixed. Also added <a
+250</a>: Ishmael energy sum and spectrogram correlation detectors not using correct
+min gap between detections. Now fixed. Also added <a
 href="https://www.pamguard.org/olhelp/detectors/ishmael/docs/ishmael_overview.html">help
 for Ishmael detectors</a>.</p>
 
@@ -645,15 +661,15 @@ processing SoundTrap data</p>
 <p class=MsoNormal><b>New Features</b></p>
 
 <p class=MsoNormal>Improved Error Trapping and Reporting. Added features to the
-PAMGuard core data handling to trap any errors in each module and better log them
-in the PAMGuard log files. When PAMGuard starts, it will automatically analyse
-the log file from the previous run for errors. If errors are found, then the
-user will be prompted to send a report to the PAMGuard team via email. See help
-on log files for further details. &nbsp;</p>
+PAMGuard core data handling to trap any errors in each module and better log
+them in the PAMGuard log files. When PAMGuard starts, it will automatically
+analyse the log file from the previous run for errors. If errors are found,
+then the user will be prompted to send a report to the PAMGuard team via email.
+See help on log files for further details. &nbsp;</p>
 
-<p class=MsoNormal>Issue 211. Noise Band Measurement module (the one that uses
-filter banks). Added features to support other types of frequency band as well
-as standard octave and third octave. PAMGuard now supports Octave, Third Octave,
+<p class=MsoNormal>Issue 211. Noise Band Measurement module (the one that uses filter
+banks). Added features to support other types of frequency band as well as
+standard octave and third octave. PAMGuard now supports Octave, Third Octave,
 Deci-decade, Decade, 1/10 Octave, and 1/12 Octave bands. </p>
 
 <p class=MsoNormal>Issue 211. Noise Monitor Module (the one that used FFT
@@ -675,9 +691,9 @@ millisecond time and has now been rectified. </p>
 showing multiple lines for duty cycled data. Duty cycled data will now display
 as a single row of data in the Deployments table on the display. </p>
 
-<p class=MsoNormal>Issue 210. SUD Files. Fixed several issues: support for
-multi channel files; handling corrupt files; reloading audio data for
-spectrogram displays in viewer. </p>
+<p class=MsoNormal>Issue 210. SUD Files. Fixed several issues: support for multi
+channel files; handling corrupt files; reloading audio data for spectrogram
+displays in viewer. </p>
 
 <p class=MsoNormal>Issue 230. Updated SUD reader to handle latest soundtrap
 firmware that supports accelerometers and magnetometers. </p>
@@ -689,8 +705,8 @@ and FX Time display.</p>
 fixed. </p>
 
 <p class=MsoNormal>Issue 232. Files without dates. Will now correctly process a
-folder of files without dates. However, you are strongly recommended to have
-valid dates in your file names. </p>
+folder of files without dates. However, you are strongly recommended to have valid
+dates in your file names. </p>
 
 <h1>Version 2.02.16 March 2025</h1>
 
@@ -704,8 +720,8 @@ pre-release version. </p>
 
 <p class=MsoNormal>Added Tethys functionality for the following modules:
 Whistle Classifier, Detection Group Localiser, Rocca, Click Train Detector, GPL
-Detector. If the Detection Group Localiser is used with Logger Form
-annotations, species codes can be taken from the logger form. </p>
+Detector. If the Detection Group Localiser is used with Logger Form annotations,
+species codes can be taken from the logger form. </p>
 
 <p class=MsoNormal>Made export of data (Calibrations, Deployments, Detections,
 and Localisations) available as Offline tasks. This is not useful when running
@@ -726,9 +742,9 @@ and when the libraries have not been installed correctly.</p>
 
 <p class=MsoNormal><b>Other</b></p>
 
-<p class=MsoNormal>Made click detector offline click event data integrity
-checking available as offline task, so that this can be run prior to exporting
-data to Tethys. </p>
+<p class=MsoNormal>Made click detector offline click event data integrity checking
+available as offline task, so that this can be run prior to exporting data to
+Tethys. </p>
 
 <p class=MsoNormal>Multiple management changes to support batch processing of
 offline tasks. Compatible with batch processor 2.0. </p>
@@ -760,8 +776,8 @@ time, meaning you got an invalid file path. This has been fixed. </p>
 channel list from acquisition module and automatically removes channels that
 were selected in the FFT module, but are not available from the acquisition. </p>
 
-<p class=MsoNormal>Dealt with issue in Tethys module looking up ITIS species
-codes where the progress dialog would not close. </p>
+<p class=MsoNormal>Dealt with issue in Tethys module looking up ITIS species codes
+where the progress dialog would not close. </p>
 
 <p class=MsoNormal>Project Information abstract field was not saving /
 reloading correctly in the configuration file. Fixed.</p>
@@ -826,9 +842,9 @@ sound files, a progress bar is shown. This doesn't change anything, or speed up
 the process, but does at least let the user know what's happening (Issue 156). </p>
 
 <p class=MsoNormal>No sound card ? If no sound cards are present on your
-computer (or if no headphones are attached, even though a sound card is
-present) when processing files offline, PAMGuard will still slow the analysis
-rate as it would if a soundcard were present. </p>
+computer (or if no headphones are attached, even though a sound card is present)
+when processing files offline, PAMGuard will still slow the analysis rate as it
+would if a soundcard were present. </p>
 
 <p class=MsoNormal>Click Detector click selection on the display. Fixed issue
 with wrong click being selected when display was highly zoomed in (Issue 158). </p>
@@ -839,8 +855,8 @@ reprocessing data (issue 162).</p>
 <p class=MsoNormal>Added ability for exporter to read annotations. Added
 ability to export CPOD and FPOD data.</p>
 
-<p class=MsoNormal>Fixed various bugs in CPOD and FPOD displays and importer.
-Updated CPOD help file.</p>
+<p class=MsoNormal>Fixed various bugs in CPOD and FPOD displays and importer. Updated
+CPOD help file.</p>
 
 <p class=MsoNormal>&nbsp;</p>
 
@@ -2328,12 +2344,11 @@ but can cause the psf file to grow large over time.</p>
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
 lang=EN-US> </span>New features in PAMGuard Beta mean that psf files created
 with new versions are not compatible wth earlier versions and all configuration
-data may be lost if an attempt is made to open newly created psf files with
-older versions. We have therefore changed the file extension of psf files to
-.psfx in new Beta releases. Beta releases will still load the older psf files,
-but when the configuration is saved, the original psf file will remain
-untouched and data will be written to a psfx file with the same directory and
-name.</p>
+data may be lost if an attempt is made to open newly created psf files with older
+versions. We have therefore changed the file extension of psf files to .psfx in
+new Beta releases. Beta releases will still load the older psf files, but when
+the configuration is saved, the original psf file will remain untouched and
+data will be written to a psfx file with the same directory and name.</p>
 
 <!-- ************************************************************************************************************************** -->
 
@@ -2391,8 +2406,8 @@ lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nb
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>10. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Bug 376. Error when using a serialised data map which spans a period of
-time in which Pamguard modules have changed.<span style='font-size:12.0pt;
+</span>Bug 376. Error when using a serialised data map which spans a period of time
+in which Pamguard modules have changed.<span style='font-size:12.0pt;
 font-family:"Times New Roman",serif'> </span></p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>11. </span><span
@@ -2415,8 +2430,8 @@ settings window was opened.</p>
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>1. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
 lang=EN-US> </span>Soundtrap module - bug fixes and more intuitive user
-interface when importing Soundtrap data. Also changed the default date/time
-format to ISO8601 standard.</p>
+interface when importing Soundtrap data. Also changed the default date/time format
+to ISO8601 standard.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>2. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
@@ -2433,8 +2448,8 @@ with this version, but will be converted.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>4. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
-lang=EN-US> </span>Many updates to the Video Range module. Will currently only work
-with landmarks.</p>
+lang=EN-US> </span>Many updates to the Video Range module. Will currently only
+work with landmarks.</p>
 
 <!-- ************************************************************************************************************************** -->
 
@@ -2504,8 +2519,8 @@ trying to classify a boxed whistle</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>1. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
-lang=EN-US> </span>During conversion from Core to Beta versions, if there are
-any problems matching database units to binary store units the UID values will now
+lang=EN-US> </span>During conversion from Core to Beta versions, if there are any
+problems matching database units to binary store units the UID values will now
 be set to negative numbers instead of leaving them null. The user is warned
 about this and encouraged to manually fix the database.</p>
 
@@ -2567,8 +2582,8 @@ lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nb
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>10.</span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Bug 354. Whistle Classifier was crashing if user accidentally entered invalid
-parameters. Have added diagnostics to prevent this.</p>
+</span>Bug 354. Whistle Classifier was crashing if user accidentally entered
+invalid parameters. Have added diagnostics to prevent this.</p>
 
 <p class=MsoNormal><b><span lang=EN-US>Upgrades</span></b></p>
 
@@ -2615,8 +2630,8 @@ exception.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>6.</span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Bug 330. Problem with certain FLAC files not being read properly. Upgraded
-jFLAC library to fix.</p>
+</span>Bug 330. Problem with certain FLAC files not being read properly.
+Upgraded jFLAC library to fix.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>7.</span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -2640,8 +2655,8 @@ lang=EN-US> </span>Updates/bug fixes to the landmark module. </p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>3. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
-lang=EN-US> </span>Added a simulated white noise source which can be moved
-around in the same way as other sources. </p>
+lang=EN-US> </span>Added a simulated white noise source which can be moved around
+in the same way as other sources. </p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>4. </span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
@@ -2667,8 +2682,8 @@ lang=EN-US> </span>Added circular movement option to source simulation </p>
 <h1><a name="_Latest_Beta_Version_2.00.10"></a><span lang=EN-US>Beta Version
 2.00.10 June 2017</span></h1>
 
-<p class=MsoNormal><span lang=EN-US>PAMGuard Version 2 contains major updates.
-You should read and understand these notes before proceeding with installation and
+<p class=MsoNormal><span lang=EN-US>PAMGuard Version 2 contains major updates. You
+should read and understand these notes before proceeding with installation and
 use of this version. These changes have been funded under contract to NOAA
 Fisheries, contract no. WE-133F-16-SE-1126.</span></p>
 
@@ -2677,8 +2692,8 @@ Fisheries, contract no. WE-133F-16-SE-1126.</span></p>
 <p class=MsoNormal><span lang=EN-US>The Binary File structure has changed to
 accommodate additional information for each unit of data stored. This means
 that any data generated with PAMGuard Version 2.00.00 and above will not be
-compatible with older versions of PAMGuard. If you open older data sets with
-the PAMGuard Viewer the older data will be converted to the new format (see below
+compatible with older versions of PAMGuard. If you open older data sets with the
+PAMGuard Viewer the older data will be converted to the new format (see below
 for details).</span></p>
 
 <p class=MsoNormal><span lang=EN-US>The most significant change in the binary
@@ -2690,11 +2705,11 @@ UID's are also added to PAMGuard database tables. </span></p>
 
 <h4><span lang=EN-US>Converting Old Data</span></h4>
 
-<p class=MsoNormal><span lang=EN-US>If old data are opened with the PAMGuard viewer
-they will automatically be converted. For safety, the original binary files
-will not be overwritten and the new data will be placed in a new folder on your
-computer with the same path as the old data, but suffixed with Â_WithUID',
-e.g. if your binary data were previously stored in the folder
+<p class=MsoNormal><span lang=EN-US>If old data are opened with the PAMGuard
+viewer they will automatically be converted. For safety, the original binary
+files will not be overwritten and the new data will be placed in a new folder
+on your computer with the same path as the old data, but suffixed with
+Â_WithUID', e.g. if your binary data were previously stored in the folder
 C:\MySurvey\binarydata the new data will be written to
 C:\MySurvey\binarydata_WithUID. </span></p>
 
@@ -2807,10 +2822,10 @@ lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nb
 saying what get's plotted on each map and for how long became corrupted and the
 list grew to a ridiculous size. Code has been put in place to a) stop it
 happening again and b) to repair any configuration files which are corrupted.
-Corrupted files will be slow to load, slow to save and will be &gt; several megabytes
-in size. It may be necessary to delete the PAMGuardSettings table in any
-databases since these too may have become oversized which will slow down viewer
-mode PAMGuard start-up.</p>
+Corrupted files will be slow to load, slow to save and will be &gt; several
+megabytes in size. It may be necessary to delete the PAMGuardSettings table in
+any databases since these too may have become oversized which will slow down
+viewer mode PAMGuard start-up.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>2.</span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -2821,9 +2836,9 @@ after the contour was recalculated. This has been corrected.</p>
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span>Bug 310. When exiting Viewer mode, PAMGuard queries the user whether
 they are sure they want to exit without saving even though they selected <em><span
-style='font-family:"Calibri",sans-serif'>Save and Exit</span></em>. Corrected, and
-added an <em><span style='font-family:"Calibri",sans-serif'>Exit without Save</span></em>
-option.</p>
+style='font-family:"Calibri",sans-serif'>Save and Exit</span></em>. Corrected,
+and added an <em><span style='font-family:"Calibri",sans-serif'>Exit without
+Save</span></em> option.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>4.</span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3050,8 +3065,8 @@ main click detector display. </span></p>
 <p class=MsoNormal><b><span lang=EN-US>Target Motion Analysis</span></b></p>
 
 <p class=MsoNormal><span lang=EN-US>A major piece of work has been undertaken
-to improve the Target Motion tracking with PAMGuard. Details are available in
-the online help. Users of the Click Detector will notice the following changes:</span></p>
+to improve the Target Motion tracking with PAMGuard. Details are available in the
+online help. Users of the Click Detector will notice the following changes:</span></p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span lang=EN-US>1.</span><span
 lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3133,10 +3148,10 @@ since V 1.15.03:</p>
 
 <p class=MsoListParagraph style='margin-left:38.25pt;text-indent:-20.25pt'>1.<span
 style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Bug 272. File types: Some File Open / File Save dialogs were allowing
-selection of all file types. e.g. Save Configuration As, Section of whistle
-classifier training file, Map file Selection, These have now been changed so
-that only the correct type of file can be selected.</p>
+</span>Bug 272. File types: Some File Open / File Save dialogs were allowing selection
+of all file types. e.g. Save Configuration As, Section of whistle classifier
+training file, Map file Selection, These have now been changed so that only the
+correct type of file can be selected.</p>
 
 <p class=MsoListParagraph style='margin-left:38.25pt;text-indent:-20.25pt'>2.<span
 style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3328,9 +3343,9 @@ lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nb
 </span>Bug 262. Access to SQLite database conversion. This would fail when
 tables were present which were not created by PAMGuard. &nbsp;Fixes have been
 put in place for spaces in the table name or for not having an 'Id' column.
-Fixes have not been implemented for spaces in a column name or use of a
-reserved word as a column name, however if either of these problems do exist it
-will no longer crash but issue a clear warning and carry onto the next table.</p>
+Fixes have not been implemented for spaces in a column name or use of a reserved
+word as a column name, however if either of these problems do exist it will no
+longer crash but issue a clear warning and carry onto the next table.</p>
 
 <p class=MsoNormal style='margin-left:18.0pt'><span lang=EN-US>&nbsp;</span></p>
 
@@ -3342,11 +3357,11 @@ name="_Toc312063945"></a>Version 1.14.00 Beta, September 2015</h1>
 1.14.00. Older configurations will load with this new version, but
 configurations saved with 1.14.00 may not open correctly with earlier versions.</p>
 
-<p class=MsoNormal>PAMGuard Versions 1.14.00 and above will work with Java 8.
-PAMGuard will continue to work with Java 7, but support for Java 7 will be
-removed entirely during 2016. This means that the Microsoft Access Database
-interface will no longer be available. Version 1.14.00 will continue to support
-Microsoft Access so long as you don't upgrade your Java version to Java 8. </p>
+<p class=MsoNormal>PAMGuard Versions 1.14.00 and above will work with Java 8. PAMGuard
+will continue to work with Java 7, but support for Java 7 will be removed
+entirely during 2016. This means that the Microsoft Access Database interface
+will no longer be available. Version 1.14.00 will continue to support Microsoft
+Access so long as you don't upgrade your Java version to Java 8. </p>
 
 <p class=MsoNormal>An alternative database interface has been provided in the
 form of SQLite which has been extensively tested with all PAMGuard modules. Limited
@@ -3500,10 +3515,10 @@ href="https://sourceforge.net/p/PAMGuard/bugs">https://sourceforge.net/p/PAMGuar
 
 <p class=MsoListParagraph style='margin-left:47.25pt;text-indent:-29.25pt'><span
 lang=EN-US>1.</span><span lang=EN-US style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Spectrogram annotation marks. A simple system for marking spectrograms during
-real time analysis has been incorporated. To use it, add the module, in the
-spectrogram settings, select the annotation marks in the 'Mark Observers' tab
-of the spectrogram configuration dialog, and also right click on the
+</span>Spectrogram annotation marks. A simple system for marking spectrograms
+during real time analysis has been incorporated. To use it, add the module, in
+the spectrogram settings, select the annotation marks in the 'Mark Observers'
+tab of the spectrogram configuration dialog, and also right click on the
 spectrogram and select to display the annotations. Annotations are saved to the
 database so you will also need a database module in your configuration. &nbsp;</p>
 
@@ -3878,8 +3893,8 @@ whistle.</p>
      interval display was not working in viewer mode. This has been rectified. </li>
  <li class=MsoNormal style='margin-bottom:0cm'>Configuration loading. This has
      been rationalised since it was often confusing to users. It is now no
-     longer possible to change configurations once PAMGuard has been launched and
-     pressing 'Cancel' on the select dialog causes PAMGuard to exit. </li>
+     longer possible to change configurations once PAMGuard has been launched
+     and pressing 'Cancel' on the select dialog causes PAMGuard to exit. </li>
  <li class=MsoNormal style='margin-bottom:0cm'>Airgun display. If this was
      included in the PAMGuard model before the GPS module it would hang
      PAMGuard. This has been rectified. </li>
@@ -3889,7 +3904,8 @@ whistle.</p>
      user interface. </li>
  <li class=MsoNormal style='margin-bottom:0cm'>Fixed National Instruments sound
      output bug which meant that it could only work with two channel data. Will
-     now work with one to as many channels are supported by the playback device.</li>
+     now work with one to as many channels are supported by the playback
+     device.</li>
  <li class=MsoNormal style='margin-bottom:0cm'>Fixed colour bugs in Logger
      forms which did not display correctly in 'night' mode. </li>
  <li class=MsoNormal style='margin-bottom:0cm'>Bug fix in simulator. No longer
@@ -3898,10 +3914,10 @@ whistle.</p>
      levels if data were decimated (<a
      href="http://sourceforge.net/p/PAMGuard/bugs/187/">http://sourceforge.net/p/PAMGuard/bugs/187/</a>)
      . Did not affect band level calculations. </li>
- <li class=MsoNormal style='margin-bottom:0cm'>Bug in noise band monitor.
-     Crashed when sample rate was exactly 2kHz. Fixed </li>
- <li class=MsoNormal style='margin-bottom:0cm'>Memory leak in click detector. Severe
-     memory leak when processing clicks in viewer mode now fixed. </li>
+ <li class=MsoNormal style='margin-bottom:0cm'>Bug in noise band monitor. Crashed
+     when sample rate was exactly 2kHz. Fixed </li>
+ <li class=MsoNormal style='margin-bottom:0cm'>Memory leak in click detector.
+     Severe memory leak when processing clicks in viewer mode now fixed. </li>
  <li class=MsoNormal style='margin-bottom:0cm'>Flickering of click display (<a
      href="http://sourceforge.net/p/PAMGuard/bugs/191/">http://sourceforge.net/p/PAMGuard/bugs/191/</a>)
      now fixed. </li>
@@ -3910,10 +3926,11 @@ whistle.</p>
  <li class=MsoNormal style='margin-bottom:0cm'>Storage options (<a
      href="https://sourceforge.net/p/PAMGuard/bugs/175/">https://sourceforge.net/p/PAMGuard/bugs/175/</a>)
      whereby clicks were stored to database is now fixed. </li>
- <li class=MsoNormal style='margin-bottom:0cm'>Sound Recorder output folder is now
-     defaulting to the User folder (Generally C:\Users\username\PAMRecordings)
-     instead of C:\Program Files (x86)\PamguardBeta which didn't work since the
-     software doesn't have write access to that folder. </li>
+ <li class=MsoNormal style='margin-bottom:0cm'>Sound Recorder output folder is
+     now defaulting to the User folder (Generally
+     C:\Users\username\PAMRecordings) instead of C:\Program Files
+     (x86)\PamguardBeta which didn't work since the software doesn't have write
+     access to that folder. </li>
 </ol>
 
 <p class=MsoNormal>&nbsp;</p>
@@ -3941,14 +3958,14 @@ survey software package.</p>
 implemented which give the user greater control of where data are stored. </p>
 
 <p class=MsoNormal style='margin-left:36.0pt'>Modules have been arranged into
-different groups in the configuration menus and tool tip texts have been added
-to these menus to provide additional information to users. &nbsp;</p>
+different groups in the configuration menus and tool tip texts have been added to
+these menus to provide additional information to users. &nbsp;</p>
 
 <p class=MsoNormal style='margin-left:36.0pt'><i>Radar Display</i></p>
 
-<p class=MsoNormal style='margin-left:36.0pt'>Functionality has been added to the
-radar display so that bearings can be shown relative to either the vessel or to
-true North. </p>
+<p class=MsoNormal style='margin-left:36.0pt'>Functionality has been added to
+the radar display so that bearings can be shown relative to either the vessel
+or to true North. </p>
 
 <p class=MsoNormal style='margin-left:36.0pt'>Better control of data in viewer
 mode, making is easy to scroll through and view data for short time periods. </p>
@@ -4062,11 +4079,11 @@ elements has been fixed. </p>
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span style='font-family:
 Symbol'>'</span><span style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span>Database Speed: A substantial rewriting of some of the indexing methods
-in the database module has led to a significant increase in the speed at which data
-are written to the database (orders of magnitude for large databases). This is
-having a significant impact on the overall reliability of the software. Other
-changes have increased the speed (again by orders of magnitude) at which data
-are read back into PAMGuard when using the viewer. </p>
+in the database module has led to a significant increase in the speed at which
+data are written to the database (orders of magnitude for large databases).
+This is having a significant impact on the overall reliability of the software.
+Other changes have increased the speed (again by orders of magnitude) at which
+data are read back into PAMGuard when using the viewer. </p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span style='font-family:
 Symbol'>'</span><span style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -4208,9 +4225,9 @@ to 0dN</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span style='font-family:
 Symbol'>'</span><span style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>The Binary store now saves a complete data map between runs of the PAMGuard
-viewer. This leads to significant improvements in the time the viewer takes to
-load large data sets.</p>
+</span>The Binary store now saves a complete data map between runs of the
+PAMGuard viewer. This leads to significant improvements in the time the viewer
+takes to load large data sets.</p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span style='font-family:
 Symbol'>'</span><span style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -4262,9 +4279,9 @@ the correct data stream. This has been fixed. </p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span style='font-family:
 Symbol'>'</span><span style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Whistle classifier has some new features in the classifier training panel.
-It is also now possible to export training data files directly from binary data
-files. </p>
+</span>Whistle classifier has some new features in the classifier training
+panel. It is also now possible to export training data files directly from
+binary data files. </p>
 
 <p class=MsoListParagraph style='text-indent:-18.0pt'><span style='font-family:
 Symbol'>'</span><span style='font-size:7.0pt;font-family:"Times New Roman",serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -4303,11 +4320,11 @@ Symbol'>'</span><span style='font-size:7.0pt;font-family:"Times New Roman",serif
 
 <p class=MsoNormal>2. Improved offline viewer functionality. </p>
 
-<p class=MsoNormal>The offline viewer is much improved with better data scrolling
-and the ability to view data either stored in the database or the binary
-storage system. Work has stated on functions which read and use data stored in
-audio files. This is currently limited to re-calculating and displaying
-displaying spectrogram data during viewer mode operation.&nbsp; </p>
+<p class=MsoNormal>The offline viewer is much improved with better data
+scrolling and the ability to view data either stored in the database or the
+binary storage system. Work has stated on functions which read and use data
+stored in audio files. This is currently limited to re-calculating and
+displaying displaying spectrogram data during viewer mode operation.&nbsp; </p>
 
 <p class=MsoNormal>3. Heading sensor readout</p>
 
@@ -4372,23 +4389,23 @@ and recording sounds to the default directory.&nbsp; </p>
 
 <p class=MsoNormal>A new internal channel numbering scheme for ASIO sound cards
 was released on 8 March in Alpha version 1.8.02. These changes have now been
-promoted to this Beta release 1.9.00. These changes were described in an email to
-PAMGuard User, the text of which is repeated here:</p>
+promoted to this Beta release 1.9.00. These changes were described in an email
+to PAMGuard User, the text of which is repeated here:</p>
 
 <p class=MsoNormal>Within PAMGuard, there have been constant problems with
 lookup tables relating hardware channel numbers to internal channel numbers.
 99.9% of the time, this is not a problem since people are just reading channels
 0 and 1 from a normal sound card or a list of channels 0,1,2,3, etc from an
 ASIO card or National Instruments card. However, when using the ASIO sound
-acquisition system, it is possible to read out hardware channels 2,3,4,5 say and
-those numbers would propagate through PAMGuard and be used by all the
+acquisition system, it is possible to read out hardware channels 2,3,4,5 say
+and those numbers would propagate through PAMGuard and be used by all the
 detectors. While this gave some clarity to&nbsp; the displays, it also created
 a number of problems since look up tables were constantly required to relate
 hardware numbers and software numbers in every PAMGuard module. Since this type
 of channel numbering was only implemented several years into the PAMGuard
-project, it was never fully implemented or well supported by the different modules
-which resulted in a number of bugs which could cause confusion as to which
-hydrophones were being used during localisation or during calibrated
+project, it was never fully implemented or well supported by the different
+modules which resulted in a number of bugs which could cause confusion as to
+which hydrophones were being used during localisation or during calibrated
 measurement. The situation tended to only arise with a small number of ASIO
 sound cards such as the RME Fireface 400 on which the most useful inputs, the
 balanced line inputs, are hardware channels 4,5,6 and 7 on the back of the
@@ -4400,16 +4417,16 @@ read for example channel 0 and 1 on two different devices, so to uniquely
 identify channels in the rest of PAMGuard, the only rational thing to do was to
 re-label those channels 0,1,2,3. </p>
 
-<p class=MsoNormal>There have been other annoyances with the ASIO channel numbering
-scheme. For instance, if you had a configuration which worked in real time
-using channels 7 and 8 of a sound card, you could not use that same
+<p class=MsoNormal>There have been other annoyances with the ASIO channel
+numbering scheme. For instance, if you had a configuration which worked in real
+time using channels 7 and 8 of a sound card, you could not use that same
 configuration to analyse wav files, which would always read their data as
 channels 0 and 1. Similarly if you switched sound cards, you may have to
 reconfigure every detector and several of the displays to handle the changes in
 channel numbering. </p>
 
-<p class=MsoNormal>I have spent a considerable amount of time trying to work out
-a better system for handling channel numbering in PAMGuard and have decided
+<p class=MsoNormal>I have spent a considerable amount of time trying to work
+out a better system for handling channel numbering in PAMGuard and have decided
 that the only practical thing to do is to force all software channel numbering
 back to a zero indexed system. i.e. even if you read out hardware channels
 3,4,5 and 6, within PAMGuard, everywhere apart from the Sound acquisition

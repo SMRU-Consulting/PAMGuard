@@ -35,7 +35,7 @@ import warnings.WarningSystem;
 public class NetworkSender extends PamControlledUnit implements PamSettings {
 
 	/**
-	 * These two left in since they are used in the BathProcessing plugin. 
+	 * These two left in since they are used in the BatchProcessing plugin. 
 	 * The batch processor has been updated to use the newer definitions in 
 	 * the NetSendCommandParam enum, so will be OK in new releases, but current
 	 * versions of the BP will fail with this PG. So leave these in for a couple
@@ -386,9 +386,9 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 			
 			Boolean hasJson = aBlock.getJSONDataSource() != null;
 			Boolean hasBytes = aBlock.getBinaryDataSource() != null;
-			if (hasJson | hasBytes) {
-				System.out.printf("Block %s has JSON: %s, has Binary: %s\n", aBlock.getDataName(), hasJson.toString(), hasBytes.toString());
-			}
+//			if (hasJson | hasBytes) {
+//				System.out.printf("Block %s has JSON: %s, has Binary: %s\n", aBlock.getDataName(), hasJson.toString(), hasBytes.toString());
+//			}
 			
 			// if the data block has a binary source, add it to the list of potential outputs
 			if ( (sendJson && hasJson) ||
