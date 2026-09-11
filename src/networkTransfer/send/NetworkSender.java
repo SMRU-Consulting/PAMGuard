@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.Timer;
 
 import PamController.PamControlledUnit;
 import PamController.PamControlledUnitSettings;
@@ -28,8 +27,6 @@ import networkTransfer.NetworkParams;
 import networkTransfer.emulator.NetworkEmulator;
 import networkTransfer.mqttClient.PamMqttClient;
 import pamguard.GlobalArguments;
-import warnings.PamWarning;
-import warnings.WarningSystem;
 
 /**
  * Send near real time data over the network to another PAMGUARD configuration.
@@ -38,6 +35,8 @@ import warnings.WarningSystem;
  *
  */
 public class NetworkSender extends PamControlledUnit implements PamSettings {
+	
+	public static final String UNIT_TYPE = "Network Sender";
 
 	/**
 	 * These two left in since they are used in the BatchProcessing plugin. 
@@ -75,7 +74,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 	public NetworkClient client;
 	
 	public NetworkSender(String unitName) {
-		super("Network Sender", unitName);
+		super(UNIT_TYPE, unitName);
 
 		PamSettingManager.getInstance().registerSettings(this);
 		
@@ -185,6 +184,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		
 		if(persistenceDir!=null) {
 			networkSendParams.persistenceDirectory = persistenceDir;
+			System.out.println("Setting MQTT Persistance Directory from command line arg to "+persistenceDir);
 		}
 		
 		/*
@@ -197,6 +197,7 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		 * If persistence directory is set, and the filepath is consistent with the current OS, and it is not a pamguard home-like directory, then move on
 		 */
 		networkSendParams.verifyCorrectPersistanceDirectory();
+		System.out.println("Decided to set persistance directory to "+networkSendParams.persistenceDirectory);
 		//Make it easy on users who may not know the details of MQTT -- if station ID is NOT set, then just set it to 'BaseStation' (the CAB/APS will set its ID to the pb###)
 		//If stationID is set, then move on
 		networkSendParams.checkStationID();
@@ -594,6 +595,23 @@ public class NetworkSender extends PamControlledUnit implements PamSettings {
 		return client.getQueueSize();
 	}
 
+	
+	@Override
+	public String getModuleSummary(boolean clear, String format) {
+		if(format.equals("json")) {
+			String jsonString = String.format("{\"active\":%b,", this.networkSendParams.isModuleActivated());
+			if(this.networkSendParams.isModuleActivated()) {
+				jsonString += String.format("\"connected\":%b,\"serverHost\":\"%s\",\"serverPort\":%d", 
+						this.client.isConnected(),
+						this.networkSendParams.ipAddress,
+						this.networkSendParams.portNumber);
+			}
+			jsonString += "}";
+			return jsonString;
+		}
+		
+		return super.getModuleSummary(clear, format);
+	}
 	
 	
 }

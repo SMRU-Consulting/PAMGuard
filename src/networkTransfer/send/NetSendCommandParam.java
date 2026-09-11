@@ -25,7 +25,7 @@ public enum NetSendCommandParam {
 	 KEYPATH("-netSend.keyPath"),
 	 KEYPASS("-netSend.keyPass"),
 	 SENDJSON("-netSend.json"),
-	 PERSISTANCE_DIRECTORY("-netSend.percistanceDir");
+	 PERSISTANCE_DIRECTORY("-netSend.persistanceDir");
 	
 	 private static final Map<String, NetSendCommandParam> PARAM_BY_ARG = new HashMap<>();
 	
