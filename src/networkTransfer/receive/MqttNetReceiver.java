@@ -208,16 +208,20 @@ public class MqttNetReceiver extends PamMqttClient implements NetworkReceiverInt
 		
 		@Override
 		public void messageArrived(String topic, MqttMessage message) throws Exception {
-			String buoyId = topic.split("/")[1];
+			String buoyId = getBuoyIdFromReceivedTopic(topic); //ST added 10/8/2026 to allow for multi-level base topics.
 			if(!buoyReceivers.containsKey(buoyId)) {
 				buoyReceivers.put(buoyId, new MqttReceiveThread(buoyId,mqttReceiver));
 			}
 			
 			buoyReceivers.get(buoyId).newMessage(topic,message);
-			
-			
 		}
 		
+	}
+	
+	private String getBuoyIdFromReceivedTopic(String topic) {
+		String abridgedTopic = topic.replace(netParams.baseTopic,"leadingTopic"); //ST added 10/8/2026 to allow for multi-level base topics. 
+		String buoyId = abridgedTopic.split("/")[1];
+		return buoyId;
 	}
 
 	@Override
