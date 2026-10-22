@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import PamController.PamGUIManager;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.Parent;
@@ -280,6 +281,10 @@ public class PamStylesManagerFX {
 	 * application thread.
 	 */
 	public void updateStyles() {
+		//ST 10/22/26 -- not need for headless systems and causes crash if the rest is called.
+		if(PamGUIManager.getGUIType()==PamGUIManager.NOGUI) {
+			return;
+		}
 		if (!Platform.isFxApplicationThread()) {
 			try {
 				Platform.runLater(this::updateStyles);
