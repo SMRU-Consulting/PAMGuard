@@ -5,10 +5,13 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+
+import org.json.JSONObject;
 
 import PamController.*;
 import PamController.soundMedium.GlobalMediumManager;
@@ -181,15 +184,34 @@ public class OneBandControl extends PamControlledUnit implements PamSettings {
 
 	@Override
 	public String getModuleSummary(boolean clear, String format) {
-		OneBandDataUnit lastUnit = (OneBandDataUnit) oneBandProcess.getMeasureDataBlock().getLastUnit();
-		if (lastUnit == null) {
+		List<OneBandDataUnit> lastUnitSet = oneBandProcess.getAllLastChannelMeasurements();
+		if (lastUnitSet == null) {
 			return null;
 		}
 		if(format.equals("json")) {
-			long t = lastUnit.getTimeMilliseconds();
-			String jsonString = String.format("{\"rms\":%3.1f,\"zeroPeak\":%3.1f,\"peakPeak\":%3.1f,\"timestamp\":%d,\"intervalSeconds\":%d}", 
-					lastUnit.getRms(),lastUnit.getZeroPeak(),lastUnit.getPeakPeak(),t,oneBandParameters.measurementInterval);
-			return jsonString;
+			if(oneBandProcess.getNChannelProcesses()==0) {
+				return "";
+			}
+			JSONObject summaryJSON = new JSONObject();
+			for (int i = 0; i < oneBandProcess.getNChannelProcesses(); i++) {
+				double rms = 0;
+				long timestamp = 0;
+				double zeroPeak = 0;
+				double peakPeak = 0;
+				if(i<lastUnitSet.size()) {
+					OneBandDataUnit channelUnit = lastUnitSet.get(i);
+					if(channelUnit!=null) {
+						rms = channelUnit.getRms();
+						zeroPeak = channelUnit.getZeroPeak();
+						peakPeak = channelUnit.getPeakPeak();
+						timestamp = channelUnit.getTimeMilliseconds();
+					}
+				}
+				String jsonString = String.format("{\"rms\":%3.1f,\"zeroPeak\":%3.1f,\"peakPeak\":%3.1f,\"timestamp\":%d,\"intervalSeconds\":%d}", 
+						rms,zeroPeak,peakPeak,timestamp,oneBandParameters.measurementInterval);
+				summaryJSON.put("channel"+i,new JSONObject(jsonString));
+			}
+			return summaryJSON.toString();
 		}
 		
 		return super.getModuleSummary(clear, format);

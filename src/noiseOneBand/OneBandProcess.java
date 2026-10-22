@@ -2,6 +2,10 @@ package noiseOneBand;
 
 
 import noiseOneBand.offline.OneBandDatagramProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import Acquisition.AcquisitionProcess;
 import Filters.Filter;
 import Filters.FilterMethod;
@@ -201,6 +205,8 @@ public class OneBandProcess extends PamProcess {
 		private AcquisitionProcess daqProcess;
 //		private double htMinVal;
 		
+		volatile OneBandDataUnit lastChannelDu;
+		
 		/**
 		 * @param chan
 		 */
@@ -270,6 +276,7 @@ public class OneBandProcess extends PamProcess {
 					du.setPeakPeak(convertDBHT(maxVal-minVal));
 					calculateSEL(du, oneBandControl.getParameters().selIntegrationTime);
 					measureDataBlock.addPamData(du);
+					lastChannelDu = du;
 					zeroStuff();
 					nextOutputSample += outputStepSize;
 				}
@@ -355,6 +362,64 @@ public class OneBandProcess extends PamProcess {
 			intTime += (du.getTimeMilliseconds()-prevU.getTimeMilliseconds())/1000;
 		}
 		du.setSEL(10*Math.log10(sel), (int) intTime); 
+	}
+	
+	
+	public List<OneBandDataUnit> getAllLastChannelMeasurements(){
+		
+		List<OneBandDataUnit> lastMeasurements = new ArrayList<OneBandDataUnit>();
+		int[] knownChannelList = getKnownChannelProcessIdxList();
+		if(knownChannelList==null || knownChannelList.length==0) {
+			return lastMeasurements;
+		}
+		for(int i=0;i<getNChannelProcesses();i++) {
+			if(this.channelProcesses[knownChannelList[i]]==null) {
+				continue;
+			}
+			OneBandDataUnit channelLastDu = this.channelProcesses[knownChannelList[i]].lastChannelDu;
+			if(channelLastDu!=null) {
+				lastMeasurements.add(channelLastDu);
+			}
+		}
+		return lastMeasurements;
+	}
+	
+	private int[] knownChannelProcessIdxList = null;
+	
+	private int[] getKnownChannelProcessIdxList() {
+		if(knownChannelProcessIdxList==null) {
+			int nChannels = getNChannelProcesses();
+			int[] existingChannels = new int[nChannels];
+			int channelsFilled = 0;
+			int outputChannels = rawSourceDataBlock.getChannelMap() & this.oneBandControl.getParameters().channelMap;
+			for (int i = 0; i < PamConstants.MAX_CHANNELS; i++) {
+				if ((1<<i & outputChannels) != 0) {
+					if(channelsFilled>=nChannels) {
+						break;
+					}
+					existingChannels[channelsFilled++] = i;
+				}
+			}
+			this.knownChannelProcessIdxList = existingChannels;
+		}
+		return this.knownChannelProcessIdxList;
+	}
+	
+	private int knownNChannelProcesses = 0;
+	
+	public int getNChannelProcesses() {
+		if(knownNChannelProcesses==0) {
+			int nChans = 0;
+			int outputChannels = rawSourceDataBlock.getChannelMap() & this.oneBandControl.getParameters().channelMap;
+			for (int i = 0; i < PamConstants.MAX_CHANNELS; i++) {
+				if ((1<<i & outputChannels) != 0) {
+					nChans++;
+				}
+			}
+			this.knownNChannelProcesses = nChans;
+		}
+		
+		return knownNChannelProcesses;
 	}
 
 }
