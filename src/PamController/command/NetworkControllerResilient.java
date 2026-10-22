@@ -38,7 +38,7 @@ public class NetworkControllerResilient extends NetworkController {
 				}
 			}catch(Exception e) {
 				interpretCommandResponse = false;
-				System.err.println("Error interpreting UDP command '"+udpCommand+"': "+e.getMessage());
+				System.out.println("Error interpreting UDP command '"+udpCommand+"': "+e.getMessage());
 			}
 			
 			if(udpCommand.contains("exit")) {
