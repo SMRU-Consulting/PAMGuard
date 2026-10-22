@@ -14,7 +14,13 @@ public class SummaryPeekCommand extends SummaryCommand {
 		String [] splitCommand = command.split(" ");
 		String format = SummaryCommand.CSV;
 		if(splitCommand.length>1) format = splitCommand[1];
-		return ModuleSummarizer.getModulesSummary(false,format);
+		try {
+			return ModuleSummarizer.getModulesSummary(false,format);
+		}catch(Exception e) {
+			System.out.println("Unable to assemble module summaries. Error: "+e.getMessage());
+			e.printStackTrace();
+			return ModuleSummarizer.getModuleSummaryErrorResponse(format,e.getMessage());
+		}
 	}
 
 	@Override

@@ -47,11 +47,18 @@ public class SummaryCommand extends ExtCommand {
 		String [] splitCommand = command.split(" ");
 		String format = CSV;
 		if(splitCommand.length>1) format = splitCommand[1];
-		return ModuleSummarizer.getModulesSummary(true,format);
+		try {
+			return ModuleSummarizer.getModulesSummary(true,format);
+		}catch(Exception e) {
+			System.out.println("Unable to assemble module summaries. Error: "+e.getMessage());
+			e.printStackTrace();
+			return ModuleSummarizer.getModuleSummaryErrorResponse(format,e.getMessage());
+		}
+		
 	}
-	
-
-	public String getModulesSummary(boolean clear, String format) {
+		
+	//This function was moved to the static function: PamController.statusManager.ModuleSummarizer.getModulesSummary
+	/*public String getModulesSummary(boolean clear, String format) {
 		PamController pamController = PamController.getInstance();
 		int nMod = pamController.getNumControlledUnits();
 		PamControlledUnit aModule;
@@ -81,7 +88,7 @@ public class SummaryCommand extends ExtCommand {
 			lastCallTime = nowTime;
 		}
 		return totalString;
-	}
+	}*/
 
 	@Override
 	public String getHint() {

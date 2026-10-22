@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import PamController.PamControlledUnit;
 import PamController.PamController;
+import PamController.command.SummaryCommand;
 import PamUtils.PamCalendar;
 
 public class ModuleSummarizer {
@@ -28,7 +29,13 @@ public class ModuleSummarizer {
 		JSONArray jsonSummaries = new JSONArray();
 		for (int i = 0; i < nMod; i++) {
 			aModule = pamController.getControlledUnit(i);
-			aString = aModule.getModuleSummary(clear, format);
+			try {
+				aString = aModule.getModuleSummary(clear, format);
+			}catch(Exception e) {
+				System.out.println("Unable to process module summary for "+aModule.getUnitName()+": "+e.getMessage());
+				continue;
+			}
+			
 			if (aString == null) {
 				continue;
 			}
@@ -51,7 +58,7 @@ public class ModuleSummarizer {
 				catch (Exception e) {
 					e.printStackTrace();
 					System.out.println("Json error in " + aString);
-					return null;
+					return "";
 				}
 			}
 			
@@ -70,6 +77,40 @@ public class ModuleSummarizer {
 		if(format.equals("json")) return returnJson.toString();
 		
 		return totalString;
+	}
+
+	/**
+	 * Send back a valid message if errors were caught
+	 * ST 10/22/26
+	 */
+	public static String getModuleSummaryErrorResponse(String format, String message) {
+		switch(format) {
+		case SummaryCommand.CSV:
+			return "error,"+message;
+		case SummaryCommand.XML:
+			return "<moduleSummary error=true>"+message+"</moduleSummary>";
+		case SummaryCommand.JSON:
+			try {
+				JSONObject returnJson = new JSONObject();
+				JSONArray jsonSummaries = new JSONArray();
+				JSONObject moduleSummary = new JSONObject();
+				moduleSummary.put("moduleType", "None");
+				moduleSummary.put("moduleName", "None");
+				JSONObject errorSummmary = new JSONObject();
+				errorSummmary.put("error","Pamguard encountered an error collecting module summaries: "+message+". See pamguard logs for more information.");
+				moduleSummary.put("moduleSummary", errorSummmary);
+				jsonSummaries.put(moduleSummary);
+				returnJson.put("moduleSummaries", jsonSummaries);
+				returnJson.put("summaryStartTime", lastCallTime);
+				long nowTime = PamCalendar.getTimeInMillis();
+				returnJson.put("summaryEndTime", nowTime);
+				return returnJson.toString();
+			}catch(Exception e) {
+				e.printStackTrace();
+				return "";
+			}
+		}
+		return "";
 	}
 	
 }
