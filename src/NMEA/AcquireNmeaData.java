@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -865,6 +866,7 @@ public class AcquireNmeaData extends PamProcess implements ModuleStatusManager {
 		lastValidStringTime  = System.currentTimeMillis();
 		lastSigTime = System.currentTimeMillis();
 		NMEADataUnit newUnit = new NMEADataUnit(PamCalendar.getTimeInMillis(), stringBuffer);
+		incrementMessageCount();
 		outputDatablock.addPamData(newUnit);
 	}
 	
@@ -1085,5 +1087,23 @@ public class AcquireNmeaData extends PamProcess implements ModuleStatusManager {
 			return getRunningStatus();
 		}
 		
+	}
+	
+	/*
+	 * Thread-safe way to keep track of nmea messages over a period of time
+	 * ST added 10/22/2026
+	 */
+	
+	private final AtomicLong totalMessageCount = new AtomicLong();
+
+	public void incrementMessageCount() {
+		totalMessageCount.incrementAndGet();
+	}
+	
+	public long getNmeaMessageCount(boolean clear) {
+		if(clear) {
+			return totalMessageCount.getAndSet(0);
+		}
+		return totalMessageCount.get();
 	}
 }

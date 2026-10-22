@@ -1,5 +1,7 @@
 package AIS;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import NMEA.AcquireNmeaData;
 import NMEA.NMEAControl;
 import NMEA.NMEADataBlock;
@@ -79,7 +81,6 @@ public class ProcessAISData extends PamProcess {
 	
 	@Override
 	public void newData(PamObservable o, PamDataUnit pamDataUnit) {
-
 		NMEADataUnit nmeaDataUnit = (NMEADataUnit) pamDataUnit;
 		StringBuffer nmeaString = nmeaDataUnit.getCharData();
 		String stringId = NMEADataBlock.getSubString(nmeaString, 0);
@@ -171,6 +172,7 @@ public class ProcessAISData extends PamProcess {
 				case 19:
 				case 21:
 				case 24:
+					incrementMessageCount();
 					aisDataBlock.addAISData(aivdm);
 					break;
 				default:
@@ -203,5 +205,22 @@ public class ProcessAISData extends PamProcess {
 	public void clearOldData() {
 		//super.clearOldData();
 	}
+	
+	/*
+	 * ST added 10/22/26 -- thread safe metho of keeping track of ais message count for module summaries
+	 */
+	
+	private final AtomicLong totalMessageCount = new AtomicLong();
 
+	public void incrementMessageCount() {
+		totalMessageCount.incrementAndGet();
+	}
+	
+	public long getAisMessageCountSummary(boolean clear) {
+		if(clear) {
+			return totalMessageCount.getAndSet(0);
+		}
+		return totalMessageCount.get();
+	}
+	
 }

@@ -123,36 +123,43 @@ public class AISControl extends PamControlledUnit implements PamSettings {
 	
 	@Override
 	public String getModuleSummary(boolean clear, String format) {
+		long count = aisProcess.getAisMessageCountSummary(clear);
 		if(format.equals("json")) {
+			JSONObject summaryJson = new JSONObject();
 			AISDataUnit lastUnit = aisProcess.getOutputDataBlock().getLastUpdatedUnit();
 			if(lastUnit==null) {
-				return "";
-			}
-			JSONObject json = new JSONObject();
-			json.put("Note", "this is a summary, only reporting the last ais data unit at the time requested.");
-			json.put("LastDataTime", lastUnit.getTimeMilliseconds());
-			json.put("MMSI", lastUnit.mmsiNumber);
-			if(lastUnit.getPositionReport()!=null) {
-				json.put("hasPosReport", true);
-				json.put("SOG", lastUnit.getPositionReport().speedOverGround);
-				json.put("COG", lastUnit.getPositionReport().courseOverGround);
-				json.put("lat", lastUnit.getPositionReport().getLatitude());
-				json.put("lon", lastUnit.getPositionReport().getLongitude());
+				summaryJson.put("lastAisMessage", "No last AIS message available.");
 			}else {
-				json.put("hasPosReport", false);
-			}
-			if(lastUnit.getStaticData()!=null) {
-				json.put("hasStaticReport", true);
-				json.put("name", lastUnit.getStaticData().shipName);
-				json.put("IMO", lastUnit.getStaticData().imoNumber);
-				json.put("shipType", lastUnit.getStaticData().shipType);
-				json.put("shipName", lastUnit.getStaticData().shipName);
+				JSONObject lastVesselJson = new JSONObject();
+				lastVesselJson.put("Note", "this is a summary, only reporting the last ais data unit at the time requested.");
+				lastVesselJson.put("LastDataTime", lastUnit.getTimeMilliseconds());
+				lastVesselJson.put("MMSI", lastUnit.mmsiNumber);
+				if(lastUnit.getPositionReport()!=null) {
+					lastVesselJson.put("hasPosReport", true);
+					lastVesselJson.put("SOG", lastUnit.getPositionReport().speedOverGround);
+					lastVesselJson.put("COG", lastUnit.getPositionReport().courseOverGround);
+					lastVesselJson.put("lat", lastUnit.getPositionReport().getLatitude());
+					lastVesselJson.put("lon", lastUnit.getPositionReport().getLongitude());
+				}else {
+					lastVesselJson.put("hasPosReport", false);
+				}
+				if(lastUnit.getStaticData()!=null) {
+					lastVesselJson.put("hasStaticReport", true);
+					lastVesselJson.put("name", lastUnit.getStaticData().shipName);
+					lastVesselJson.put("IMO", lastUnit.getStaticData().imoNumber);
+					lastVesselJson.put("shipType", lastUnit.getStaticData().shipType);
+					lastVesselJson.put("shipName", lastUnit.getStaticData().shipName);
 
-			}else {
-				json.put("hasStaticReport", false);
+				}else {
+					lastVesselJson.put("hasStaticReport", false);
+				}
+				summaryJson.put("lastAisMessage", lastVesselJson);
 			}
+			summaryJson.put("aisMessageCount", count);
 			
-			return json.toString();
+//			aisProcess.getOutputDataBlock().get
+			
+			return summaryJson.toString();
 		}
 		return "";
 	}

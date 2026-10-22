@@ -288,9 +288,14 @@ public class NMEAControl extends PamControlledUnit implements PamSettings {
 		case SummaryCommand.JSON:
 			NMEADataUnit lastUnit = acquireNmeaData.getOutputDatablock().getLastUnit();
 			if(lastUnit==null) {
-				return "";
+				JSONObject json = new JSONObject();
+				json.put("nmeaMessageCount", this.acquireNmeaData.getNmeaMessageCount(clear));
+				json.put("LastDataTime", 0);
+				json.put("LastDataString", "");
+				return json.toString();
 			}
 			JSONObject json = new JSONObject();
+			json.put("nmeaMessageCount", this.acquireNmeaData.getNmeaMessageCount(clear));
 			json.put("LastDataTime", lastUnit.getTimeMilliseconds());
 			json.put("LastDataString", lastUnit.getCharData().toString());
 			return json.toString();
