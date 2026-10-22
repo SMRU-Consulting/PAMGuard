@@ -7,7 +7,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileLock;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 import PamController.PamController;
 import PamController.PamGUIManager;
@@ -145,6 +150,13 @@ public class BinaryOutputStream {
 		return open;
 	}
 	
+	/*
+	 * Lock Files for headless linux operation -- 
+	 * Linux isn't good at ensuring other processes have a file open for I/O, 
+	 * so in a system where files get grabbed and transferred outside of PG, 
+	 * add a ".lck" file to indicate to the other process that it shouldn't be moved. 
+	 * All of these last touched by ST 10/22/26
+	 */
 	
 	/**
 	 * File type for lock files.
@@ -205,7 +217,7 @@ public class BinaryOutputStream {
 	 * In normal operation these files delete automatically, but if the program crashes, they will still exist, though no longer actively writing.
 	 */
 	private void clearOldLockFiles() {
-		ArrayList<File> existingLockFiles = listLockFiles();
+		List<Path> existingLockFiles = listLockFiles();
 		File currentLockFile = null;
 		File noiseLockFile = null;
 		File pgdxLockFile = null;
@@ -218,7 +230,8 @@ public class BinaryOutputStream {
 			noiseLockFile = getLockFile(noiseFile);
 		}
 		
-		for(File existingLockFile : existingLockFiles) {
+		for(Path existingLockFilePath : existingLockFiles) {
+			File existingLockFile = existingLockFilePath.toFile();
 			if(this.outputFile!=null) {
 				if (existingLockFile.equals(currentLockFile) || existingLockFile.equals(pgdxLockFile) || existingLockFile.equals(noiseLockFile)) {
 					continue; // don't delete the current lock files
@@ -238,19 +251,39 @@ public class BinaryOutputStream {
 	/**
 	 * List all lock files in the binary storage folder.
 	 */
-	private ArrayList<File> listLockFiles(){
-		ArrayList<File> fileList = new ArrayList<File>();
+	private List<Path> listLockFiles(){
 		String root = this.binaryStore.binaryStoreSettings.getStoreLocation();
 		if (root == null) {
 			return null;
 		}
-		File rootFolder = new File(root);
-		PamFileFilter lockFileFilter = new PamFileFilter("Binary Data File Locks", lockingFileExtension);
-		lockFileFilter.setAcceptFolders(true);
+		try {
+			return listFiles(Paths.get(root),lockingFileExtension);
+		} catch (IOException e) {
+			return null;
+		}
+	}
+	
+	/**
+	 * ST 10/22 -- 
+	 */
+	private static List<Path> listFiles(Path root, String ext) throws IOException {
+	    String suffix = ext.startsWith(".") ? ext : "." + ext;
+	    DirectoryStream.Filter<Path> byExt =
+	            p -> p.getFileName().toString().endsWith(suffix);   // name only, no stat
 
-		this.binaryStore.listDataFiles(fileList, rootFolder, lockFileFilter);
-
-		return fileList;
+	    List<Path> matches = new ArrayList<>();
+	    try (DirectoryStream<Path> top = Files.newDirectoryStream(root)) {
+	        for (Path p : top) {
+	            if (Files.isDirectory(p)) {                          // the only stat call
+	                try (DirectoryStream<Path> sub = Files.newDirectoryStream(p, byExt)) {
+	                    for (Path q : sub) matches.add(q);           // zero stats here
+	                }
+	            } else if (byExt.accept(p)) {
+	                matches.add(p);
+	            }
+	        }
+	    }
+	    return matches;
 	}
 
 
