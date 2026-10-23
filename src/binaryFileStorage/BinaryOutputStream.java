@@ -67,7 +67,7 @@ public class BinaryOutputStream {
 	
 	private int lastObjectType = Integer.MIN_VALUE;
 	
-	private File outputFile;
+	private volatile File outputFile;
 
 	public BinaryOutputStream(BinaryStore binaryStore,
 			PamDataBlock parentDataBlock) {
@@ -77,7 +77,7 @@ public class BinaryOutputStream {
 		binaryDataSource = parentDataBlock.getBinaryDataSource();
 		binaryDataSource.setBinaryStorageStream(this);
 		if(PamGUIManager.getGUIType()==PamGUIManager.NOGUI) {
-			clearOldLockFiles();
+			runClearOldLockFileThread();
 		}
 	}
 
@@ -169,6 +169,9 @@ public class BinaryOutputStream {
 	 * @return the lock file object
 	 */
 	private File getLockFile(File outputFile) {
+		if(outputFile==null) {
+			return null;
+		}
 		return new File(outputFile.toString() + "." + lockingFileExtension);
 	}
 	
@@ -179,6 +182,9 @@ public class BinaryOutputStream {
 	 */
 	private void makeLock(File pgdfFile) {
 		try {
+			if(pgdfFile==null) {
+				return;
+			}
 			File mainLockFile = getLockFile(pgdfFile);
 			mainLockFile.createNewFile();
 			File pgdxFile = binaryStore.swapFileType(pgdfFile, BinaryStore.indexFileType);
@@ -200,6 +206,9 @@ public class BinaryOutputStream {
 	 * @param pgdfFile
 	 */
 	private void deleteLock(File pgdfFile) {
+		if(pgdfFile==null) {
+			return;
+		}
 		File mainLockFile = getLockFile(pgdfFile);
 		mainLockFile.delete();
 		File pgdxFile = binaryStore.swapFileType(pgdfFile, BinaryStore.indexFileType);
@@ -212,12 +221,22 @@ public class BinaryOutputStream {
 		}
 	}
 	
+	
+	private void runClearOldLockFileThread() {
+		new Thread(()->{
+			clearOldLockFiles();
+		}).start();
+	}
+	
 	/**
 	 * With lock files for headless operation, we need to clear out any old lock files that may exist. 
 	 * In normal operation these files delete automatically, but if the program crashes, they will still exist, though no longer actively writing.
 	 */
 	private void clearOldLockFiles() {
 		List<Path> existingLockFiles = listLockFiles();
+		if(existingLockFiles==null) {
+			return;
+		}
 		File currentLockFile = null;
 		File noiseLockFile = null;
 		File pgdxLockFile = null;
@@ -415,7 +434,7 @@ public class BinaryOutputStream {
 	}
 
 	public synchronized boolean closeFile() {
-		if(PamGUIManager.getGUIType()==PamGUIManager.NOGUI) {
+		if(PamGUIManager.getGUIType()==PamGUIManager.NOGUI && outputFile!=null) {
 			deleteLock(outputFile);
 		}
 		boolean ok = true;
